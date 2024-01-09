@@ -1,0 +1,3 @@
+[submodule "vendors/totogl"]
+	path = vendors/totogl
+	url = https://github.com/TotoShampoin/totogl-v2

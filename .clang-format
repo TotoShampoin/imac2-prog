@@ -1,0 +1,29 @@
+﻿---
+BasedOnStyle: LLVM
+AlignAfterOpenBracket: AlwaysBreak
+AlignEscapedNewlines: Left
+AlignOperands: 'false'
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: Inline
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: 'false'
+AlwaysBreakTemplateDeclarations: 'Yes'
+BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Attach
+CompactNamespaces: 'false'
+Cpp11BracedListStyle: 'false'
+FixNamespaceComments: 'true'
+IndentWidth: '4'
+NamespaceIndentation: None
+SortIncludes: 'true'
+SortUsingDeclarations: 'true'
+SpaceAfterTemplateKeyword: 'true'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: 'true'
+TabWidth: '4'
+UseTab: Never
+
+...
