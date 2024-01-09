@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <TotoGL.hpp>
 
 int main(int argc, const char* argv[]) {

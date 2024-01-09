@@ -22,4 +22,5 @@ file(GLOB_RECURSE INCLUDE_FILES ${INCLUDE_DIRECTORY}/*.hpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 add_subdirectory(vendors/totogl)
+include(vendors/imgui.cmake)
 target_link_libraries(${PROJECT_NAME} PUBLIC totogl)

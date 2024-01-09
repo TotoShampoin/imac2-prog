@@ -1,9 +1,10 @@
 ﻿---
 BasedOnStyle: LLVM
+AccessModifierOffset: '-4'
 AlignAfterOpenBracket: AlwaysBreak
 AlignEscapedNewlines: Left
 AlignOperands: 'false'
-AllowShortFunctionsOnASingleLine: Inline
+AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: Inline
 AlwaysBreakAfterDefinitionReturnType: None
