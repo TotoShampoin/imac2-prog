@@ -13,6 +13,7 @@ AlwaysBreakBeforeMultilineStrings: 'false'
 AlwaysBreakTemplateDeclarations: 'Yes'
 BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Attach
+ColumnLimit: '0'
 CompactNamespaces: 'false'
 Cpp11BracedListStyle: 'false'
 FixNamespaceComments: 'true'
