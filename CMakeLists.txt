@@ -19,8 +19,11 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 file(GLOB_RECURSE SOURCE_FILES ${SOURCE_DIRECTORY}/*.cpp)
 file(GLOB_RECURSE INCLUDE_FILES ${INCLUDE_DIRECTORY}/*.hpp)
 
+
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_23)
+
+include_directories(${PROJECT_NAME} INTERFACE ${INCLUDE_DIRECTORY})
 
 add_subdirectory(vendors/totogl)
 include(vendors/imgui.cmake)
