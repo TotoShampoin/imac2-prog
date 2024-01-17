@@ -1,10 +1,10 @@
 #include <TotoGL.hpp>
 
-int main(int argc, const char* argv[]) {
+int main(int argc, const char *argv[]) {
     auto window = TotoGL::Window::create(640, 480, "Boids");
-    auto renderer = TotoGL::Renderer::create(window);
+    auto renderer = TotoGL::GL3Renderer::create(window);
 
-    while(!window->shouldClose()) {
+    while (!window->shouldClose()) {
 
         window->swapBuffer();
         window->pollEvents();
