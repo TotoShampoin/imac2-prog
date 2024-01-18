@@ -1,5 +1,4 @@
 #include "Boid.hpp"
-#include <glm/geometric.hpp>
 
 namespace ImacBoids {
 
@@ -46,6 +45,22 @@ void Boid::updateVelocity(const std::vector<Boid> &boids) {
 void Boid::updatePosition(const TotoGL::Seconds &delta_time) {
     float delta_time_s = delta_time.count();
     _position += _velocity * delta_time_s;
+}
+
+void Boid::position(const TotoGL::Vector3 &position) {
+    _position = position;
+}
+void Boid::velocity(const TotoGL::Vector3 &velocity) {
+    _velocity = velocity;
+}
+void Boid::avoid_factor(const float &avoid_factor) {
+    _avoid_factor = avoid_factor;
+}
+void Boid::matching_factor(const float &matching_factor) {
+    _matching_factor = matching_factor;
+}
+void Boid::centering_factor(const float &centering_factor) {
+    _centering_factor = centering_factor;
 }
 
 } // namespace ImacBoids

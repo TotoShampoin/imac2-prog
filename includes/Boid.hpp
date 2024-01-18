@@ -22,9 +22,15 @@ public:
 
     const TotoGL::Vector3 &position() const { return _position; }
     const TotoGL::Vector3 &velocity() const { return _velocity; }
+    const float &avoid_factor() const { return _avoid_factor; };
+    const float &matching_factor() const { return _matching_factor; };
+    const float &centering_factor() const { return _centering_factor; };
 
     void position(const TotoGL::Vector3 &);
     void velocity(const TotoGL::Vector3 &);
+    void avoid_factor(const float &);
+    void matching_factor(const float &);
+    void centering_factor(const float &);
 
 private:
     TotoGL::Vector3 _position;
