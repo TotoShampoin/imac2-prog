@@ -12,10 +12,12 @@ public:
     Boid() = default;
     ~Boid() = default;
 
-    void updateVelocity(const std::vector<Boid> &);
     void updateSeparation(const std::vector<Boid> &);
     void updateAlignment(const std::vector<Boid> &);
     void updateCohesion(const std::vector<Boid> &);
+
+    // Performs separation, alignment and cohesion all at once, in one loop
+    void updateVelocity(const std::vector<Boid> &);
     void updatePosition(const TotoGL::Seconds &);
 
     const TotoGL::Vector3 &position() const { return _position; }
