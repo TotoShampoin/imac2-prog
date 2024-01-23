@@ -3,8 +3,6 @@
 #include <TotoGL.hpp>
 #include <vector>
 
-namespace ImacBoids {
-
 // https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.htmlhttps://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html
 
 class Boid {
@@ -39,5 +37,3 @@ private:
     float _matching_factor;
     float _centering_factor;
 };
-
-} // namespace ImacBoids

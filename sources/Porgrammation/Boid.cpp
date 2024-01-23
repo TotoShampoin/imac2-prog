@@ -1,6 +1,4 @@
-#include "Boid.hpp"
-
-namespace ImacBoids {
+#include "Programmation/Boid.hpp"
 
 // https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.htmlhttps://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html
 
@@ -62,5 +60,3 @@ void Boid::matching_factor(const float &matching_factor) {
 void Boid::centering_factor(const float &centering_factor) {
     _centering_factor = centering_factor;
 }
-
-} // namespace ImacBoids
