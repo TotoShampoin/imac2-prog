@@ -14,7 +14,7 @@ uniform mat3 u_normal;
 
 void main() {
     vec4 position = u_modelview * vec4(a_position, 1.);
-    vec3 normal = u_normal * a_normal;
+    vec3 normal = normalize(u_normal * a_normal);
 
     v_position = position.xyz;
     v_normal = normal;

@@ -14,4 +14,5 @@ uniform vec4 u_color;
 
 void main() {
     f_frag_color = u_color * max(0, dot(v_normal, vec3(0,0,1)));
+    // f_frag_color = vec4(v_normal, 1);
 }
