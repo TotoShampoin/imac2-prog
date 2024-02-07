@@ -20,7 +20,7 @@ int main(int argc, const char* argv[]) {
             TotoGL::FragmentShader(std::ifstream("assets/shaders/shader.frag"))))));
 
     auto& object = TotoGL::RenderObjectFactory::get(object_instance);
-    object.material().uniform("u_color", glm::vec4(1, 0, 0, 1));
+    object.material().uniform("u_color", glm::vec4(1, 1, 1, 1));
     object.scaling() = { .05, .05, .05 };
 
     auto camera = TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR);
