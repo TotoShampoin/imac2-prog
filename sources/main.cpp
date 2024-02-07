@@ -8,6 +8,8 @@ constexpr auto FOV = glm::radians(70.);
 constexpr auto NEAR = .1;
 constexpr auto FAR = 100.;
 
+using TotoGL::VectorEventName::WINDOW_SIZE;
+
 int main(int argc, const char* argv[]) {
     auto window = TotoGL::Window(WIDTH, HEIGHT, "Boids IMAC");
     auto renderer = TotoGL::Renderer();
@@ -31,7 +33,7 @@ int main(int argc, const char* argv[]) {
 
     auto clock = TotoGL::Clock();
 
-    window.on(TotoGL::VectorEventName::WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
+    window.on(WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
         glViewport(0, 0, event.x, event.y);
         camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
     });
