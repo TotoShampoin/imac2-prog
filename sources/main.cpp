@@ -1,5 +1,10 @@
+#include "prog/Boid.hpp"
 #include <TotoGL/TotoGL.hpp>
+#include <algorithm>
 #include <fstream>
+#include <iterator>
+#include <random>
+#include <vector>
 
 constexpr auto WIDTH = 1024;
 constexpr auto HEIGHT = 768;
@@ -26,17 +31,78 @@ int main(int argc, const char* argv[]) {
     object.material().uniform("u_color", glm::vec4(1, 0, 0, 1));
 
     auto camera = TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR);
-    camera.position() = { 2, 2, 2 };
-    camera.lookAt({ 0, 0, 0 });
+
+    auto orbit = TotoGL::OrbitControl(0, 0, 4);
+
+    auto boids = std::vector<Boid>(48);
+    auto distribution = std::uniform_real_distribution<float>(-1, 1);
+    auto random = std::random_device();
+
+    for (auto& boid : boids) {
+        boid.position() = {
+            distribution(random),
+            distribution(random),
+            distribution(random)
+        };
+        boid.velocity() = {
+            distribution(random),
+            distribution(random),
+            distribution(random)
+        };
+    }
 
     auto clock = TotoGL::Clock();
 
+    object.scaling() = { .05, .05, .05 };
     while (!window.shouldClose()) {
         auto delta = clock.getDeltaTime();
-        object.rotation() += glm::vec3(1, 1, 1) * delta;
+        orbit.apply(camera);
+        orbit.angle_y() += delta;
         window.draw([&]() {
             renderer.clear();
-            renderer.render(object, camera);
+            // renderer.render(object, camera);
+
+            for (auto& boid : boids) {
+                static constexpr auto too_close_radius = .125;
+                static constexpr auto quite_close_radius = .25;
+                auto too_close = std::vector<Boid>();
+                auto quite_close = std::vector<Boid>();
+
+                std::copy_if(
+                    boids.begin(), boids.end(), std::back_inserter(too_close),
+                    [&](Boid& other_boid) {
+                        return &boid != &other_boid && glm::distance(boid.position(), other_boid.position()) < too_close_radius;
+                    });
+                std::copy_if(
+                    boids.begin(), boids.end(), std::back_inserter(quite_close),
+                    [&](Boid& other_boid) {
+                        return &boid != &other_boid && glm::distance(boid.position(), other_boid.position()) < quite_close_radius;
+                    });
+
+                boid.velocity() += //
+                    boid.separation(too_close) + //
+                    boid.alignment(quite_close) + //
+                    boid.cohesion(quite_close);
+
+                boid.updatePosition(delta);
+
+                if (boid.position().x > 1)
+                    boid.position().x -= 2;
+                if (boid.position().y > 1)
+                    boid.position().y -= 2;
+                if (boid.position().z > 1)
+                    boid.position().z -= 2;
+                if (boid.position().x < -1)
+                    boid.position().x += 2;
+                if (boid.position().y < -1)
+                    boid.position().y += 2;
+                if (boid.position().z < -1)
+                    boid.position().z += 2;
+
+                object.position() = boid.position();
+                object.lookAt(boid.position() + boid.velocity());
+                renderer.render(object, camera);
+            }
         });
     }
 

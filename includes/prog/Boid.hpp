@@ -16,26 +16,24 @@ public:
         const glm::vec3& velocity = glm::vec3(0, 0, 1));
     ~Boid() = default;
 
-    void updateSeparation(const std::vector<Boid>&);
-    void updateAlignment(const std::vector<Boid>&);
-    void updateCohesion(const std::vector<Boid>&);
+    glm::vec3 separation(const std::vector<Boid>&);
+    glm::vec3 alignment(const std::vector<Boid>&);
+    glm::vec3 cohesion(const std::vector<Boid>&);
 
-    // Performs separation, alignment and cohesion all at once, in one loop
-    void updateVelocity(const std::vector<Boid>&);
+    // void updateVelocity(const std::vector<Boid>&);
     void updatePosition(const TotoGL::Seconds&);
 
     glm::vec3 position() const { return _position; }
-    glm::vec3 positionLimited(const float& min = -1, const float& max = 1) const;
     glm::vec3 velocity() const { return _velocity; }
-    float avoid_factor() const { return _avoid_factor; };
-    float matching_factor() const { return _matching_factor; };
-    float centering_factor() const { return _centering_factor; };
+    float avoidFactor() const { return _avoid_factor; };
+    float matchingFactor() const { return _matching_factor; };
+    float centeringFactor() const { return _centering_factor; };
 
     glm::vec3& position() { return _position; }
     glm::vec3& velocity() { return _velocity; }
-    float& avoid_factor() { return _avoid_factor; };
-    float& matching_factor() { return _matching_factor; };
-    float& centering_factor() { return _centering_factor; };
+    float& avoidFactor() { return _avoid_factor; };
+    float& matchingFactor() { return _matching_factor; };
+    float& centeringFactor() { return _centering_factor; };
 
 private:
     glm::vec3 _position;
