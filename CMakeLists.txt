@@ -28,4 +28,6 @@ include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRECTORY})
 include_directories(${PROJECT_NAME} PUBLIC ${VENDORS_DIRECTORY})
 target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL glfw GLU GLEW glm)
 
-include(vendors/imgui.cmake)
+include(${VENDORS_DIRECTORY}/imgui.cmake)
+include(${VENDORS_DIRECTORY}/CMakeUtils/files_and_folders.cmake)
+Cool__target_copy_folder(${PROJECT_NAME} assets)
