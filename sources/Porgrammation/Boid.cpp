@@ -1,6 +1,18 @@
 #include "Programmation/Boid.hpp"
+#include <glm/geometric.hpp>
 
-// https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.htmlhttps://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html
+// https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html
+
+Boid::Boid(
+    const float &avoid, const float &match, const float &center,
+    const TotoGL::Vector3 &pos,
+    const TotoGL::Vector3 &vel)
+    : _position(pos),
+      _velocity(vel),
+      _avoid_factor(avoid),
+      _matching_factor(match),
+      _centering_factor(center) {
+}
 
 void Boid::updateSeparation(const std::vector<Boid> &boids) {
     TotoGL::Vector3 close;
@@ -27,8 +39,10 @@ void Boid::updateCohesion(const std::vector<Boid> &boids) {
 }
 
 void Boid::updateVelocity(const std::vector<Boid> &boids) {
-    TotoGL::Vector3 close, avg_velocity, avg_position;
+    TotoGL::Vector3 close(0), avg_velocity(0), avg_position(0);
     for (const auto &boid : boids) {
+        if (&boid == this)
+            continue;
         close += _position - boid._position;
         avg_velocity += boid.velocity();
         avg_position += boid.position();
@@ -45,18 +59,6 @@ void Boid::updatePosition(const TotoGL::Seconds &delta_time) {
     _position += _velocity * delta_time_s;
 }
 
-void Boid::position(const TotoGL::Vector3 &position) {
-    _position = position;
-}
-void Boid::velocity(const TotoGL::Vector3 &velocity) {
-    _velocity = velocity;
-}
-void Boid::avoid_factor(const float &avoid_factor) {
-    _avoid_factor = avoid_factor;
-}
-void Boid::matching_factor(const float &matching_factor) {
-    _matching_factor = matching_factor;
-}
-void Boid::centering_factor(const float &centering_factor) {
-    _centering_factor = centering_factor;
+TotoGL::Vector3 Boid::positionLimited(const float &min, const float &max) const {
+    return glm::mod(_position + 1.f, 2.f) - 1.f;
 }
