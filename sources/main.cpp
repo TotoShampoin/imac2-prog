@@ -31,6 +31,11 @@ int main(int argc, const char* argv[]) {
 
     auto clock = TotoGL::Clock();
 
+    window.on(TotoGL::VectorEventName::WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
+        glViewport(0, 0, event.x, event.y);
+        camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
+    });
+
     while (!window.shouldClose()) {
         auto delta = clock.getDeltaTime();
         space.update(delta);
