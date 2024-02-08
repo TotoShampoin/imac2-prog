@@ -16,6 +16,8 @@ public:
     // Might tweak this later
     void render(TotoGL::Renderer& renderer, TotoGL::Camera& camera);
 
+    const std::vector<Boid>& boids() { return _boids; }
+
 private:
     std::vector<Boid> _boids;
     TotoGL::RenderObjectFactory::ObjectInstanceId _object_instance;

@@ -20,14 +20,14 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 file(GLOB_RECURSE SOURCE_FILES ${SOURCE_DIRECTORY}/*.cpp)
 file(GLOB_RECURSE INCLUDE_FILES ${INCLUDE_DIRECTORY}/*.hpp)
 
+include(${VENDORS_DIRECTORY}/imgui.cmake)
+include(${VENDORS_DIRECTORY}/CMakeUtils/files_and_folders.cmake)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
 include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRECTORY})
 include_directories(${PROJECT_NAME} PUBLIC ${VENDORS_DIRECTORY})
-target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL glfw GLU GLEW glm)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL glfw GLU GLEW glm imgui)
 
-include(${VENDORS_DIRECTORY}/imgui.cmake)
-include(${VENDORS_DIRECTORY}/CMakeUtils/files_and_folders.cmake)
 Cool__target_copy_folder(${PROJECT_NAME} assets)

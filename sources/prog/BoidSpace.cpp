@@ -64,6 +64,15 @@ void BoidSpace::update(const TotoGL::Seconds& delta) {
 
 void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
     auto& object = TotoGL::RenderObjectFactory::get(_object_instance);
+    object.material().uniform("u_color", glm::vec4(.5, .5, 0., 1.));
+    object.mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
+    object.scaling() = { 2, 2, 2 };
+    object.position() = { 0, 0, 0 };
+    object.rotation() = { 0, 0, 0 };
+    renderer.render(object, camera);
+    object.material().uniform("u_color", glm::vec4(1., 1., 1., 1.));
+    object.mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
+    object.scaling() = { .05, .05, .05 };
     for (const auto& boid : _boids) {
         object.position() = boid.position();
         object.lookAt(boid.position() + boid.velocity());
