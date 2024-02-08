@@ -15,7 +15,6 @@ constexpr auto FAR = 100.;
 
 using TotoGL::VectorEventName::WINDOW_SIZE;
 
-void ui_init(TotoGL::Window&);
 void ui_show(BoidSpace&);
 
 int main(int argc, const char* argv[]) {
@@ -48,7 +47,7 @@ int main(int argc, const char* argv[]) {
         camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
     });
 
-    ui_init(window);
+    TotoGL::initImGui(window);
     while (!window.shouldClose()) {
         auto delta = clock.getDeltaTime();
         orbit.apply(camera);
@@ -64,20 +63,6 @@ int main(int argc, const char* argv[]) {
     }
 
     return 0;
-}
-
-void ui_init(TotoGL::Window& window) {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    (void)io;
-
-    ImGui_ImplGlfw_InitForOpenGL(window.glfwWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 460");
-
-    auto& style = ImGui::GetStyle();
-    style.FrameRounding = 2.;
-    style.WindowRounding = 4.;
 }
 
 void ui_show(BoidSpace& space) {
