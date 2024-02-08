@@ -1,4 +1,4 @@
-#include "prog/Space.hpp"
+#include "prog/BoidSpace.hpp"
 #include <TotoGL/TotoGL.hpp>
 #include <fstream>
 
@@ -29,7 +29,7 @@ int main(int argc, const char* argv[]) {
     camera.position() = { 2, 2, 2 };
     camera.lookAt({ 0, 0, 0 });
 
-    auto space = Space(48, object_instance);
+    auto space = BoidSpace(48, object_instance);
 
     auto clock = TotoGL::Clock();
 

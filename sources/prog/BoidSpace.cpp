@@ -1,8 +1,8 @@
-#include "prog/Space.hpp"
+#include "prog/BoidSpace.hpp"
 #include <algorithm>
 #include <random>
 
-Space::Space(const size_t& amount, const TotoGL::RenderObjectFactory::ObjectInstanceId& object)
+BoidSpace::BoidSpace(const size_t& amount, const TotoGL::RenderObjectFactory::ObjectInstanceId& object)
     : _boids(amount)
     , _object_instance(object) {
     auto distribution = std::uniform_real_distribution<float>(-1, 1);
@@ -22,7 +22,7 @@ Space::Space(const size_t& amount, const TotoGL::RenderObjectFactory::ObjectInst
     }
 }
 
-void Space::update(const TotoGL::Seconds& delta) {
+void BoidSpace::update(const TotoGL::Seconds& delta) {
     for (auto& boid : _boids) {
         static constexpr auto too_close_radius = .125;
         static constexpr auto quite_close_radius = .25;
@@ -62,7 +62,7 @@ void Space::update(const TotoGL::Seconds& delta) {
     }
 }
 
-void Space::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
+void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
     auto& object = TotoGL::RenderObjectFactory::get(_object_instance);
     for (const auto& boid : _boids) {
         object.position() = boid.position();

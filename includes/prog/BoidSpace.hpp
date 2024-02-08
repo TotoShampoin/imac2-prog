@@ -7,9 +7,9 @@
 #include <TotoGL/Renderer.hpp>
 #include <vector>
 
-class Space {
+class BoidSpace {
 public:
-    Space(const size_t& amount, const TotoGL::RenderObjectFactory::ObjectInstanceId& object);
+    BoidSpace(const size_t& amount, const TotoGL::RenderObjectFactory::ObjectInstanceId& object);
 
     void update(const TotoGL::Seconds& delta);
 
