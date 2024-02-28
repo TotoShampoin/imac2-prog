@@ -47,6 +47,10 @@ int main(int argc, const char* argv[]) {
         camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
     });
 
+    // Temporary, until I implement this in TotoGL
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     TotoGL::initImGui(window);
     while (!window.shouldClose()) {
         auto delta = clock.getDeltaTime();

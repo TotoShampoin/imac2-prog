@@ -1,4 +1,6 @@
 #include "prog/Boid.hpp"
+#include <glm/geometric.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 // https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html
 
@@ -11,7 +13,7 @@ Boid::Boid(
     , _matching_factor(match)
     , _centering_factor(center) { }
 
-glm::vec3 Boid::separation(const std::vector<Boid>& boids) {
+glm::vec3 Boid::separation(const std::vector<Boid>& boids) const {
     if (boids.empty())
         return glm::vec3(0);
     glm::vec3 close_distance { 0 };
@@ -20,7 +22,7 @@ glm::vec3 Boid::separation(const std::vector<Boid>& boids) {
     }
     return close_distance * _avoid_factor;
 }
-glm::vec3 Boid::alignment(const std::vector<Boid>& boids) {
+glm::vec3 Boid::alignment(const std::vector<Boid>& boids) const {
     if (boids.empty())
         return glm::vec3(0);
     glm::vec3 summed_velocity { 0 };
@@ -30,7 +32,7 @@ glm::vec3 Boid::alignment(const std::vector<Boid>& boids) {
     glm::vec3 average_velocity = summed_velocity /= boids.size();
     return (average_velocity - velocity()) * _matching_factor;
 }
-glm::vec3 Boid::cohesion(const std::vector<Boid>& boids) {
+glm::vec3 Boid::cohesion(const std::vector<Boid>& boids) const {
     if (boids.empty())
         return glm::vec3(0);
     glm::vec3 summed_position { 0 };
