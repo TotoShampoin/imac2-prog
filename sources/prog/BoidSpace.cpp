@@ -66,28 +66,6 @@ void BoidSpace::update(const TotoGL::Seconds& delta) {
         if (boid.position().z > 1.)
             boid.velocity().z = boid.velocity().z - delta * returning_velocity;
 
-        // // Bounce
-        // if (boid.position().x > 1 || boid.position().x < -1)
-        //     boid.velocity().x *= -1;
-        // if (boid.position().y > 1 || boid.position().y < -1)
-        //     boid.velocity().y *= -1;
-        // if (boid.position().z > 1 || boid.position().z < -1)
-        //     boid.velocity().z *= -1;
-
-        // // Wrap around
-        // if (boid.position().x > 1)
-        //     boid.position().x -= 2;
-        // if (boid.position().y > 1)
-        //     boid.position().y -= 2;
-        // if (boid.position().z > 1)
-        //     boid.position().z -= 2;
-        // if (boid.position().x < -1)
-        //     boid.position().x += 2;
-        // if (boid.position().y < -1)
-        //     boid.position().y += 2;
-        // if (boid.position().z < -1)
-        //     boid.position().z += 2;
-
         if (glm::length(boid.velocity()) > max_velocity)
             boid.velocity() = glm::normalize(boid.velocity()) * max_velocity;
 
