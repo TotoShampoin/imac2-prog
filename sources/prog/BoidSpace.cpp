@@ -1,6 +1,5 @@
 #include "prog/BoidSpace.hpp"
 #include <algorithm>
-#include <cmath>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 #include <random>
