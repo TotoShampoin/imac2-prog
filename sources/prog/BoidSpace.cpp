@@ -82,7 +82,7 @@ void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
     object.rotation() = { 0, 0, 0 };
     renderer.render(object, camera);
 
-    glClear(GL_DEPTH_BUFFER_BIT);
+    renderer.clear(false, true, false);
 
     object.material().uniform("u_color", glm::vec4(1., 1., 1., 1.));
     object.mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
