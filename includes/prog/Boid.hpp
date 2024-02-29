@@ -16,9 +16,10 @@ public:
         const glm::vec3& velocity = glm::vec3(0, 0, 1));
     ~Boid() = default;
 
-    glm::vec3 separation(const std::vector<Boid>&) const;
-    glm::vec3 alignment(const std::vector<Boid>&) const;
-    glm::vec3 cohesion(const std::vector<Boid>&) const;
+    float closeness(const Boid&, const float& radius, const float& offset) const;
+    glm::vec3 separation(const std::vector<Boid>&, const float& closeness_factory) const;
+    glm::vec3 alignment(const std::vector<Boid>&, const float& closeness_factory) const;
+    glm::vec3 cohesion(const std::vector<Boid>&, const float& closeness_factory) const;
 
     // void updateVelocity(const std::vector<Boid>&);
     void updatePosition(const TotoGL::Seconds&);

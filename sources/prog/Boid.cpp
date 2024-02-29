@@ -13,33 +13,45 @@ Boid::Boid(
     , _matching_factor(match)
     , _centering_factor(center) { }
 
-glm::vec3 Boid::separation(const std::vector<Boid>& boids) const {
-    if (boids.empty())
-        return glm::vec3(0);
+float Boid::closeness(const Boid& other, const float& radius, const float& offset) const {
+    if (radius == 0)
+        return 1;
+    float distance = glm::distance(position(), other.position());
+    float distance_offset = glm::abs(glm::abs(distance) - offset);
+    float distance_weighted = distance_offset * 2.f / radius;
+    return glm::exp(-(distance_weighted * distance_weighted));
+}
+
+glm::vec3 Boid::separation(const std::vector<Boid>& boids, const float& closeness_factory) const {
     glm::vec3 close_distance { 0 };
     for (const auto& other_boid : boids) {
-        close_distance += position() - other_boid.position();
+        auto cd = position() - other_boid.position();
+        close_distance += cd * closeness(other_boid, closeness_factory, 0);
     }
     return close_distance * _avoid_factor;
 }
-glm::vec3 Boid::alignment(const std::vector<Boid>& boids) const {
-    if (boids.empty())
-        return glm::vec3(0);
+glm::vec3 Boid::alignment(const std::vector<Boid>& boids, const float& closeness_factory) const {
     glm::vec3 summed_velocity { 0 };
+    float weight = 0;
     for (const auto& other_boid : boids) {
-        summed_velocity += other_boid.velocity();
+        auto v = other_boid.velocity();
+        auto c = closeness(other_boid, closeness_factory, closeness_factory);
+        summed_velocity += v * c;
+        weight += c;
     }
-    glm::vec3 average_velocity = summed_velocity /= boids.size();
+    glm::vec3 average_velocity = summed_velocity /= weight;
     return (average_velocity - velocity()) * _matching_factor;
 }
-glm::vec3 Boid::cohesion(const std::vector<Boid>& boids) const {
-    if (boids.empty())
-        return glm::vec3(0);
+glm::vec3 Boid::cohesion(const std::vector<Boid>& boids, const float& closeness_factory) const {
     glm::vec3 summed_position { 0 };
+    float weight = 0;
     for (const auto& other_boid : boids) {
-        summed_position += other_boid.position();
+        auto p = other_boid.position();
+        auto c = closeness(other_boid, closeness_factory, closeness_factory);
+        summed_position += p * c;
+        weight += c;
     }
-    glm::vec3 average_position = summed_position /= boids.size();
+    glm::vec3 average_position = summed_position /= weight;
     return (average_position - position()) * _centering_factor;
 }
 

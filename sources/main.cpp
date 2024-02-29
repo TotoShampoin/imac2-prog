@@ -76,12 +76,15 @@ void ui_show(BoidSpace& space) {
     }
     avg_velocity /= space.boids().size();
 
+    float closeness_0_and_1 = space.boids()[0].closeness(space.boids()[1], .25, .25);
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
     ImGui::Begin("Camera");
     ImGui::Text("avg velocity = %f, %f, %f", avg_velocity.x, avg_velocity.y, avg_velocity.z);
+    ImGui::Text("closeness 0 and 1 = %f", closeness_0_and_1);
     ImGui::End();
 
     ImGui::Render();

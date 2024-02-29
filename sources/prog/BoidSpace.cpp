@@ -25,32 +25,25 @@ BoidSpace::BoidSpace(const size_t& amount, const TotoGL::RenderObjectFactory::Ob
 }
 
 void BoidSpace::update(const TotoGL::Seconds& delta) {
-    static constexpr float too_close_radius = .125;
-    static constexpr float quite_close_radius = .25;
+    static constexpr float close_radius = .125;
     static constexpr float steer_angle_per_second = glm::radians(120.);
     static constexpr float returning_velocity = 1.;
     static constexpr float max_velocity = 2.;
 
     for (auto& boid : _boids) {
-        auto too_close = std::vector<Boid>();
-        auto quite_close = std::vector<Boid>();
-
+        auto all_except_this = std::vector<Boid>();
         std::copy_if(
-            _boids.begin(), _boids.end(), std::back_inserter(too_close),
+            _boids.begin(), _boids.end(), std::back_inserter(all_except_this),
             [&](Boid& other_boid) {
-                return &boid != &other_boid && glm::distance(boid.position(), other_boid.position()) < too_close_radius;
-            });
-        std::copy_if(
-            _boids.begin(), _boids.end(), std::back_inserter(quite_close),
-            [&](Boid& other_boid) {
-                return &boid != &other_boid && glm::distance(boid.position(), other_boid.position()) < quite_close_radius;
+                return &boid != &other_boid;
             });
 
         boid.velocity() += //
-            boid.separation(too_close) + //
-            boid.alignment(quite_close) + //
-            boid.cohesion(quite_close);
+            boid.separation(all_except_this, close_radius) + //
+            boid.alignment(all_except_this, close_radius) + //
+            boid.cohesion(all_except_this, close_radius);
 
+        // TODO : A more compact way to do this
         // Attract back
         if (boid.position().x < -1.)
             boid.velocity().x = boid.velocity().x + delta * returning_velocity;
@@ -75,7 +68,7 @@ void BoidSpace::update(const TotoGL::Seconds& delta) {
 void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
     auto& object = TotoGL::RenderObjectFactory::get(_object_instance);
 
-    object.material().uniform("u_color", glm::vec4(.5, .5, 0., 1.));
+    object.material().uniform("u_color", glm::vec4(0., 0., 1., 1.));
     object.mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
     object.scaling() = { 2, 2, 2 };
     object.position() = { 0, 0, 0 };
@@ -84,7 +77,7 @@ void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
 
     renderer.clear(false, true, false);
 
-    object.material().uniform("u_color", glm::vec4(1., 1., 1., 1.));
+    object.material().uniform("u_color", glm::vec4(0., 1., 1., 1.));
     object.mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
     object.scaling() = { .05, .05, .05 };
     for (const auto& boid : _boids) {
@@ -93,7 +86,7 @@ void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
         renderer.render(object, camera);
     }
 
-    object.material().uniform("u_color", glm::vec4(.5, .5, 0., .25));
+    object.material().uniform("u_color", glm::vec4(0., 0., 1., .25));
     object.mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
     object.scaling() = { 2, 2, 2 };
     object.position() = { 0, 0, 0 };
