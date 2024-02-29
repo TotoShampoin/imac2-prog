@@ -62,11 +62,31 @@ void BoidSpace::update(const TotoGL::Seconds& delta) {
             boid.velocity() = glm::normalize(boid.velocity()) * max_velocity;
 
         boid.updatePosition(delta);
+
+        // if nan, random position
+        if (glm::any(glm::isnan(boid.position()))) {
+            auto distribution = std::uniform_real_distribution<float>(-1, 1);
+            auto random = std::random_device();
+            boid.position() = {
+                distribution(random),
+                distribution(random),
+                distribution(random)
+            };
+            boid.velocity() = {
+                distribution(random),
+                distribution(random),
+                distribution(random)
+            };
+        }
     }
 }
 
 void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
     auto& object = TotoGL::RenderObjectFactory::get(_object_instance);
+
+    // Temporary, until I implement this in TotoGL
+    glDisable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     object.material().uniform("u_color", glm::vec4(0., 0., 1., 1.));
     object.mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
@@ -85,6 +105,10 @@ void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
         object.lookAt(boid.position() + boid.velocity());
         renderer.render(object, camera);
     }
+
+    // Temporary, until I implement this in TotoGL
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     object.material().uniform("u_color", glm::vec4(0., 0., 1., .25));
     object.mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
