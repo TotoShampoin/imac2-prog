@@ -7,21 +7,7 @@
 BoidSpace::BoidSpace(const size_t& amount, const TotoGL::RenderObjectFactory::ObjectInstanceId& object)
     : _boids(amount)
     , _object_instance(object) {
-    auto distribution = std::uniform_real_distribution<float>(-1, 1);
-    auto random = std::random_device();
-
-    for (auto& boid : _boids) {
-        boid.position() = {
-            distribution(random),
-            distribution(random),
-            distribution(random)
-        };
-        boid.velocity() = {
-            distribution(random),
-            distribution(random),
-            distribution(random)
-        };
-    }
+    resetBoids();
 }
 
 void BoidSpace::update(const TotoGL::Seconds& delta) {
@@ -39,24 +25,19 @@ void BoidSpace::update(const TotoGL::Seconds& delta) {
             });
 
         boid.velocity() += //
-            boid.separation(all_except_this, close_radius) + //
-            boid.alignment(all_except_this, close_radius) + //
-            boid.cohesion(all_except_this, close_radius);
+            boid.separation(all_except_this, _avoid_factor, close_radius) + //
+            boid.alignment(all_except_this, _matching_factor, close_radius) + //
+            boid.cohesion(all_except_this, _centering_factor, close_radius);
 
-        // TODO : A more compact way to do this
-        // Attract back
-        if (boid.position().x < -1.)
-            boid.velocity().x = boid.velocity().x + delta * returning_velocity;
-        if (boid.position().x > 1.)
-            boid.velocity().x = boid.velocity().x - delta * returning_velocity;
-        if (boid.position().y < -1.)
-            boid.velocity().y = boid.velocity().y + delta * returning_velocity;
-        if (boid.position().y > 1.)
-            boid.velocity().y = boid.velocity().y - delta * returning_velocity;
-        if (boid.position().z < -1.)
-            boid.velocity().z = boid.velocity().z + delta * returning_velocity;
-        if (boid.position().z > 1.)
-            boid.velocity().z = boid.velocity().z - delta * returning_velocity;
+        // Attract away from bounds
+        float* positions[] = { &boid.position().x, &boid.position().y, &boid.position().z };
+        float* velocities[] = { &boid.velocity().x, &boid.velocity().y, &boid.velocity().z };
+        for (int i = 0; i < 3; i++) {
+            if (*positions[i] < -_cube_radius)
+                *velocities[i] += delta * returning_velocity;
+            if (*positions[i] > _cube_radius)
+                *velocities[i] -= delta * returning_velocity;
+        }
 
         if (glm::length(boid.velocity()) > max_velocity)
             boid.velocity() = glm::normalize(boid.velocity()) * max_velocity;
@@ -90,7 +71,7 @@ void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
 
     object.material().uniform("u_color", glm::vec4(0., 0., 1., 1.));
     object.mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
-    object.scaling() = { 2, 2, 2 };
+    object.scaling() = glm::vec3(2, 2, 2) * _cube_radius;
     object.position() = { 0, 0, 0 };
     object.rotation() = { 0, 0, 0 };
     renderer.render(object, camera);
@@ -112,8 +93,49 @@ void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
 
     object.material().uniform("u_color", glm::vec4(0., 0., 1., .25));
     object.mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
-    object.scaling() = { 2, 2, 2 };
+    object.scaling() = glm::vec3(2, 2, 2) * _cube_radius;
     object.position() = { 0, 0, 0 };
     object.rotation() = { 0, 0, 0 };
     renderer.render(object, camera);
+}
+
+void BoidSpace::resize(const size_t& amount) {
+    auto distribution = std::uniform_real_distribution<float>(-1, 1);
+    auto random = std::random_device();
+
+    const auto old_size = _boids.size();
+    _boids.resize(amount);
+    for (auto i = old_size; i < amount; i++) {
+        auto& boid = _boids[i];
+        boid.position() = {
+            distribution(random),
+            distribution(random),
+            distribution(random)
+        };
+        boid.velocity() = {
+            distribution(random),
+            distribution(random),
+            distribution(random)
+        };
+    }
+}
+void BoidSpace::resetBoids(const std::optional<size_t>& amount) {
+    auto distribution = std::uniform_real_distribution<float>(-1, 1);
+    auto random = std::random_device();
+
+    if (amount.has_value())
+        resize(amount.value());
+
+    for (auto& boid : _boids) {
+        boid.position() = {
+            distribution(random),
+            distribution(random),
+            distribution(random)
+        };
+        boid.velocity() = {
+            distribution(random),
+            distribution(random),
+            distribution(random)
+        };
+    }
 }
