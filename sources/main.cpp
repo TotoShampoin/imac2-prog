@@ -45,26 +45,12 @@ int main(int argc, const char* argv[]) {
         }
         orbit.apply(camera);
 
-        glm::vec3 avg_velocity = glm::vec3(0);
-        for (const auto& boid : space.boids()) {
-            avg_velocity += boid.velocity();
-        }
-        avg_velocity /= space.boids().size();
-
-        float closeness_0_and_1 = space.boids()[0].closeness(space.boids()[1], .25, .25);
-
         window.draw([&]() {
             renderer.clear();
 
             space.render(renderer, camera);
 
             TotoGL::renderImGui([&]() {
-                ImGui::Begin("Info");
-                ImGui::Text("fps = %f", 1 / (delta ? delta : 1e-6));
-                ImGui::Text("avg velocity = %f, %f, %f", avg_velocity.x, avg_velocity.y, avg_velocity.z);
-                ImGui::Text("closeness 0 and 1 = %f", closeness_0_and_1);
-                ImGui::End();
-
                 ImGui::Begin("Controls");
                 ImGui::SliderFloat("Avoid", &space.avoidFactor(), 0, 1);
                 ImGui::SliderFloat("Match", &space.matchingFactor(), 0, 1);
@@ -80,7 +66,14 @@ int main(int argc, const char* argv[]) {
                 ImGui::End();
 
                 ImGui::Begin("Spy");
-                ImGui::Checkbox("Spy", &spy);
+                if (ImGui::Checkbox("Spy", &spy)) {
+                    if (spy) {
+                        orbit.distance() = 1;
+                    } else {
+                        orbit.distance() = 10;
+                        orbit.position() = { 0, 0, 0 };
+                    }
+                }
                 if (spy) {
                     if (ImGui::Button("-")) {
                         spy_index = (spy_index + space.boids().size() - 1) % space.boids().size();
