@@ -15,8 +15,6 @@ constexpr auto FAR = 100.;
 
 using TotoGL::VectorEventName::WINDOW_SIZE;
 
-void ui_show(BoidSpace&);
-
 int main(int argc, const char* argv[]) {
     auto window = TotoGL::Window(WIDTH, HEIGHT, "Boids IMAC");
     auto renderer = TotoGL::Renderer();
@@ -53,36 +51,27 @@ int main(int argc, const char* argv[]) {
         orbit.apply(camera);
         space.update(delta);
 
+        glm::vec3 avg_velocity = glm::vec3(0);
+        for (const auto& boid : space.boids()) {
+            avg_velocity += boid.velocity();
+        }
+        avg_velocity /= space.boids().size();
+
+        float closeness_0_and_1 = space.boids()[0].closeness(space.boids()[1], .25, .25);
+
         window.draw([&]() {
             renderer.clear();
 
             space.render(renderer, camera);
 
-            ui_show(space);
+            TotoGL::renderImGui([&]() {
+                ImGui::Begin("Boids");
+                ImGui::Text("avg velocity = %f, %f, %f", avg_velocity.x, avg_velocity.y, avg_velocity.z);
+                ImGui::Text("closeness 0 and 1 = %f", closeness_0_and_1);
+                ImGui::End();
+            });
         });
     }
 
     return 0;
-}
-
-void ui_show(BoidSpace& space) {
-    glm::vec3 avg_velocity = glm::vec3(0);
-    for (const auto& boid : space.boids()) {
-        avg_velocity += boid.velocity();
-    }
-    avg_velocity /= space.boids().size();
-
-    float closeness_0_and_1 = space.boids()[0].closeness(space.boids()[1], .25, .25);
-
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    ImGui::Begin("Camera");
-    ImGui::Text("avg velocity = %f, %f, %f", avg_velocity.x, avg_velocity.y, avg_velocity.z);
-    ImGui::Text("closeness 0 and 1 = %f", closeness_0_and_1);
-    ImGui::End();
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
