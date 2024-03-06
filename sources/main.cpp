@@ -33,10 +33,10 @@ int main(int argc, const char* argv[]) {
     camera.position() = { 2, 2, 2 };
     camera.lookAt({ 0, 0, 0 });
 
-    auto orbit = TotoGL::OrbitControl(0, 0, 3);
+    auto orbit = TotoGL::OrbitControl(-glm::pi<float>() / 6, glm::pi<float>() / 4, 10);
     orbit.bindEvents(window);
 
-    auto space = BoidSpace(48, object_instance);
+    auto space = BoidSpace(75, object_instance);
 
     auto clock = TotoGL::Clock();
 
@@ -65,9 +65,24 @@ int main(int argc, const char* argv[]) {
             space.render(renderer, camera);
 
             TotoGL::renderImGui([&]() {
-                ImGui::Begin("Boids");
+                ImGui::Begin("Info");
+                ImGui::Text("fps = %f", 1 / (delta ? delta : 1e-6));
                 ImGui::Text("avg velocity = %f, %f, %f", avg_velocity.x, avg_velocity.y, avg_velocity.z);
                 ImGui::Text("closeness 0 and 1 = %f", closeness_0_and_1);
+                ImGui::End();
+
+                ImGui::Begin("Controls");
+                ImGui::SliderFloat("Avoid", &space.avoidFactor(), 0, 1);
+                ImGui::SliderFloat("Match", &space.matchingFactor(), 0, 1);
+                ImGui::SliderFloat("Center", &space.centeringFactor(), 0, 1);
+                ImGui::SliderFloat("Cube radius", &space.cubeRadius(), 0, 10);
+                static int amount = space.boids().size();
+                if (ImGui::SliderInt("Amount", &amount, 0, 500)) {
+                    space.resize(amount);
+                }
+                if (ImGui::Button("Reset")) {
+                    space.resetBoids();
+                }
                 ImGui::End();
             });
         });
