@@ -38,7 +38,19 @@ int main(int argc, const char* argv[]) {
     SecondOrderDynamics<glm::vec3> rotation_dynamic(1, 1, 0, camera.rotation());
     const auto update_camera = [&](float delta) {
         camera.position() = position_dynamic.update(delta, camera_target.position());
-        camera.rotation() = rotation_dynamic.update(delta, camera_target.rotation());
+        // the target's rotation is an euler angle, so we need to account for the fact that the angle wraps around.
+        // That wrapping around is made automatically by the camera, so by default, the dynamics does a funky movement when the angle wraps around.
+        // To fix that, we need to undo the wrapping around by adding or subtracting 2pi to the target's rotation.
+        auto target_rotation = camera_target.rotation();
+        auto current_rotation = camera.rotation();
+        for (int i = 0; i < 3; i++) {
+            if (target_rotation[i] - current_rotation[i] > glm::pi<float>()) {
+                target_rotation[i] -= glm::two_pi<float>();
+            } else if (current_rotation[i] - target_rotation[i] > glm::pi<float>()) {
+                target_rotation[i] += glm::two_pi<float>();
+            }
+        }
+        camera.rotation() = rotation_dynamic.update(delta, target_rotation);
     };
 
     // Init logic
