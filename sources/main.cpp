@@ -34,8 +34,8 @@ int main(int argc, const char* argv[]) {
     TotoGL::initImGui(window);
 
     auto camera_target = camera;
-    SecondOrderDynamics<glm::vec3> position_dynamic(1, 1, 0, camera.position());
-    SecondOrderDynamics<glm::vec3> rotation_dynamic(1, 1, 0, camera.rotation());
+    auto position_dynamic = SecondOrderDynamics(1, 1, 0, camera.position());
+    auto rotation_dynamic = SecondOrderDynamics(1, 1, 0, camera.rotation());
     const auto update_camera = [&](float delta) {
         camera.position() = position_dynamic.update(delta, camera_target.position());
         // the target's rotation is an euler angle, so we need to account for the fact that the angle wraps around.
