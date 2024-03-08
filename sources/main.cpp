@@ -1,3 +1,4 @@
+#include "SecondOrderDynamics.hpp"
 #include "prog/BoidSpace.hpp"
 #include <TotoGL/TotoGL.hpp>
 
@@ -32,37 +33,12 @@ int main(int argc, const char* argv[]) {
     });
     TotoGL::initImGui(window);
 
-    // New logic: Second Order Dynamics (my favourite :D)
-    // https://www.youtube.com/watch?v=KPoeNZZ6H4s
-    constexpr auto PI = glm::pi<float>();
     auto camera_target = camera;
-    float f = 1;
-    float z = 1;
-    float r = 0;
-    float k1 = z / (PI * f);
-    float k2 = 1 / ((2 * PI * f) * (2 * PI * f));
-    float k3 = (r * z) / (2 * PI * f);
-
+    SecondOrderDynamics<glm::vec3> position_dynamic(1, 1, 0, camera.position());
+    SecondOrderDynamics<glm::vec3> rotation_dynamic(1, 1, 0, camera.rotation());
     const auto update_camera = [&](float delta) {
-        static auto position_last = camera_target.position();
-        static auto position_target = camera_target.position();
-        static auto position_target_d = glm::vec3(0, 0, 0);
-        auto position = camera_target.position();
-        auto position_d = (position - position_last) / delta;
-        position_last = position;
-        position_target += position_target_d * delta;
-        position_target_d += delta * (position + k3 * position_d - position_target - k1 * position_target_d) / k2;
-        camera.position() = position_target;
-
-        static auto rotation_last = camera_target.rotation();
-        static auto rotation_target = camera_target.rotation();
-        static auto rotation_target_d = glm::vec3(0, 0, 0);
-        auto rotation = camera_target.rotation();
-        auto rotation_d = (rotation - rotation_last) / delta;
-        rotation_last = rotation;
-        rotation_target += rotation_target_d * delta;
-        rotation_target_d += delta * (rotation + k3 * rotation_d - rotation_target - k1 * rotation_target_d) / k2;
-        camera.rotation() = rotation_target;
+        camera.position() = position_dynamic.update(delta, camera_target.position());
+        camera.rotation() = rotation_dynamic.update(delta, camera_target.rotation());
     };
 
     // Init logic
