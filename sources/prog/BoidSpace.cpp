@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <random>
 
-BoidSpace::BoidSpace(const size_t& amount, const TotoGL::RenderObjectFactory::ObjectInstanceId& object)
+BoidSpace::BoidSpace(const size_t& amount, const TotoGL::RenderObjectInstanceId& object)
     : _boids(amount)
     , _object_instance(object) {
     resetBoids();

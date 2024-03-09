@@ -1,5 +1,6 @@
 #include "SecondOrderDynamics.hpp"
 #include "prog/BoidSpace.hpp"
+#include "prog/imgui-impl.hpp"
 #include <TotoGL/TotoGL.hpp>
 
 #include <glm/ext/scalar_constants.hpp>
@@ -15,7 +16,7 @@ constexpr auto FOV = glm::radians(70.);
 constexpr auto NEAR = .1;
 constexpr auto FAR = 100.;
 
-TotoGL::RenderObjectFactory::ObjectInstanceId createObjectInstance();
+TotoGL::RenderObjectInstanceId createObjectInstance();
 std::tuple<TotoGL::Camera, TotoGL::OrbitControl> createCameraAndOrbit();
 
 int main(int argc, const char* argv[]) {
@@ -25,13 +26,14 @@ int main(int argc, const char* argv[]) {
     auto renderer = TotoGL::Renderer();
     auto clock = TotoGL::Clock();
     auto [camera, orbit] = createCameraAndOrbit();
-    orbit.bindEvents(window);
+    orbit.bindEvents(window, [&]() { return isImGuiFocused(); });
     const auto object_instance_id = createObjectInstance();
     window.on(WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
         glViewport(0, 0, event.x, event.y);
         camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
     });
-    TotoGL::initImGui(window);
+    // TotoGL::initImGui(window);
+    initImGui(window);
 
     auto camera_target = camera;
     auto position_dynamic = SecondOrderDynamics(1, 1, 0, camera.position());
@@ -74,7 +76,7 @@ int main(int argc, const char* argv[]) {
 
             space.render(renderer, camera);
 
-            TotoGL::renderImGui([&]() {
+            renderImGui([&]() {
                 ImGui::Begin("Controls");
                 ImGui::SliderFloat("Avoid", &space.avoidFactor(), 0, 1);
                 ImGui::SliderFloat("Match", &space.matchingFactor(), 0, 1);
@@ -121,7 +123,7 @@ int main(int argc, const char* argv[]) {
     return 0;
 }
 
-TotoGL::RenderObjectFactory::ObjectInstanceId createObjectInstance() {
+TotoGL::RenderObjectInstanceId createObjectInstance() {
     const auto object_instance = TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
         TotoGL::MeshFactory::create(
             TotoGL::Mesh::cube()),

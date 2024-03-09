@@ -14,6 +14,7 @@ endif()
 set(SOURCE_DIRECTORY ${CMAKE_SOURCE_DIR}/sources)
 set(INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/includes)
 set(VENDORS_DIRECTORY ${CMAKE_SOURCE_DIR}/vendors)
+set(SUBMODULES_DIRECTORY ${CMAKE_SOURCE_DIR}/submodules)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
@@ -23,11 +24,13 @@ file(GLOB_RECURSE INCLUDE_FILES ${INCLUDE_DIRECTORY}/*.hpp)
 include(${VENDORS_DIRECTORY}/imgui.cmake)
 include(${VENDORS_DIRECTORY}/CMakeUtils/files_and_folders.cmake)
 
+add_subdirectory(${SUBMODULES_DIRECTORY}/totogl)
+
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
 include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRECTORY})
 include_directories(${PROJECT_NAME} PUBLIC ${VENDORS_DIRECTORY})
-target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL glfw GLU GLEW glm imgui)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenGL glfw GLU GLEW glm imgui totogl)
 
 Cool__target_copy_folder(${PROJECT_NAME} assets)

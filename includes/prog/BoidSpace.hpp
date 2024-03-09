@@ -9,7 +9,7 @@
 
 class BoidSpace {
 public:
-    BoidSpace(const size_t& amount, const TotoGL::RenderObjectFactory::ObjectInstanceId& object);
+    BoidSpace(const size_t& amount, const TotoGL::RenderObjectInstanceId& object);
 
     void update(const TotoGL::Seconds& delta);
 
@@ -32,7 +32,7 @@ public:
 
 private:
     std::vector<Boid> _boids;
-    TotoGL::RenderObjectFactory::ObjectInstanceId _object_instance;
+    TotoGL::RenderObjectInstanceId _object_instance;
 
     float _avoid_factor { .1 };
     float _matching_factor { .1 };
