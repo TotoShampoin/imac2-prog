@@ -63,7 +63,7 @@ void BoidSpace::update(const TotoGL::Seconds& delta) {
 }
 
 void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
-    auto& object = TotoGL::RenderObjectFactory::get(_object_instance);
+    auto& object = _object_instance.get();
 
     // Temporary, until I implement this in TotoGL
     glDisable(GL_BLEND);

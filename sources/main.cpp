@@ -26,7 +26,7 @@ int main(int argc, const char* argv[]) {
     auto renderer = TotoGL::Renderer();
     auto clock = TotoGL::Clock();
     auto [camera, orbit] = createCameraAndOrbit();
-    orbit.bindEvents(window, [&]() { return isImGuiFocused(); });
+    orbit.bindEvents(window, isImGuiFocused);
     const auto object_instance_id = createObjectInstance();
     window.on(WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
         glViewport(0, 0, event.x, event.y);
@@ -43,15 +43,18 @@ int main(int argc, const char* argv[]) {
         // the target's rotation is an euler angle, so we need to account for the fact that the angle wraps around.
         // That wrapping around is made automatically by the camera, so by default, the dynamics does a funky movement when the angle wraps around.
         // To fix that, we need to undo the wrapping around by adding or subtracting 2pi to the target's rotation.
-        auto target_rotation = camera_target.rotation();
-        auto current_rotation = camera.rotation();
-        for (int i = 0; i < 3; i++) {
-            if (target_rotation[i] - current_rotation[i] > glm::pi<float>()) {
-                target_rotation[i] -= glm::two_pi<float>();
-            } else if (current_rotation[i] - target_rotation[i] > glm::pi<float>()) {
-                target_rotation[i] += glm::two_pi<float>();
+        auto target_rotation = [&camera_target, &camera]() -> glm::vec3 {
+            auto target = camera_target.rotation();
+            auto current = camera.rotation();
+            for (int i = 0; i < 3; i++) {
+                if (target[i] - current[i] > glm::pi<float>()) {
+                    target[i] -= glm::two_pi<float>();
+                } else if (current[i] - target[i] > glm::pi<float>()) {
+                    target[i] += glm::two_pi<float>();
+                }
             }
-        }
+            return target;
+        }();
         camera.rotation() = rotation_dynamic.update(delta, target_rotation);
     };
 
@@ -124,17 +127,12 @@ int main(int argc, const char* argv[]) {
 }
 
 TotoGL::RenderObjectInstanceId createObjectInstance() {
-    const auto object_instance = TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
+    return TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
         TotoGL::MeshFactory::create(
             TotoGL::Mesh::cube()),
         TotoGL::ShaderMaterialFactory::create(TotoGL::ShaderMaterial(
             TotoGL::VertexShader(std::ifstream("assets/shaders/shader.vert")),
             TotoGL::FragmentShader(std::ifstream("assets/shaders/shader.frag"))))));
-
-    auto& object = TotoGL::RenderObjectFactory::get(object_instance);
-    object.material().uniform("u_color", glm::vec4(1, 1, 1, 1));
-
-    return object_instance;
 }
 std::tuple<TotoGL::Camera, TotoGL::OrbitControl> createCameraAndOrbit() {
     auto camera = TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR);
