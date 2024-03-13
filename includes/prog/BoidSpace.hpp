@@ -9,12 +9,12 @@
 
 class BoidSpace {
 public:
-    BoidSpace(const size_t& amount, const TotoGL::RenderObjectInstanceId& object);
+    BoidSpace(const size_t& amount);
 
     void update(const TotoGL::Seconds& delta);
 
     // Might tweak this later
-    void render(TotoGL::Renderer& renderer, TotoGL::Camera& camera);
+    void render(TotoGL::Renderer& renderer, TotoGL::Camera& camera, TotoGL::RenderObject& object);
     void resize(const size_t& amount);
     void resetBoids(const std::optional<size_t>& amount = std::nullopt);
 
@@ -32,7 +32,7 @@ public:
 
 private:
     std::vector<Boid> _boids;
-    TotoGL::RenderObjectInstanceId _object_instance;
+    // TotoGL::RenderObjectInstanceId _object_instance;
 
     float _avoid_factor { .1 };
     float _matching_factor { .1 };

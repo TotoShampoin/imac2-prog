@@ -4,9 +4,8 @@
 #include <glm/glm.hpp>
 #include <random>
 
-BoidSpace::BoidSpace(const size_t& amount, const TotoGL::RenderObjectInstanceId& object)
-    : _boids(amount)
-    , _object_instance(object) {
+BoidSpace::BoidSpace(const size_t& amount)
+    : _boids(amount) {
     resetBoids();
 }
 
@@ -62,9 +61,7 @@ void BoidSpace::update(const TotoGL::Seconds& delta) {
     }
 }
 
-void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera) {
-    auto& object = _object_instance.get();
-
+void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera, TotoGL::RenderObject& object) {
     // Temporary, until I implement this in TotoGL
     glDisable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
