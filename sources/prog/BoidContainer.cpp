@@ -1,15 +1,15 @@
-#include "prog/BoidSpace.hpp"
+#include "prog/BoidContainer.hpp"
 #include <algorithm>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 #include <random>
 
-BoidSpace::BoidSpace(const size_t& amount)
+BoidContainer::BoidContainer(const size_t& amount)
     : _boids(amount) {
     resetBoids();
 }
 
-void BoidSpace::update(const TotoGL::Seconds& delta) {
+void BoidContainer::update(const TotoGL::Seconds& delta) {
     static constexpr float close_radius = .125;
     static constexpr float steer_angle_per_second = glm::radians(120.);
     static constexpr float returning_velocity = 1.;
@@ -61,7 +61,7 @@ void BoidSpace::update(const TotoGL::Seconds& delta) {
     }
 }
 
-void BoidSpace::resize(const size_t& amount) {
+void BoidContainer::resize(const size_t& amount) {
     auto distribution = std::uniform_real_distribution<float>(-1, 1);
     auto random = std::random_device();
 
@@ -81,7 +81,7 @@ void BoidSpace::resize(const size_t& amount) {
         };
     }
 }
-void BoidSpace::resetBoids(const std::optional<size_t>& amount) {
+void BoidContainer::resetBoids(const std::optional<size_t>& amount) {
     auto distribution = std::uniform_real_distribution<float>(-1, 1);
     auto random = std::random_device();
 

@@ -1,15 +1,11 @@
 #pragma once
 
 #include "prog/Boid.hpp"
-#include <TotoGL/Primitives/Clock.hpp>
-#include <TotoGL/RenderObject/Camera.hpp>
-#include <TotoGL/RenderObject/RenderObject.hpp>
-#include <TotoGL/Renderer.hpp>
 #include <vector>
 
-class BoidSpace {
+class BoidContainer {
 public:
-    BoidSpace(const size_t& amount);
+    BoidContainer(const size_t& amount);
 
     void update(const TotoGL::Seconds& delta);
 
