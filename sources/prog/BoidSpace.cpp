@@ -61,41 +61,6 @@ void BoidSpace::update(const TotoGL::Seconds& delta) {
     }
 }
 
-void BoidSpace::render(TotoGL::Renderer& renderer, TotoGL::Camera& camera, TotoGL::RenderObject& object) {
-    // Temporary, until I implement this in TotoGL
-    glDisable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    object.material().uniform("u_color", glm::vec4(0., 0., 1., 1.));
-    object.mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
-    object.scaling() = glm::vec3(2, 2, 2) * _cube_radius;
-    object.position() = { 0, 0, 0 };
-    object.rotation() = { 0, 0, 0 };
-    renderer.render(object, camera);
-
-    renderer.clear(false, true, false);
-
-    object.material().uniform("u_color", glm::vec4(0., 1., 1., 1.));
-    object.mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
-    object.scaling() = { .05, .05, .05 };
-    for (const auto& boid : _boids) {
-        object.position() = boid.position();
-        object.lookAt(boid.position() + boid.velocity());
-        renderer.render(object, camera);
-    }
-
-    // Temporary, until I implement this in TotoGL
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    object.material().uniform("u_color", glm::vec4(0., 0., 1., .25));
-    object.mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
-    object.scaling() = glm::vec3(2, 2, 2) * _cube_radius;
-    object.position() = { 0, 0, 0 };
-    object.rotation() = { 0, 0, 0 };
-    renderer.render(object, camera);
-}
-
 void BoidSpace::resize(const size_t& amount) {
     auto distribution = std::uniform_real_distribution<float>(-1, 1);
     auto random = std::random_device();

@@ -75,8 +75,33 @@ void Data::update(const TotoGL::Seconds& delta) {
 void Data::draw() {
     window.draw([&]() {
         renderer.clear();
-        boid_space.render(renderer, camera, *appearance);
+        // Boid rendering
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_BLEND);
+        appearance->material().uniform("u_color", glm::vec4(0., 0., 1., 1.));
+        appearance->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
+        appearance->scaling() = glm::vec3(2, 2, 2) * boid_space.cubeRadius();
+        appearance->position() = { 0, 0, 0 };
+        appearance->rotation() = { 0, 0, 0 };
+        renderer.render(*appearance, camera);
+        renderer.clear(false, true, false);
+        appearance->material().uniform("u_color", glm::vec4(0., 1., 1., 1.));
+        appearance->mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
+        appearance->scaling() = { .05, .05, .05 };
+        for (const auto& boid : boid_space.boids()) {
+            appearance->position() = boid.position();
+            appearance->lookAt(boid.position() + boid.velocity());
+            renderer.render(*appearance, camera);
+        }
+        glEnable(GL_BLEND);
+        appearance->material().uniform("u_color", glm::vec4(0., 0., 1., .25));
+        appearance->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
+        appearance->scaling() = glm::vec3(2, 2, 2) * boid_space.cubeRadius();
+        appearance->position() = { 0, 0, 0 };
+        appearance->rotation() = { 0, 0, 0 };
+        renderer.render(*appearance, camera);
 
+        // UI rendering
         renderImGui([&]() {
             ImGui::Begin("Controls");
             ImGui::SliderFloat("Avoid", &boid_space.avoidFactor(), 0, 1);

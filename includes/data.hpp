@@ -21,6 +21,7 @@ struct Data {
     TotoGL::OrbitControl orbit;
 
     TotoGL::RenderObjectInstanceId appearance;
+    TotoGL::Scene scene;
     BoidSpace boid_space;
 
     int amount;

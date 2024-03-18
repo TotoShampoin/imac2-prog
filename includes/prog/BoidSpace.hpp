@@ -13,8 +13,6 @@ public:
 
     void update(const TotoGL::Seconds& delta);
 
-    // Might tweak this later
-    void render(TotoGL::Renderer& renderer, TotoGL::Camera& camera, TotoGL::RenderObject& object);
     void resize(const size_t& amount);
     void resetBoids(const std::optional<size_t>& amount = std::nullopt);
 
