@@ -1,5 +1,4 @@
 #include "prog/BoidContainer.hpp"
-#include <algorithm>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 #include <random>
@@ -10,40 +9,26 @@ BoidContainer::BoidContainer(const size_t& amount)
 }
 
 void BoidContainer::update(const TotoGL::Seconds& delta) {
-    static constexpr float close_radius = .125;
-    static constexpr float steer_angle_per_second = glm::radians(120.);
-    static constexpr float returning_velocity = 1.;
-    static constexpr float max_velocity = 2.;
-
     for (auto& boid : _boids) {
-        auto all_except_this = std::vector<Boid>();
-        std::copy_if(
-            _boids.begin(), _boids.end(), std::back_inserter(all_except_this),
-            [&](Boid& other_boid) {
-                return &boid != &other_boid;
-            });
-
         boid.velocity() += //
-            boid.separation(all_except_this, _avoid_factor, close_radius) + //
-            boid.alignment(all_except_this, _matching_factor, close_radius) + //
-            boid.cohesion(all_except_this, _centering_factor, close_radius);
+            boid.separation(_boids, _avoid_factor, _attract_radius, _expell_radius) + //
+            boid.alignment(_boids, _matching_factor, _attract_radius, _expell_radius) + //
+            boid.cohesion(_boids, _centering_factor, _attract_radius, _expell_radius);
 
-        // Attract away from bounds
         float* positions[] = { &boid.position().x, &boid.position().y, &boid.position().z };
         float* velocities[] = { &boid.velocity().x, &boid.velocity().y, &boid.velocity().z };
         for (int i = 0; i < 3; i++) {
             if (*positions[i] < -_cube_radius)
-                *velocities[i] += delta * returning_velocity;
+                *velocities[i] += delta * _returning_velocity;
             if (*positions[i] > _cube_radius)
-                *velocities[i] -= delta * returning_velocity;
+                *velocities[i] -= delta * _returning_velocity;
         }
 
-        if (glm::length(boid.velocity()) > max_velocity)
-            boid.velocity() = glm::normalize(boid.velocity()) * max_velocity;
+        if (glm::length(boid.velocity()) > _max_velocity)
+            boid.velocity() = glm::normalize(boid.velocity()) * _max_velocity;
 
         boid.updatePosition(delta);
 
-        // if nan, random position
         if (glm::any(glm::isnan(boid.position()))) {
             auto distribution = std::uniform_real_distribution<float>(-1, 1);
             auto random = std::random_device();

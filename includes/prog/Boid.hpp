@@ -18,9 +18,12 @@ public:
 
     float closeness(const Boid&, const float& radius, const float& offset) const;
 
-    glm::vec3 separation(const std::vector<Boid>&, const float& avoid_factor, const float& closeness_factor) const;
-    glm::vec3 alignment(const std::vector<Boid>&, const float& matching_factor, const float& closeness_factor) const;
-    glm::vec3 cohesion(const std::vector<Boid>&, const float& centering_factor, const float& closeness_factor) const;
+    glm::vec3 separation(const std::vector<Boid>&, const float& avoid_factor,
+        const float& attract_radius, const float& expell_radius) const;
+    glm::vec3 alignment(const std::vector<Boid>&, const float& matching_factor,
+        const float& attract_radius, const float& expell_radius) const;
+    glm::vec3 cohesion(const std::vector<Boid>&, const float& centering_factor,
+        const float& attract_radius, const float& expell_radius) const;
 
     // void updateVelocity(const std::vector<Boid>&);
     void updatePosition(const TotoGL::Seconds&);

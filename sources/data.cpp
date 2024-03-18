@@ -71,6 +71,10 @@ void Data::draw() {
             ImGui::SliderFloat("Match", &boid_space.matchingFactor(), 0, 1);
             ImGui::SliderFloat("Center", &boid_space.centeringFactor(), 0, 1);
             ImGui::SliderFloat("Cube radius", &boid_space.cubeRadius(), 0, 10);
+            ImGui::SliderFloat("Attract radius", &boid_space.attractRadius(), 0, 1);
+            ImGui::SliderFloat("Expell radius", &boid_space.expellRadius(), 0, 1);
+            ImGui::SliderFloat("Returning velocity", &boid_space.returningVelocity(), 0, 10);
+            ImGui::SliderFloat("Max velocity", &boid_space.maxVelocity(), 0, 10);
             changing_amount |= ImGui::SliderInt("Amount", &amount, 0, 500);
             resetting |= ImGui::Button("Reset");
             ImGui::End();
