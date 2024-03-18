@@ -1,6 +1,7 @@
 #pragma once
 
-#include "prog/BoidSpace.hpp"
+#include "gfx/BoidScene.hpp"
+#include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
 
 constexpr auto WIDTH = 1024;
@@ -11,7 +12,7 @@ constexpr auto FAR = 100.;
 
 struct Data {
     Data(TotoGL::Window&);
-    ~Data();
+    ~Data() = default;
 
     TotoGL::Window& window;
     TotoGL::Renderer renderer;
@@ -20,9 +21,9 @@ struct Data {
     TotoGL::Camera camera;
     TotoGL::OrbitControl orbit;
 
-    TotoGL::RenderObjectInstanceId appearance;
     TotoGL::Scene scene;
-    BoidSpace boid_space;
+    BoidContainer boid_space;
+    BoidScene boid_scene;
 
     int amount;
     bool spy;

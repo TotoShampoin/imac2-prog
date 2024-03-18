@@ -2,26 +2,16 @@
 
 #include "TotoGL/CameraControl/OrbitControl.hpp"
 #include "TotoGL/RenderObject/Camera.hpp"
-#include "prog/BoidSpace.hpp"
+#include "prog/BoidContainer.hpp"
 #include "prog/imgui-impl.hpp"
 
 #include <TotoGL/TotoGL.hpp>
 #include <imgui.h>
 
-TotoGL::RenderObjectInstanceId createObjectInstance() {
-    return TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
-        TotoGL::MeshFactory::create(
-            TotoGL::Mesh::cube()),
-        TotoGL::ShaderMaterialFactory::create(TotoGL::ShaderMaterial(
-            TotoGL::VertexShader(std::ifstream("assets/shaders/shader.vert")),
-            TotoGL::FragmentShader(std::ifstream("assets/shaders/shader.frag"))))));
-}
-
 Data::Data(TotoGL::Window& window)
     : window(window)
     , camera(TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR))
     , orbit(-glm::pi<float>() / 6, glm::pi<float>() / 4, 10)
-    , appearance(createObjectInstance())
     , boid_space(75)
     , amount(75)
     , spy(false)
@@ -32,10 +22,6 @@ Data::Data(TotoGL::Window& window)
     });
     orbit.bindEvents(window, isImGuiFocused);
     initImGui(window);
-}
-
-Data::~Data() {
-    TotoGL::RenderObjectFactory::destroy(appearance);
 }
 
 void Data::update(const TotoGL::Seconds& delta) {
@@ -76,30 +62,7 @@ void Data::draw() {
     window.draw([&]() {
         renderer.clear();
         // Boid rendering
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_BLEND);
-        appearance->material().uniform("u_color", glm::vec4(0., 0., 1., 1.));
-        appearance->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
-        appearance->scaling() = glm::vec3(2, 2, 2) * boid_space.cubeRadius();
-        appearance->position() = { 0, 0, 0 };
-        appearance->rotation() = { 0, 0, 0 };
-        renderer.render(*appearance, camera);
-        renderer.clear(false, true, false);
-        appearance->material().uniform("u_color", glm::vec4(0., 1., 1., 1.));
-        appearance->mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
-        appearance->scaling() = { .05, .05, .05 };
-        for (const auto& boid : boid_space.boids()) {
-            appearance->position() = boid.position();
-            appearance->lookAt(boid.position() + boid.velocity());
-            renderer.render(*appearance, camera);
-        }
-        glEnable(GL_BLEND);
-        appearance->material().uniform("u_color", glm::vec4(0., 0., 1., .25));
-        appearance->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
-        appearance->scaling() = glm::vec3(2, 2, 2) * boid_space.cubeRadius();
-        appearance->position() = { 0, 0, 0 };
-        appearance->rotation() = { 0, 0, 0 };
-        renderer.render(*appearance, camera);
+        boid_scene.draw(renderer, camera, boid_space);
 
         // UI rendering
         renderImGui([&]() {
