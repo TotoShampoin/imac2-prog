@@ -23,8 +23,15 @@ struct Data {
     TotoGL::RenderObjectInstanceId appearance;
     BoidSpace boid_space;
 
-    bool spy = false;
-    size_t spy_index = 0;
+    int amount;
+    bool spy;
+    size_t spy_index;
+
+    bool changing_amount = false;
+    bool resetting = false;
+    bool toggling_spy = false;
+    bool spying_next = false;
+    bool spying_previous = false;
 
     void update(const TotoGL::Seconds& delta);
     void draw();
