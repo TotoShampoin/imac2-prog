@@ -12,7 +12,7 @@ Data::Data(TotoGL::Window& window)
     : window(window)
     , camera(TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR))
     , orbit(-glm::pi<float>() / 6, glm::pi<float>() / 4, 10)
-    , boid_space(75)
+    , container(75)
     , amount(75)
     , spy(false)
     , spy_index(0) {
@@ -25,18 +25,18 @@ Data::Data(TotoGL::Window& window)
 }
 
 void Data::update(const TotoGL::Seconds& delta) {
-    boid_space.update(delta);
+    container.update(delta);
     if (spy) {
-        orbit.position() = boid_space.boids()[spy_index].position();
+        orbit.position() = container.boids()[spy_index].position();
     }
     orbit.apply(camera);
 
     if (changing_amount) {
-        boid_space.resize(amount);
+        container.resize(amount);
         changing_amount = false;
     }
     if (resetting) {
-        boid_space.resetBoids();
+        container.resetBoids();
         resetting = false;
     }
     if (toggling_spy) {
@@ -49,11 +49,11 @@ void Data::update(const TotoGL::Seconds& delta) {
         toggling_spy = false;
     }
     if (spying_next) {
-        spy_index = (spy_index + 1) % boid_space.boids().size();
+        spy_index = (spy_index + 1) % container.boids().size();
         spying_next = false;
     }
     if (spying_previous) {
-        spy_index = (spy_index + boid_space.boids().size() - 1) % boid_space.boids().size();
+        spy_index = (spy_index + container.boids().size() - 1) % container.boids().size();
         spying_previous = false;
     }
 }
@@ -62,19 +62,22 @@ void Data::draw() {
     window.draw([&]() {
         renderer.clear();
         // Boid rendering
-        boid_scene.draw(renderer, camera, boid_space);
+        if (spy)
+            boid_scene.draw(renderer, camera, container, container.boids()[spy_index]);
+        else
+            boid_scene.draw(renderer, camera, container);
 
         // UI rendering
         renderImGui([&]() {
             ImGui::Begin("Controls");
-            ImGui::SliderFloat("Avoid", &boid_space.avoidFactor(), 0, 1);
-            ImGui::SliderFloat("Match", &boid_space.matchingFactor(), 0, 1);
-            ImGui::SliderFloat("Center", &boid_space.centeringFactor(), 0, 1);
-            ImGui::SliderFloat("Cube radius", &boid_space.cubeRadius(), 0, 10);
-            ImGui::SliderFloat("Attract radius", &boid_space.attractRadius(), 0, 1);
-            ImGui::SliderFloat("Expell radius", &boid_space.expellRadius(), 0, 1);
-            ImGui::SliderFloat("Returning velocity", &boid_space.returningVelocity(), 0, 10);
-            ImGui::SliderFloat("Max velocity", &boid_space.maxVelocity(), 0, 10);
+            ImGui::SliderFloat("Avoid", &container.avoidFactor(), 0, 1);
+            ImGui::SliderFloat("Match", &container.matchingFactor(), 0, 1);
+            ImGui::SliderFloat("Center", &container.centeringFactor(), 0, 1);
+            ImGui::SliderFloat("Cube radius", &container.cubeRadius(), 0, 10);
+            ImGui::SliderFloat("Attract radius", &container.attractRadius(), 0, 1);
+            ImGui::SliderFloat("Expell radius", &container.expellRadius(), 0, 1);
+            ImGui::SliderFloat("Returning velocity", &container.returningVelocity(), 0, 10);
+            ImGui::SliderFloat("Max velocity", &container.maxVelocity(), 0, 10);
             changing_amount |= ImGui::SliderInt("Amount", &amount, 0, 500);
             resetting |= ImGui::Button("Reset");
             ImGui::End();
@@ -88,7 +91,7 @@ void Data::draw() {
                 ImGui::SameLine();
                 spying_next |= ImGui::Button("+");
 
-                const auto& boid = boid_space.boids()[spy_index];
+                const auto& boid = container.boids()[spy_index];
                 ImGui::Text("Position = %f, %f, %f", boid.position().x, boid.position().y, boid.position().z);
                 ImGui::Text("Velocity = %f, %f, %f", boid.velocity().x, boid.velocity().y, boid.velocity().z);
             }

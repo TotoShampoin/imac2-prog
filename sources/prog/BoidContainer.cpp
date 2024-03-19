@@ -11,7 +11,7 @@ BoidContainer::BoidContainer(const size_t& amount)
 void BoidContainer::update(const TotoGL::Seconds& delta) {
     for (auto& boid : _boids) {
         boid.velocity() += //
-            boid.separation(_boids, _avoid_factor, _attract_radius, _expell_radius) + //
+            boid.separation(_boids, _avoid_factor, _expell_radius, 0) + //
             boid.alignment(_boids, _matching_factor, _attract_radius, _expell_radius) + //
             boid.cohesion(_boids, _centering_factor, _attract_radius, _expell_radius);
 

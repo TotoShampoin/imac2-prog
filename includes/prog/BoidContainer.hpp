@@ -12,7 +12,7 @@ public:
     void resize(const size_t& amount);
     void resetBoids(const std::optional<size_t>& amount = std::nullopt);
 
-    const std::vector<Boid>& boids() { return _boids; }
+    const std::vector<Boid>& boids() const { return _boids; }
 
     float avoidFactor() const { return _avoid_factor; };
     float matchingFactor() const { return _matching_factor; };

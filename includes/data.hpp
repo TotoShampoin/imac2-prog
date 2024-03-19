@@ -22,7 +22,7 @@ struct Data {
     TotoGL::OrbitControl orbit;
 
     TotoGL::Scene scene;
-    BoidContainer boid_space;
+    BoidContainer container;
     BoidScene boid_scene;
 
     int amount;
