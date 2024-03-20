@@ -66,6 +66,14 @@ void BoidScene::draw(TotoGL::Renderer& renderer, TotoGL::Camera& camera, const B
                 renderer.render(*_territory_mesh, camera);
                 glDisable(GL_BLEND);
                 _boid_mesh->material().uniform("u_color", glm::vec4(1., 1., 1., 1.));
+
+                _bound_mesh->material().uniform("u_color", glm::vec4(0., 1., 1., 1.));
+                _bound_mesh->mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
+                _bound_mesh->scaling() = glm::vec3(.1);
+                for (const auto& projection : container.projectionsOnCube(boid.position())) {
+                    _bound_mesh->position() = projection;
+                    renderer.render(*_bound_mesh, camera);
+                }
             } else {
                 auto attract = boid.closeness(*spy, container.attractRadius(), container.expellRadius()) * 2;
                 auto expell = boid.closeness(*spy, container.expellRadius(), 0) * 2;
@@ -81,5 +89,8 @@ void BoidScene::draw(TotoGL::Renderer& renderer, TotoGL::Camera& camera, const B
 
     glEnable(GL_BLEND);
     _bound_mesh->material().uniform("u_color", glm::vec4(0., 0., 1., .25));
+    _bound_mesh->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
+    _bound_mesh->scaling() = glm::vec3(2, 2, 2) * container.cubeRadius();
+    _bound_mesh->position() = { 0, 0, 0 };
     renderer.render(*_bound_mesh, camera);
 }

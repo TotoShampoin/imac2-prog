@@ -1,6 +1,7 @@
 #pragma once
 
 #include "prog/Boid.hpp"
+#include <array>
 #include <vector>
 
 class BoidContainer {
@@ -31,6 +32,8 @@ public:
     float& expellRadius() { return _expell_radius; };
     float& returningVelocity() { return _returning_velocity; };
     float& maxVelocity() { return _max_velocity; };
+
+    std::array<glm::vec3, 6> projectionsOnCube(const glm::vec3&) const;
 
 private:
     std::vector<Boid> _boids;
