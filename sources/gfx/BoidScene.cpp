@@ -5,7 +5,7 @@
 TotoGL::RenderObjectInstanceId createObjectInstance() {
     return TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
         TotoGL::MeshFactory::create(
-            TotoGL::loadWavefrontObj(std::ifstream("assets/models/arrow.obj"))),
+            TotoGL::loadWavefrontObj(std::ifstream("assets/models/fish.obj"))),
         TotoGL::ShaderMaterialFactory::create(TotoGL::ShaderMaterial(
             TotoGL::VertexShader(std::ifstream("assets/shaders/shader.vert")),
             TotoGL::FragmentShader(std::ifstream("assets/shaders/shader.frag"))))));
