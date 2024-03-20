@@ -21,7 +21,7 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
             for (auto projection : projectionsOnCube(boid.position())) {
                 fake_boids.push_back(Boid(0, 0, 0, projection, glm::vec3(0)));
             }
-            boid.velocity() += boid.separation(fake_boids, 5.f, _expell_radius, 0);
+            boid.velocity() += boid.separation(fake_boids, 10.f, .15f, 0);
         }
 
         if (glm::length(boid.velocity()) > _max_velocity)
