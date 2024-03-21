@@ -38,13 +38,13 @@ public:
 private:
     std::vector<Boid> _boids;
 
-    float _avoid_factor { .1 };
-    float _matching_factor { .1 };
-    float _centering_factor { .001 };
+    float _avoid_factor { .3 };
+    float _matching_factor { .3 };
+    float _centering_factor { .01 };
     float _cube_radius { 3 };
 
-    float _attract_radius { .125 };
-    float _expell_radius { .125 };
+    float _attract_radius { .3 };
+    float _expell_radius { .2 };
     float _returning_velocity { 1. };
     float _max_velocity { 2. };
 };
