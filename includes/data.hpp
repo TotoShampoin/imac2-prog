@@ -11,7 +11,7 @@ constexpr auto NEAR = .1;
 constexpr auto FAR = 100.;
 
 struct Data {
-    Data(TotoGL::Window&);
+    Data(TotoGL::Window&, TotoGL::Renderer&);
     ~Data() = default;
 
     void update(const TotoGL::Seconds& delta);
@@ -31,7 +31,7 @@ struct Data {
     BoidScene boid_scene;
 
     TotoGL::Window& window;
-    TotoGL::Renderer renderer;
+    TotoGL::Renderer& renderer;
     TotoGL::Clock clock;
     TotoGL::Scene scene;
 

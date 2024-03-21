@@ -2,7 +2,8 @@
 
 int main(int argc, const char* argv[]) {
     auto window = TotoGL::Window(WIDTH, HEIGHT, "Boids IMAC");
-    auto data = Data(window);
+    auto renderer = TotoGL::Renderer();
+    auto data = Data(window, renderer);
 
     while (!window.shouldClose()) {
         data.update(data.clock.getDeltaTime());

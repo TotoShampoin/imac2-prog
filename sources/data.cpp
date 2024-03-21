@@ -8,8 +8,9 @@
 #include <TotoGL/TotoGL.hpp>
 #include <imgui.h>
 
-Data::Data(TotoGL::Window& window)
-    : window(window) {
+Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
+    : window(window)
+    , renderer(renderer) {
     window.on(TotoGL::VectorEventName::WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
         glViewport(0, 0, event.x, event.y);
         camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
