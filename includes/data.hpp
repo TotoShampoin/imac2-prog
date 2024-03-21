@@ -14,20 +14,12 @@ struct Data {
     Data(TotoGL::Window&);
     ~Data() = default;
 
-    TotoGL::Window& window;
-    TotoGL::Renderer renderer;
-    TotoGL::Clock clock;
+    void update(const TotoGL::Seconds& delta);
+    void draw();
 
-    TotoGL::Camera camera;
-    TotoGL::OrbitControl orbit;
-
-    TotoGL::Scene scene;
-    BoidContainer container;
-    BoidScene boid_scene;
-
-    int amount;
-    bool spy;
-    size_t spy_index;
+    int amount = 240;
+    bool spy = false;
+    size_t spy_index = 0;
 
     bool changing_amount = false;
     bool resetting = false;
@@ -35,6 +27,14 @@ struct Data {
     bool spying_next = false;
     bool spying_previous = false;
 
-    void update(const TotoGL::Seconds& delta);
-    void draw();
+    BoidContainer container { amount };
+    BoidScene boid_scene;
+
+    TotoGL::Window& window;
+    TotoGL::Renderer renderer;
+    TotoGL::Clock clock;
+    TotoGL::Scene scene;
+
+    TotoGL::Camera camera { TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR) };
+    TotoGL::OrbitControl orbit { -glm::pi<float>() / 6, glm::pi<float>() / 4, 10 };
 };

@@ -9,13 +9,7 @@
 #include <imgui.h>
 
 Data::Data(TotoGL::Window& window)
-    : window(window)
-    , camera(TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR))
-    , orbit(-glm::pi<float>() / 6, glm::pi<float>() / 4, 10)
-    , container(75)
-    , amount(75)
-    , spy(false)
-    , spy_index(0) {
+    : window(window) {
     window.on(TotoGL::VectorEventName::WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
         glViewport(0, 0, event.x, event.y);
         camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
