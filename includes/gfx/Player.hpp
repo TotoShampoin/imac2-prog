@@ -1,17 +1,19 @@
 #pragma once
 
+#include "TotoGL/Primitives/Clock.hpp"
 #include <TotoGL/TotoGL.hpp>
+#include <glm/fwd.hpp>
 
 class Player {
 public:
-    Player(TotoGL::RenderObjectInstanceId object)
-        : _object(object) { }
-
-    glm::vec3& position() { return _object->position(); }
+    glm::vec3& position() { return _position; }
     glm::vec3& velocity() { return _velocity; }
 
-    void update(float dt) {
-        position() += _velocity * dt;
+    glm::vec3 position() const { return _position; }
+    glm::vec3 velocity() const { return _velocity; }
+
+    void update(const TotoGL::Seconds& delta) {
+        _position += _velocity * delta;
     }
 
     void move(glm::vec3 direction) {
@@ -19,6 +21,6 @@ public:
     }
 
 private:
-    TotoGL::RenderObjectInstanceId _object;
+    glm::vec3 _position;
     glm::vec3 _velocity;
 };
