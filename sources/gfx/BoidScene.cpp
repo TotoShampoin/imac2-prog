@@ -27,19 +27,19 @@ TotoGL::RenderObjectInstanceId createSphereInstance() {
             TotoGL::FragmentShader(std::ifstream("assets/shaders/shader.frag"))))));
 }
 
-BoidScene::BoidScene()
+BoidRenderer::BoidRenderer()
     : _boid_mesh(createObjectInstance())
     , _bound_mesh(createCubeInstance())
     , _territory_mesh(createSphereInstance()) {
     (*_territory_mesh).mesh().draw_method() = TotoGL::Mesh::DrawMethod::LINES;
 }
 
-BoidScene::~BoidScene() {
+BoidRenderer::~BoidRenderer() {
     TotoGL::RenderObjectFactory::destroy(_boid_mesh);
     TotoGL::RenderObjectFactory::destroy(_territory_mesh);
 }
 
-void BoidScene::draw(TotoGL::Renderer& renderer, TotoGL::Camera& camera, const BoidContainer& container, const std::optional<std::reference_wrapper<const Boid>>& spy) {
+void BoidRenderer::draw(TotoGL::Renderer& renderer, TotoGL::Camera& camera, const BoidContainer& container, const std::optional<std::reference_wrapper<const Boid>>& spy) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_BLEND);
     _bound_mesh->material().uniform("u_color", glm::vec4(0., 0., 1., 1.));

@@ -15,8 +15,6 @@ void initImGui(TotoGL::Window& window) {
     ImGui_ImplOpenGL3_Init("#version 460");
 
     auto& style = ImGui::GetStyle();
-    style.FrameRounding = 2.;
-    style.WindowRounding = 4.;
 }
 
 void renderImGui(std::function<void(void)>&& f) {

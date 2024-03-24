@@ -2,6 +2,7 @@
 
 #include "TotoGL/CameraControl/OrbitControl.hpp"
 #include "TotoGL/RenderObject/Camera.hpp"
+#include "TotoGL/RenderObject/Light.hpp"
 #include "prog/BoidContainer.hpp"
 #include "prog/imgui-impl.hpp"
 
@@ -54,16 +55,27 @@ void Data::update(const TotoGL::Seconds& delta) {
 }
 
 void Data::draw() {
+    if (spy)
+        boid_scene.update(container, container.boids()[spy_index]);
+    else
+        boid_scene.update(container);
+
+    scene.clear();
+    auto& boid_objects = boid_scene.objects();
+    for (auto& object : boid_objects) {
+        scene.add(object);
+    }
+    scene.add(ambient_light);
+    scene.add(global_light);
+    global_light->setDirection({ 1, -1, 1 });
+
     window.draw([&]() {
         renderer.clear();
-        // Boid rendering
-        if (spy)
-            boid_scene.draw(renderer, camera, container, container.boids()[spy_index]);
-        else
-            boid_scene.draw(renderer, camera, container);
+        renderer.render(scene, camera);
 
-        // UI rendering
         renderImGui([&]() {
+            ImGui::SetNextWindowPos(ImVec2(0, window.size()[1]), ImGuiCond_Always, ImVec2(0, 1));
+            ImGui::SetNextWindowSize(ImVec2(415, 261), ImGuiCond_Always);
             ImGui::Begin("Controls");
             ImGui::SliderFloat("Avoid", &container.avoidFactor(), 0, 1);
             ImGui::SliderFloat("Match", &container.matchingFactor(), 0, 1);
@@ -77,6 +89,8 @@ void Data::draw() {
             resetting |= ImGui::Button("Reset");
             ImGui::End();
 
+            ImGui::SetNextWindowPos(ImVec2(415, window.size()[1]), ImGuiCond_Always, ImVec2(0, 1));
+            ImGui::SetNextWindowSize(ImVec2(304, 111), ImGuiCond_Always);
             ImGui::Begin("Spy");
             toggling_spy |= ImGui::Checkbox("Spy", &spy);
             if (spy) {

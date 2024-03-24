@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TotoGL/RenderObject/Light.hpp"
 #include "gfx/BoidScene.hpp"
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
@@ -28,12 +29,24 @@ struct Data {
     bool spying_previous = false;
 
     BoidContainer container { amount };
+    BoidRenderer boid_renderer;
     BoidScene boid_scene;
 
     TotoGL::Window& window;
     TotoGL::Renderer& renderer;
     TotoGL::Clock clock;
+
     TotoGL::Scene scene;
+    TotoGL::LightInstanceId ambient_light {
+        TotoGL::LightFactory::create(TotoGL::Light(
+            glm::vec3(1, 1, 1), .1,
+            TotoGL::LightType::AMBIENT))
+    };
+    TotoGL::LightInstanceId global_light {
+        TotoGL::LightFactory::create(TotoGL::Light(
+            glm::vec3(1, 1, 1), 1,
+            TotoGL::LightType::DIRECTIONAL))
+    };
 
     TotoGL::Camera camera { TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR) };
     TotoGL::OrbitControl orbit { -glm::pi<float>() / 6, glm::pi<float>() / 4, 10 };
