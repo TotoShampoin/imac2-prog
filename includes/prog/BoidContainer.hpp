@@ -22,6 +22,8 @@ public:
     float attractRadius() const { return _attract_radius; };
     float expellRadius() const { return _expell_radius; };
     float returningVelocity() const { return _returning_velocity; };
+    float returningRadius() const { return _returning_radius; };
+    float minVelocity() const { return _min_velocity; };
     float maxVelocity() const { return _max_velocity; };
 
     float& avoidFactor() { return _avoid_factor; };
@@ -31,6 +33,8 @@ public:
     float& attractRadius() { return _attract_radius; };
     float& expellRadius() { return _expell_radius; };
     float& returningVelocity() { return _returning_velocity; };
+    float& returningRadius() { return _returning_radius; };
+    float& minVelocity() { return _min_velocity; };
     float& maxVelocity() { return _max_velocity; };
 
     std::array<glm::vec3, 6> projectionsOnCube(const glm::vec3&) const;
@@ -41,10 +45,13 @@ private:
     float _avoid_factor { .3 };
     float _matching_factor { .3 };
     float _centering_factor { .01 };
-    float _cube_radius { 3 };
+    float _returning_velocity { 10. };
 
+    float _cube_radius { 3 };
     float _attract_radius { .3 };
     float _expell_radius { .2 };
-    float _returning_velocity { 1. };
+    float _returning_radius { .15 };
+
+    float _min_velocity { 1. };
     float _max_velocity { 2. };
 };

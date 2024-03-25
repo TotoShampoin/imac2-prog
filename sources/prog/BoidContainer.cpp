@@ -21,13 +21,13 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
             for (auto projection : projectionsOnCube(boid.position())) {
                 fake_boids.push_back(Boid(0, 0, 0, projection, glm::vec3(0)));
             }
-            boid.velocity() += boid.separation(fake_boids, 10.f, .15f, 0);
+            boid.velocity() += boid.separation(fake_boids, _returning_velocity, _returning_radius, 0);
         }
 
         if (glm::length(boid.velocity()) > _max_velocity)
             boid.velocity() = glm::normalize(boid.velocity()) * _max_velocity;
-        if (glm::length(boid.velocity()) < .5f)
-            boid.velocity() = glm::normalize(boid.velocity()) * .5f;
+        if (glm::length(boid.velocity()) < _min_velocity)
+            boid.velocity() = glm::normalize(boid.velocity()) * _min_velocity;
 
         boid.updatePosition(delta);
 

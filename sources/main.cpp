@@ -6,8 +6,9 @@ int main(int argc, const char* argv[]) {
     auto data = Data(window, renderer);
 
     while (!window.shouldClose()) {
-        data.update(data.clock.getDeltaTime());
-        data.draw();
+        auto delta = data.clock.getDeltaTime();
+        data.update(delta);
+        data.draw(delta);
     }
 
     return 0;

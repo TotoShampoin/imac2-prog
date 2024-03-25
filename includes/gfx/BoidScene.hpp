@@ -36,7 +36,8 @@ public:
     }
 
     void update(const BoidContainer& container, const std::optional<std::reference_wrapper<const Boid>>& spy = std::nullopt) {
-        resize(container.boids().size());
+        if (_boid_objects.size() != container.boids().size())
+            resize(container.boids().size());
         for (size_t i = 0; i < container.boids().size(); ++i) {
             auto& boid = container.boids()[i];
             auto& object = *_boid_objects[i];

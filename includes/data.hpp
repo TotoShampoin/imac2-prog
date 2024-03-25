@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TotoGL/Primitives/Clock.hpp"
 #include "TotoGL/RenderObject/Light.hpp"
 #include "gfx/BoidScene.hpp"
 #include "prog/BoidContainer.hpp"
@@ -16,9 +17,9 @@ struct Data {
     ~Data() = default;
 
     void update(const TotoGL::Seconds& delta);
-    void draw();
+    void draw(const TotoGL::Seconds& delta);
 
-    int amount = 240;
+    int amount = 100;
     bool spy = false;
     size_t spy_index = 0;
 
@@ -35,6 +36,9 @@ struct Data {
     TotoGL::Window& window;
     TotoGL::Renderer& renderer;
     TotoGL::Clock clock;
+    TotoGL::Clock timer;
+
+    std::vector<std::pair<std::string, float>> timers;
 
     TotoGL::Scene scene;
     TotoGL::LightInstanceId ambient_light {
