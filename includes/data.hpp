@@ -1,7 +1,7 @@
 #pragma once
 
-#include "TotoGL/Primitives/Clock.hpp"
-#include "TotoGL/RenderObject/Light.hpp"
+#include "TotoGL/Primitives/BufferTexture.hpp"
+#include "TotoGL/RenderObject/RenderObject.hpp"
 #include "gfx/BoidScene.hpp"
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
@@ -20,7 +20,7 @@ struct Data {
     void draw(const TotoGL::Seconds& delta);
 
     int amount = 100;
-    bool spy = false;
+    // bool spy = false;
     size_t spy_index = 0;
 
     bool changing_amount = false;
@@ -41,6 +41,13 @@ struct Data {
     std::vector<std::pair<std::string, float>> timers;
 
     TotoGL::Scene scene;
+    TotoGL::RenderObjectInstanceId bounds {
+        TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
+            TotoGL::MeshFactory::create(TotoGL::Mesh::cube()),
+            TotoGL::ShaderMaterialFactory::create(TotoGL::ShaderMaterial(
+                std::ifstream("assets/shaders/shader.vert"),
+                std::ifstream("assets/shaders/shader.frag")))))
+    };
     TotoGL::LightInstanceId ambient_light {
         TotoGL::LightFactory::create(TotoGL::Light(
             glm::vec3(1, 1, 1), .1,
@@ -51,6 +58,19 @@ struct Data {
             glm::vec3(1, 1, 1), 1,
             TotoGL::LightType::DIRECTIONAL))
     };
+
+    TotoGL::RenderObjectInstanceId monitor {
+        TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
+            TotoGL::MeshFactory::create(TotoGL::Mesh::quad()),
+            TotoGL::ShaderMaterialFactory::create(TotoGL::ShaderMaterial(
+                std::ifstream("assets/shaders/monitor.vert"),
+                std::ifstream("assets/shaders/monitor.frag")))))
+    };
+    TotoGL::BufferTextureInstanceId monitor_texture {
+        TotoGL::BufferTextureFactory::create(
+            TotoGL::BufferTexture(512, 512))
+    };
+    TotoGL::Camera monitor_camera { TotoGL::Camera::Perspective(1, 1, .1, 100) };
 
     TotoGL::Camera camera { TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR) };
     TotoGL::OrbitControl orbit { -glm::pi<float>() / 6, glm::pi<float>() / 4, 10 };

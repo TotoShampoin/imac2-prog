@@ -1,8 +1,5 @@
 #include "data.hpp"
 
-#include "TotoGL/CameraControl/OrbitControl.hpp"
-#include "TotoGL/RenderObject/Camera.hpp"
-#include "TotoGL/RenderObject/Light.hpp"
 #include "prog/BoidContainer.hpp"
 #include "prog/imgui-impl.hpp"
 
@@ -18,17 +15,27 @@ Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
     });
     orbit.bindEvents(window, isImGuiFocused);
     initImGui(window);
+
+    monitor->material().uniform("u_texture", monitor_texture->texture());
+    monitor->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
+
+    bounds->material().uniform("u_color", glm::vec4(1, 1, 1, 1));
+    bounds->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
 }
 
 void Data::update(const TotoGL::Seconds& delta) {
     container.update(delta);
     auto container_update = timer.getDeltaTime();
-    if (spy) {
-        orbit.position() = container.boids()[spy_index].position();
-        boid_scene.update(container, container.boids()[spy_index]);
-    } else {
-        boid_scene.update(container);
-    }
+    // if (spy) {
+    //     orbit.position() = container.boids()[spy_index].position();
+    //     boid_scene.update(container, container.boids()[spy_index]);
+    // } else {
+    boid_scene.update(container);
+    // }
+    auto& spied_boid = container.boids()[spy_index];
+    monitor_camera.position() = spied_boid.position() - glm::normalize(spied_boid.velocity()) * 2.f;
+    monitor_camera.lookAt(spied_boid.position());
+    bounds->scaling() = { container.cubeRadius() * 2, container.cubeRadius() * 2, container.cubeRadius() * 2 };
     auto scene_update = timer.getDeltaTime();
     orbit.apply(camera);
     auto orbit_update = timer.getDeltaTime();
@@ -41,15 +48,15 @@ void Data::update(const TotoGL::Seconds& delta) {
         container.resetBoids();
         resetting = false;
     }
-    if (toggling_spy) {
-        if (spy) {
-            orbit.distance() = 1;
-        } else {
-            orbit.distance() = 10;
-            orbit.position() = { 0, 0, 0 };
-        }
-        toggling_spy = false;
-    }
+    // if (toggling_spy) {
+    //     if (spy) {
+    //         orbit.distance() = 1;
+    //     } else {
+    //         orbit.distance() = 10;
+    //         orbit.position() = { 0, 0, 0 };
+    //     }
+    //     toggling_spy = false;
+    // }
     if (spying_next) {
         spy_index = (spy_index + 1) % container.boids().size();
         spying_next = false;
@@ -67,6 +74,10 @@ void Data::update(const TotoGL::Seconds& delta) {
 }
 
 void Data::draw(const TotoGL::Seconds& delta) {
+    global_light->setDirection({ 1, -1, 1 });
+    monitor->position() = { container.cubeRadius(), 0, 0 };
+    // monitor->lookAt(-camera.position());
+
     scene.clear();
     auto& boid_objects = boid_scene.objects();
     for (auto& object : boid_objects) {
@@ -74,8 +85,15 @@ void Data::draw(const TotoGL::Seconds& delta) {
     }
     scene.add(ambient_light);
     scene.add(global_light);
-    global_light->setDirection({ 1, -1, 1 });
+    scene.add(bounds);
     timers.push_back({ "scene preparation", timer.getDeltaTime() });
+
+    monitor_texture->draw([&]() {
+        renderer.clear();
+        renderer.render(scene, monitor_camera);
+        timers.push_back({ "monitor rendering", timer.getDeltaTime() });
+    });
+    scene.add(monitor);
 
     window.draw([&]() {
         renderer.clear();
@@ -105,18 +123,18 @@ void Data::draw(const TotoGL::Seconds& delta) {
             ImGui::SetNextWindowPos(ImVec2(0, window.size()[1] - h), ImGuiCond_Always, ImVec2(0, 1));
             ImGui::SetNextWindowSize(ImVec2(304, 0), ImGuiCond_Always);
             ImGui::Begin("Spy");
-            toggling_spy |= ImGui::Checkbox("Spy", &spy);
-            if (spy) {
-                spying_previous |= ImGui::Button("-");
-                ImGui::SameLine();
-                ImGui::Text("%zu", spy_index);
-                ImGui::SameLine();
-                spying_next |= ImGui::Button("+");
+            // toggling_spy |= ImGui::Checkbox("Spy", &spy);
+            // if (spy) {
+            spying_previous |= ImGui::Button("-");
+            ImGui::SameLine();
+            ImGui::Text("%zu", spy_index);
+            ImGui::SameLine();
+            spying_next |= ImGui::Button("+");
 
-                const auto& boid = container.boids()[spy_index];
-                ImGui::Text("Position = %f, %f, %f", boid.position().x, boid.position().y, boid.position().z);
-                ImGui::Text("Velocity = %f, %f, %f", boid.velocity().x, boid.velocity().y, boid.velocity().z);
-            }
+            const auto& boid = container.boids()[spy_index];
+            ImGui::Text("Position = %f, %f, %f", boid.position().x, boid.position().y, boid.position().z);
+            ImGui::Text("Velocity = %f, %f, %f", boid.velocity().x, boid.velocity().y, boid.velocity().z);
+            // }
             ImGui::End();
 
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
