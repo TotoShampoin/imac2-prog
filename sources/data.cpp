@@ -18,20 +18,11 @@ Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
 
     monitor->material().uniform("u_texture", monitor_texture->texture());
     monitor->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
-
-    // bounds->material().uniform("u_color", glm::vec4(1, 1, 1, 1));
-    // bounds->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
 }
 
 void Data::update(const TotoGL::Seconds& delta) {
     container.update(delta);
     auto container_update = timer.getDeltaTime();
-    // if (spy) {
-    //     orbit.position() = container.boids()[spy_index].position();
-    //     boid_scene.update(container, container.boids()[spy_index]);
-    // } else {
-    boid_scene.update(container);
-    // }
     auto& spied_boid = container.boids()[spy_index];
     monitor_camera.position() = spied_boid.position() - glm::normalize(spied_boid.velocity()) * 2.f;
     monitor_camera.lookAt(spied_boid.position());
@@ -39,6 +30,8 @@ void Data::update(const TotoGL::Seconds& delta) {
     auto scene_update = timer.getDeltaTime();
     orbit.apply(camera);
     auto orbit_update = timer.getDeltaTime();
+
+    boid_scene.update(container, camera);
 
     if (changing_amount) {
         container.resize(amount);
@@ -48,15 +41,6 @@ void Data::update(const TotoGL::Seconds& delta) {
         container.resetBoids();
         resetting = false;
     }
-    // if (toggling_spy) {
-    //     if (spy) {
-    //         orbit.distance() = 1;
-    //     } else {
-    //         orbit.distance() = 10;
-    //         orbit.position() = { 0, 0, 0 };
-    //     }
-    //     toggling_spy = false;
-    // }
     if (spying_next) {
         spy_index = (spy_index + 1) % container.boids().size();
         spying_next = false;
@@ -76,8 +60,8 @@ void Data::update(const TotoGL::Seconds& delta) {
 void Data::draw(const TotoGL::Seconds& delta) {
     global_light->setDirection({ 1, -1, 1 });
     monitor->position() = { container.cubeRadius(), 0, 0 };
-    // monitor->lookAt(-camera.position());
 
+    // TODO(Rendering) This bothers me a lot
     scene.clear();
     auto& boid_objects = boid_scene.objects();
     for (auto& object : boid_objects) {
@@ -94,7 +78,6 @@ void Data::draw(const TotoGL::Seconds& delta) {
         renderer.render(scene, monitor_camera);
         timers.push_back({ "monitor rendering", timer.getDeltaTime() });
     });
-    // scene.add(monitor);
 
     window.draw([&]() {
         renderer.clear();
@@ -122,12 +105,9 @@ void Data::draw(const TotoGL::Seconds& delta) {
             h = ImGui::GetWindowHeight();
             ImGui::End();
 
-            // ImGui::SetNextWindowPos(ImVec2(0, window.size()[1] - h), ImGuiCond_Always, ImVec2(0, 1));
             ImGui::SetNextWindowPos(ImVec2(window.size()[0], window.size()[1]), ImGuiCond_Always, ImVec2(1, 1));
             ImGui::SetNextWindowSize(ImVec2(304, 0), ImGuiCond_Always);
             ImGui::Begin("Spy");
-            // toggling_spy |= ImGui::Checkbox("Spy", &spy);
-            // if (spy) {
             spying_previous |= ImGui::Button("-");
             ImGui::SameLine();
             ImGui::Text("%zu", spy_index);
@@ -139,7 +119,6 @@ void Data::draw(const TotoGL::Seconds& delta) {
             ImGui::Image((void*)(intptr_t)monitor_texture->texture().id(),
                 ImVec2(monitor_texture->texture().width(), monitor_texture->texture().height()),
                 ImVec2(0, 1), ImVec2(1, 0));
-            // }
             ImGui::End();
 
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
