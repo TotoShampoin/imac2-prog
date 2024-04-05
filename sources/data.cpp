@@ -74,7 +74,7 @@ void Data::update(const TotoGL::Seconds& delta) {
 }
 
 void Data::draw(const TotoGL::Seconds& delta) {
-    global_light->setDirection({ 0, -1, 0 });
+    global_light->setDirection({ 1, -1, 1 });
     monitor->position() = { container.cubeRadius(), 0, 0 };
     // monitor->lookAt(-camera.position());
 

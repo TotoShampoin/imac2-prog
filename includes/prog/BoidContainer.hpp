@@ -48,9 +48,9 @@ private:
     float _returning_velocity { 10. };
 
     float _cube_radius { 3 };
-    float _attract_radius { .3 };
-    float _expell_radius { .2 };
-    float _returning_radius { .15 };
+    float _attract_radius { .5 };
+    float _expell_radius { .5 };
+    float _returning_radius { .3 };
 
     float _min_velocity { 1. };
     float _max_velocity { 2. };

@@ -23,7 +23,7 @@ private:
     std::vector<TotoGL::MaterialObjectInstanceId> _boid_objects;
     TotoGL::MaterialObjectInstanceId _boid_object_base {
         TotoGL::MaterialObjectFactory::create(
-            TotoGL::loadWavefront("assets/models/rubio/low.obj"))
+            TotoGL::loadWavefront("assets/models/rubio/lower.obj"))
     };
 
     // TotoGL::MeshInstanceId _boid_mesh { TotoGL::MeshFactory::create(
