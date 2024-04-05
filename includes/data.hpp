@@ -3,11 +3,11 @@
 #include "TotoGL/Loaders/WavefrontLoader.hpp"
 #include "TotoGL/Primitives/BufferTexture.hpp"
 #include "TotoGL/RenderObject/MaterialObject.hpp"
-#include "TotoGL/RenderObject/RenderObject.hpp"
 #include "TotoGL/RenderObject/Skydome.hpp"
 #include "gfx/BoidScene.hpp"
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
+#include <vector>
 
 constexpr auto WIDTH = 1024;
 constexpr auto HEIGHT = 768;
@@ -47,7 +47,11 @@ struct Data {
     TotoGL::MaterialObjectInstanceId bound_mesh {
         TotoGL::MaterialObjectFactory::create(TotoGL::loadWavefront("assets/models/aquarium.obj"))
     };
-    TotoGL::MaterialObjectInstanceId boid_mesh {
+
+    TotoGL::MaterialObjectInstanceId boid_mesh_high {
+        TotoGL::MaterialObjectFactory::create(TotoGL::loadWavefront("assets/models/rubio/high.obj"))
+    };
+    TotoGL::MaterialObjectInstanceId boid_mesh_low {
         TotoGL::MaterialObjectFactory::create(TotoGL::loadWavefront("assets/models/rubio/low.obj"))
     };
 
@@ -61,19 +65,13 @@ struct Data {
             glm::vec3(1, 1, 1), 1,
             TotoGL::LightType::DIRECTIONAL))
     };
+
     TotoGL::SkydomeInstanceId skydome {
         TotoGL::SkydomeFactory::create(TotoGL::Skydome(
             *TotoGL::TextureFactory::create(TotoGL::Texture(
                 std::ifstream("assets/textures/skydome.jpg")))))
     };
 
-    TotoGL::RenderObjectInstanceId monitor {
-        TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
-            TotoGL::MeshFactory::create(TotoGL::Mesh::quad()),
-            TotoGL::ShaderMaterialFactory::create(TotoGL::ShaderMaterial(
-                std::ifstream("assets/shaders/monitor.vert"),
-                std::ifstream("assets/shaders/monitor.frag")))))
-    };
     TotoGL::BufferTextureInstanceId monitor_texture {
         TotoGL::BufferTextureFactory::create(
             TotoGL::BufferTexture(256, 192))

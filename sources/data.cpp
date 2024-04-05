@@ -16,8 +16,8 @@ Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
     orbit.bindEvents(window, isImGuiFocused);
     initImGui(window);
 
-    monitor->material().uniform("u_texture", monitor_texture->texture());
-    monitor->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
+    boid_mesh_low->scaling() = glm::vec3(.15);
+    boid_mesh_high->scaling() = glm::vec3(.15);
 }
 
 void Data::update(const TotoGL::Seconds& delta) {
@@ -31,7 +31,7 @@ void Data::update(const TotoGL::Seconds& delta) {
     orbit.apply(camera);
     auto orbit_update = timer.getDeltaTime();
 
-    boid_scene.update(container, camera);
+    // boid_scene.update(container, camera);
 
     if (changing_amount) {
         container.resize(amount);
@@ -59,29 +59,48 @@ void Data::update(const TotoGL::Seconds& delta) {
 
 void Data::draw(const TotoGL::Seconds& delta) {
     global_light->setDirection({ 1, -1, 1 });
-    monitor->position() = { container.cubeRadius(), 0, 0 };
 
-    // TODO(Rendering) This bothers me a lot
-    scene.clear();
-    auto& boid_objects = boid_scene.objects();
-    for (auto& object : boid_objects) {
-        scene.add(object);
-    }
-    scene.add(ambient_light);
-    scene.add(global_light);
-    scene.add(bound_mesh);
-    scene.add(skydome);
-    timers.push_back({ "scene preparation", timer.getDeltaTime() });
+    // TODO(Rendering) Figure out why it's faster with the normal renderer than with the custom one
+    // even though the custom one is supposed to skip a lot of boids overhead...
+    static const auto custom_render = [&](TotoGL::Camera& cam) {
+        static auto lights = std::vector<TotoGL::LightInstanceId>({ ambient_light, global_light });
+        renderer.clear();
+        renderer.render(skydome->object(), cam);
+        renderer.clear(false, true, false);
+        renderer.render(*bound_mesh, cam, lights);
+        for (auto& boid : container.boids()) {
+            if (glm::distance(boid.position(), cam.position()) < 5) {
+                boid_mesh_high->position() = boid.position();
+                boid_mesh_high->lookAt(boid.position() + boid.velocity());
+                renderer.render(*boid_mesh_high, cam, lights);
+            } else {
+                boid_mesh_low->position() = boid.position();
+                boid_mesh_low->lookAt(boid.position() + boid.velocity());
+                renderer.render(*boid_mesh_low, cam, lights);
+            }
+        }
+    };
+
+    // scene.clear();
+    // auto& boid_objects = boid_scene.objects();
+    // for (auto& object : boid_objects) {
+    //     scene.add(object);
+    // }
+    // scene.add(ambient_light);
+    // scene.add(global_light);
+    // scene.add(bound_mesh);
+    // scene.add(skydome);
+    // timers.push_back({ "scene preparation", timer.getDeltaTime() });
 
     monitor_texture->draw([&]() {
-        renderer.clear();
-        renderer.render(scene, monitor_camera);
+        // renderer.render(scene, monitor_camera);
+        custom_render(monitor_camera);
         timers.push_back({ "monitor rendering", timer.getDeltaTime() });
     });
 
     window.draw([&]() {
-        renderer.clear();
-        renderer.render(scene, camera);
+        // renderer.render(scene, camera);
+        custom_render(camera);
         timers.push_back({ "scene rendering", timer.getDeltaTime() });
 
         renderImGui([&]() {
