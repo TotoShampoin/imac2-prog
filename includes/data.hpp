@@ -1,7 +1,10 @@
 #pragma once
 
+#include "TotoGL/Loaders/WavefrontLoader.hpp"
 #include "TotoGL/Primitives/BufferTexture.hpp"
+#include "TotoGL/RenderObject/MaterialObject.hpp"
 #include "TotoGL/RenderObject/RenderObject.hpp"
+#include "TotoGL/RenderObject/Skydome.hpp"
 #include "gfx/BoidScene.hpp"
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
@@ -41,12 +44,15 @@ struct Data {
     std::vector<std::pair<std::string, float>> timers;
 
     TotoGL::Scene scene;
-    TotoGL::RenderObjectInstanceId bounds {
-        TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
-            TotoGL::MeshFactory::create(TotoGL::Mesh::cube()),
-            TotoGL::ShaderMaterialFactory::create(TotoGL::ShaderMaterial(
-                std::ifstream("assets/shaders/shader.vert"),
-                std::ifstream("assets/shaders/shader.frag")))))
+    // TotoGL::RenderObjectInstanceId bounds {
+    //     TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
+    //         TotoGL::MeshFactory::create(TotoGL::Mesh::cube()),
+    //         TotoGL::ShaderMaterialFactory::create(TotoGL::ShaderMaterial(
+    //             std::ifstream("assets/shaders/shader.vert"),
+    //             std::ifstream("assets/shaders/shader.frag")))))
+    // };
+    TotoGL::MaterialObjectInstanceId bounds {
+        TotoGL::MaterialObjectFactory::create(TotoGL::loadWavefront("assets/models/aquarium.obj"))
     };
     TotoGL::LightInstanceId ambient_light {
         TotoGL::LightFactory::create(TotoGL::Light(
@@ -58,6 +64,11 @@ struct Data {
             glm::vec3(1, 1, 1), 1,
             TotoGL::LightType::DIRECTIONAL))
     };
+    TotoGL::SkydomeInstanceId skydome {
+        TotoGL::SkydomeFactory::create(TotoGL::Skydome(
+            *TotoGL::TextureFactory::create(TotoGL::Texture(
+                std::ifstream("assets/textures/skydome.jpg")))))
+    };
 
     TotoGL::RenderObjectInstanceId monitor {
         TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
@@ -68,9 +79,9 @@ struct Data {
     };
     TotoGL::BufferTextureInstanceId monitor_texture {
         TotoGL::BufferTextureFactory::create(
-            TotoGL::BufferTexture(512, 512))
+            TotoGL::BufferTexture(256, 192))
     };
-    TotoGL::Camera monitor_camera { TotoGL::Camera::Perspective(1, 1, .1, 100) };
+    TotoGL::Camera monitor_camera { TotoGL::Camera::Perspective(1, (float)256 / 192, .1, 100) };
 
     TotoGL::Camera camera { TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR) };
     TotoGL::OrbitControl orbit { -glm::pi<float>() / 6, glm::pi<float>() / 4, 10 };

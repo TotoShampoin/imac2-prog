@@ -19,8 +19,8 @@ Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
     monitor->material().uniform("u_texture", monitor_texture->texture());
     monitor->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
 
-    bounds->material().uniform("u_color", glm::vec4(1, 1, 1, 1));
-    bounds->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
+    // bounds->material().uniform("u_color", glm::vec4(1, 1, 1, 1));
+    // bounds->mesh().cull_face() = TotoGL::Mesh::CullFace::BACK;
 }
 
 void Data::update(const TotoGL::Seconds& delta) {
@@ -86,6 +86,7 @@ void Data::draw(const TotoGL::Seconds& delta) {
     scene.add(ambient_light);
     scene.add(global_light);
     scene.add(bounds);
+    scene.add(skydome);
     timers.push_back({ "scene preparation", timer.getDeltaTime() });
 
     monitor_texture->draw([&]() {
@@ -93,7 +94,7 @@ void Data::draw(const TotoGL::Seconds& delta) {
         renderer.render(scene, monitor_camera);
         timers.push_back({ "monitor rendering", timer.getDeltaTime() });
     });
-    scene.add(monitor);
+    // scene.add(monitor);
 
     window.draw([&]() {
         renderer.clear();
@@ -101,7 +102,7 @@ void Data::draw(const TotoGL::Seconds& delta) {
         timers.push_back({ "scene rendering", timer.getDeltaTime() });
 
         renderImGui([&]() {
-            float h;
+            float w, h;
             ImGui::SetNextWindowPos(ImVec2(0, window.size()[1]), ImGuiCond_Always, ImVec2(0, 1));
             ImGui::SetNextWindowSize(ImVec2(415, 0), ImGuiCond_Always);
             ImGui::Begin("Controls");
@@ -117,10 +118,12 @@ void Data::draw(const TotoGL::Seconds& delta) {
             ImGui::SliderFloat("Max velocity", &container.maxVelocity(), 0, 10);
             changing_amount |= ImGui::SliderInt("Amount", &amount, 0, 500);
             resetting |= ImGui::Button("Reset");
+            w = ImGui::GetWindowWidth();
             h = ImGui::GetWindowHeight();
             ImGui::End();
 
-            ImGui::SetNextWindowPos(ImVec2(0, window.size()[1] - h), ImGuiCond_Always, ImVec2(0, 1));
+            // ImGui::SetNextWindowPos(ImVec2(0, window.size()[1] - h), ImGuiCond_Always, ImVec2(0, 1));
+            ImGui::SetNextWindowPos(ImVec2(window.size()[0], window.size()[1]), ImGuiCond_Always, ImVec2(1, 1));
             ImGui::SetNextWindowSize(ImVec2(304, 0), ImGuiCond_Always);
             ImGui::Begin("Spy");
             // toggling_spy |= ImGui::Checkbox("Spy", &spy);
@@ -130,10 +133,12 @@ void Data::draw(const TotoGL::Seconds& delta) {
             ImGui::Text("%zu", spy_index);
             ImGui::SameLine();
             spying_next |= ImGui::Button("+");
-
             const auto& boid = container.boids()[spy_index];
             ImGui::Text("Position = %f, %f, %f", boid.position().x, boid.position().y, boid.position().z);
             ImGui::Text("Velocity = %f, %f, %f", boid.velocity().x, boid.velocity().y, boid.velocity().z);
+            ImGui::Image((void*)(intptr_t)monitor_texture->texture().id(),
+                ImVec2(monitor_texture->texture().width(), monitor_texture->texture().height()),
+                ImVec2(0, 1), ImVec2(1, 0));
             // }
             ImGui::End();
 
@@ -143,7 +148,7 @@ void Data::draw(const TotoGL::Seconds& delta) {
             for (const auto& [name, time] : timers) {
                 ImGui::Text("%s = %fs", name.c_str(), time);
             }
-            ImGui::Text("Frame time = %fs | %.0fHz", delta, 1 / delta);
+            ImGui::Text("Frame time = %fs | %3.0fHz", delta, 1 / delta);
             ImGui::End();
         });
     });
