@@ -35,7 +35,7 @@ void Data::update(const TotoGL::Seconds& delta) {
     auto& spied_boid = container.boids()[spy_index];
     monitor_camera.position() = spied_boid.position() - glm::normalize(spied_boid.velocity()) * 2.f;
     monitor_camera.lookAt(spied_boid.position());
-    bounds->scaling() = { container.cubeRadius() * 2, container.cubeRadius() * 2, container.cubeRadius() * 2 };
+    bound_mesh->scaling() = { container.cubeRadius() + .15, container.cubeRadius() + .15, container.cubeRadius() + .15 };
     auto scene_update = timer.getDeltaTime();
     orbit.apply(camera);
     auto orbit_update = timer.getDeltaTime();
@@ -74,7 +74,7 @@ void Data::update(const TotoGL::Seconds& delta) {
 }
 
 void Data::draw(const TotoGL::Seconds& delta) {
-    global_light->setDirection({ 1, -1, 1 });
+    global_light->setDirection({ 0, -1, 0 });
     monitor->position() = { container.cubeRadius(), 0, 0 };
     // monitor->lookAt(-camera.position());
 
@@ -85,7 +85,7 @@ void Data::draw(const TotoGL::Seconds& delta) {
     }
     scene.add(ambient_light);
     scene.add(global_light);
-    scene.add(bounds);
+    scene.add(bound_mesh);
     scene.add(skydome);
     timers.push_back({ "scene preparation", timer.getDeltaTime() });
 

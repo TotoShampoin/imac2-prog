@@ -33,7 +33,7 @@ struct Data {
     bool spying_previous = false;
 
     BoidContainer container { amount };
-    BoidRenderer boid_renderer;
+    // BoidRenderer boid_renderer;
     BoidScene boid_scene;
 
     TotoGL::Window& window;
@@ -44,16 +44,13 @@ struct Data {
     std::vector<std::pair<std::string, float>> timers;
 
     TotoGL::Scene scene;
-    // TotoGL::RenderObjectInstanceId bounds {
-    //     TotoGL::RenderObjectFactory::create(TotoGL::RenderObject(
-    //         TotoGL::MeshFactory::create(TotoGL::Mesh::cube()),
-    //         TotoGL::ShaderMaterialFactory::create(TotoGL::ShaderMaterial(
-    //             std::ifstream("assets/shaders/shader.vert"),
-    //             std::ifstream("assets/shaders/shader.frag")))))
-    // };
-    TotoGL::MaterialObjectInstanceId bounds {
+    TotoGL::MaterialObjectInstanceId bound_mesh {
         TotoGL::MaterialObjectFactory::create(TotoGL::loadWavefront("assets/models/aquarium.obj"))
     };
+    TotoGL::MaterialObjectInstanceId boid_mesh {
+        TotoGL::MaterialObjectFactory::create(TotoGL::loadWavefront("assets/models/rubio/low.obj"))
+    };
+
     TotoGL::LightInstanceId ambient_light {
         TotoGL::LightFactory::create(TotoGL::Light(
             glm::vec3(1, 1, 1), .1,
