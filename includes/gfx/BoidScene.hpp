@@ -2,9 +2,6 @@
 
 #include "TotoGL/Loaders/WavefrontLoader.hpp"
 #include "TotoGL/RenderObject/MaterialObject.hpp"
-#include "TotoGL/RenderObject/Mesh.hpp"
-#include "TotoGL/RenderObject/RenderObject.hpp"
-#include "TotoGL/RenderObject/ShaderMaterial.hpp"
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
 #include <functional>
