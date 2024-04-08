@@ -3,10 +3,10 @@
 
 newmtl lowpoly
 Ns 100.000000
-Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ni 1.500000
 d 1.000000
 illum 2
+map_Ka lowpoly_ambient.png
 map_Kd lowpoly.png
 map_Ke lowpoly_emissive.png
