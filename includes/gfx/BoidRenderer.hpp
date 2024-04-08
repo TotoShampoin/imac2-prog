@@ -20,7 +20,8 @@ struct BoidRenderer {
     // void update(const TotoGL::Seconds& delta, BoidContainer&);
     // void update(const TotoGL::Seconds& delta, BoidContainer&, const size_t& spy_index);
 
-    void render(const BoidContainer& container, std::optional<TotoGL::Camera> = std::nullopt);
+    void update(const BoidContainer&);
+    void render(const BoidContainer&, std::optional<TotoGL::Camera> = std::nullopt);
 
     TotoGL::Renderer& renderer;
 

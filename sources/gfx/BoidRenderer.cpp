@@ -45,27 +45,28 @@ BoidRenderer::~BoidRenderer() {
     TotoGL::TextureFactory::destroy(skydome_texture);
 }
 
+void BoidRenderer::update(const BoidContainer& container) {
+    bound_mesh->scaling() = { container.cubeRadius() + .15, container.cubeRadius() + .15, container.cubeRadius() + .15 };
+    orbit.apply(camera);
+}
+
 // TODO(Rendering) Figure out why it's faster with the normal renderer than with the custom one
 // even though the custom one is supposed to skip a lot of boids overhead...
 void BoidRenderer::render(const BoidContainer& container, std::optional<TotoGL::Camera> camera_opt) {
-    auto& camera = camera_opt.has_value() ? camera_opt.value() : this->camera;
-
-    bound_mesh->scaling() = { container.cubeRadius() + .15, container.cubeRadius() + .15, container.cubeRadius() + .15 };
-    orbit.apply(camera);
-
+    auto& used_camera = camera_opt.has_value() ? camera_opt.value() : this->camera;
     renderer.clear();
-    renderer.render(skydome->object(), camera);
+    renderer.render(skydome->object(), used_camera);
     renderer.clear(false, true, false);
-    renderer.render(*bound_mesh, camera, lights);
+    renderer.render(*bound_mesh, used_camera, lights);
     for (auto& boid : container.boids()) {
-        if (glm::distance(boid.position(), camera.position()) < 5) {
+        if (glm::distance(boid.position(), used_camera.position()) < 5) {
             boid_mesh_high->position() = boid.position();
             boid_mesh_high->lookAt(boid.position() + boid.velocity());
-            renderer.render(*boid_mesh_high, camera, lights);
+            renderer.render(*boid_mesh_high, used_camera, lights);
         } else {
             boid_mesh_low->position() = boid.position();
             boid_mesh_low->lookAt(boid.position() + boid.velocity());
-            renderer.render(*boid_mesh_low, camera, lights);
+            renderer.render(*boid_mesh_low, used_camera, lights);
         }
     }
 };

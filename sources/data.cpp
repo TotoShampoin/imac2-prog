@@ -18,7 +18,7 @@ void Data::update(const TotoGL::Seconds& delta) {
     auto& spied_boid = container.boids()[spy_index];
     monitor_camera.position() = spied_boid.position() - glm::normalize(spied_boid.velocity()) * 2.f;
     monitor_camera.lookAt(spied_boid.position());
-
+    boid_renderer.update(container);
     if (changing_amount) {
         container.resize(amount);
         changing_amount = false;
