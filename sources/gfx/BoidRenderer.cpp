@@ -9,6 +9,8 @@ constexpr size_t DIRECTIONAL_LIGHT = 1;
 BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     : renderer(renderer) {
 
+    const auto& [width, height] = window.size();
+
     skydome_texture = TotoGL::TextureFactory::create(
         TotoGL::Texture(std::ifstream("assets/textures/skydome.jpg")));
     bound_mesh = TotoGL::MaterialObjectFactory::create(
@@ -18,8 +20,8 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     boid_mesh_low = TotoGL::MaterialObjectFactory::create(
         TotoGL::loadWavefront("assets/models/rubio/low.obj"));
 
-    camera = TotoGL::Camera::Perspective(FOV, (float)WIDTH / HEIGHT, NEAR, FAR);
-    lights.push_back(TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, .1, TotoGL::LightType::AMBIENT)));
+    camera = TotoGL::Camera::Perspective(FOV, (float)width / height, NEAR, FAR);
+    lights.push_back(TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, .3, TotoGL::LightType::AMBIENT)));
     lights.push_back(TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, 1, TotoGL::LightType::DIRECTIONAL)));
     skydome = TotoGL::SkydomeFactory::create(TotoGL::Skydome(*skydome_texture));
 

@@ -1,7 +1,7 @@
 #include "data.hpp"
 
 int main(int argc, const char* argv[]) {
-    auto window = TotoGL::Window(WIDTH, HEIGHT, "Boids IMAC");
+    auto window = TotoGL::Window(1024, 768, "Boids IMAC", true);
     auto renderer = TotoGL::Renderer();
     auto data = Data(window, renderer);
 
