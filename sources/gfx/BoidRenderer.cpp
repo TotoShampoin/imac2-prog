@@ -23,6 +23,8 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
         TotoGL::loadWavefront("assets/models/rubio/high.obj"));
     boid_mesh_low = TotoGL::MaterialObjectFactory::create(
         TotoGL::loadWavefront("assets/models/rubio/low.obj"));
+    player_mesh = TotoGL::MaterialObjectFactory::create(
+        TotoGL::loadWavefront("assets/models/goldie.obj"));
 
     camera = TotoGL::Camera::Perspective(FOV, (float)width / height, NEAR, FAR);
     lights.push_back(TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, .3, TotoGL::LightType::AMBIENT)));
@@ -37,6 +39,7 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
 
     boid_mesh_low->scaling() = glm::vec3(.15);
     boid_mesh_high->scaling() = glm::vec3(.15);
+    player_mesh->scaling() = glm::vec3(1.5);
 
     lights[DIRECTIONAL_LIGHT]->setDirection({ 1, -1, 1 });
 }
@@ -64,6 +67,7 @@ void BoidRenderer::render(const BoidContainer& container, std::optional<TotoGL::
     renderer.render(skydome->object(), used_camera);
     renderer.clear(false, true, false);
     renderer.render(*bound_mesh, used_camera, lights);
+    renderer.render(*player_mesh, used_camera, lights);
     for (auto& boid : container.boids()) {
         if (glm::distance(boid.position(), used_camera.position()) < 5) {
             boid_mesh_high->position() = boid.position();

@@ -26,6 +26,7 @@ struct BoidRenderer {
     TotoGL::MaterialObjectInstanceId bound_mesh;
     TotoGL::MaterialObjectInstanceId boid_mesh_high;
     TotoGL::MaterialObjectInstanceId boid_mesh_low;
+    TotoGL::MaterialObjectInstanceId player_mesh;
 
     TotoGL::Camera camera;
     std::vector<TotoGL::LightInstanceId> lights;
