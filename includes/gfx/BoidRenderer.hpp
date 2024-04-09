@@ -2,9 +2,9 @@
 
 #include "TotoGL/Primitives/Texture.hpp"
 #include "TotoGL/RenderObject/Light.hpp"
+#include "gfx/Player.hpp"
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
-#include <optional>
 #include <vector>
 
 constexpr auto WIDTH = 1024;
@@ -17,8 +17,7 @@ struct BoidRenderer {
     BoidRenderer(TotoGL::Window&, TotoGL::Renderer&);
     ~BoidRenderer();
 
-    void update(const BoidContainer&);
-    void render(const BoidContainer&, std::optional<TotoGL::Camera> = std::nullopt);
+    void render(const BoidContainer&, const Player&, TotoGL::Camera&);
 
     TotoGL::Renderer& renderer;
 
@@ -28,10 +27,6 @@ struct BoidRenderer {
     TotoGL::MaterialObjectInstanceId boid_mesh_low;
     TotoGL::MaterialObjectInstanceId player_mesh;
 
-    TotoGL::Camera camera;
     std::vector<TotoGL::LightInstanceId> lights;
-
     TotoGL::SkydomeInstanceId skydome;
-
-    TotoGL::OrbitControl orbit { -glm::pi<float>() / 6, glm::pi<float>() / 4, 10 };
 };

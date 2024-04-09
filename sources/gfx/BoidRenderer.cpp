@@ -1,7 +1,6 @@
 #include "gfx/BoidRenderer.hpp"
 #include "TotoGL/RenderObject/Camera.hpp"
 #include "TotoGL/Window.hpp"
-#include "prog/imgui-impl.hpp"
 
 constexpr size_t AMBIENT_LIGHT = 0;
 constexpr size_t DIRECTIONAL_LIGHT = 1;
@@ -26,16 +25,9 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     player_mesh = TotoGL::MaterialObjectFactory::create(
         TotoGL::loadWavefront("assets/models/goldie.obj"));
 
-    camera = TotoGL::Camera::Perspective(FOV, (float)width / height, NEAR, FAR);
     lights.push_back(TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, .3, TotoGL::LightType::AMBIENT)));
     lights.push_back(TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, 1, TotoGL::LightType::DIRECTIONAL)));
     skydome = TotoGL::SkydomeFactory::create(TotoGL::Skydome(*skydome_texture));
-
-    window.on(TotoGL::VectorEventName::WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
-        glViewport(0, 0, event.x, event.y);
-        camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
-    });
-    orbit.bindEvents(window, isImGuiFocused);
 
     boid_mesh_low->scaling() = glm::vec3(.15);
     boid_mesh_high->scaling() = glm::vec3(.15);
@@ -54,15 +46,13 @@ BoidRenderer::~BoidRenderer() {
     TotoGL::TextureFactory::destroy(skydome_texture);
 }
 
-void BoidRenderer::update(const BoidContainer& container) {
-    bound_mesh->scaling() = glm::vec3(container.cubeRadius() + .15);
-    orbit.apply(camera);
-}
-
 // TODO(Rendering) Figure out why it's faster with the normal renderer than with the custom one
 // even though the custom one is supposed to skip a lot of boids overhead...
-void BoidRenderer::render(const BoidContainer& container, std::optional<TotoGL::Camera> camera_opt) {
-    auto& used_camera = camera_opt.has_value() ? camera_opt.value() : this->camera;
+void BoidRenderer::render(const BoidContainer& container, const Player& player, TotoGL::Camera& used_camera) {
+    // auto& used_camera = camera_opt.has_value() ? camera_opt.value() : this->camera;
+    bound_mesh->scaling() = glm::vec3(container.cubeRadius() + .15);
+    player_mesh->position() = player.position();
+
     renderer.clear();
     renderer.render(skydome->object(), used_camera);
     renderer.clear(false, true, false);
