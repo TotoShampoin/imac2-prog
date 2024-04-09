@@ -3,6 +3,7 @@
 #include "TotoGL/RenderObject/Camera.hpp"
 #include "TotoGL/Window.hpp"
 #include "gfx/BoidRenderer.hpp"
+#include "gfx/Player.hpp"
 #include "prog/BoidContainer.hpp"
 #include <vector>
 
@@ -26,13 +27,18 @@ struct Data {
     TotoGL::Window& window;
 
     BoidContainer container { amount };
+    Player player;
+    glm::vec3 player_direction { 0 };
+
     BoidRenderer boid_renderer;
 
     TotoGL::Clock clock;
     TotoGL::Clock timer;
 
     TotoGL::BufferTextureInstanceId monitor_texture;
+    TotoGL::Camera camera { TotoGL::Camera::Perspective(1, (float)WIDTH / HEIGHT, .1, 100) };
     TotoGL::Camera monitor_camera { TotoGL::Camera::Perspective(1, (float)256 / 192, .1, 100) };
+    TotoGL::OrbitControl orbit { -glm::pi<float>() / 6, glm::pi<float>() / 4, 10 };
 
     std::vector<std::pair<std::string, float>> timers;
 };

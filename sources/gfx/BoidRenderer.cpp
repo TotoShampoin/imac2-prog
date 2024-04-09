@@ -4,6 +4,7 @@
 
 constexpr size_t AMBIENT_LIGHT = 0;
 constexpr size_t DIRECTIONAL_LIGHT = 1;
+constexpr size_t PLAYER_LIGHT = 2;
 
 BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     : renderer(renderer) {
@@ -27,6 +28,7 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
 
     lights.push_back(TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, .3, TotoGL::LightType::AMBIENT)));
     lights.push_back(TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, 1, TotoGL::LightType::DIRECTIONAL)));
+    lights.push_back(TotoGL::LightFactory::create(TotoGL::Light({ 1, .6, 0 }, 3, TotoGL::LightType::POINT)));
     skydome = TotoGL::SkydomeFactory::create(TotoGL::Skydome(*skydome_texture));
 
     boid_mesh_low->scaling() = glm::vec3(.15);
@@ -52,6 +54,12 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
     // auto& used_camera = camera_opt.has_value() ? camera_opt.value() : this->camera;
     bound_mesh->scaling() = glm::vec3(container.cubeRadius() + .15);
     player_mesh->position() = player.position();
+    lights[PLAYER_LIGHT]->position() = player.position();
+    if (glm::abs(player.direction().y) > .99) {
+        player_mesh->lookAt(player.position() + player.direction(), { 1, 0, 0 });
+    } else {
+        player_mesh->lookAt(player.position() + player.direction());
+    }
 
     renderer.clear();
     renderer.render(skydome->object(), used_camera);

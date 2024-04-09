@@ -11,14 +11,52 @@ Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
     , boid_renderer(window, renderer) {
     initImGui(window);
     monitor_texture = TotoGL::BufferTextureFactory::create(TotoGL::BufferTexture(256, 192));
+    orbit.bindEvents(window, isImGuiFocused);
+    window.on(TotoGL::VectorEventName::WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
+        glViewport(0, 0, event.x, event.y);
+        camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
+    });
+    window.on(TotoGL::InputEventName::KEY, [&](const TotoGL::InputEvent& event) {
+        if (event.action == GLFW_PRESS || event.action == GLFW_REPEAT) {
+            if (event.button == GLFW_KEY_W)
+                player_direction.z = -1;
+            if (event.button == GLFW_KEY_S)
+                player_direction.z = 1;
+            if (event.button == GLFW_KEY_A)
+                player_direction.x = -1;
+            if (event.button == GLFW_KEY_D)
+                player_direction.x = 1;
+            if (event.button == GLFW_KEY_SPACE)
+                player_direction.y = 1;
+            if (event.button == GLFW_KEY_LEFT_SHIFT)
+                player_direction.y = -1;
+        }
+        if (event.action == GLFW_RELEASE) {
+            if (event.button == GLFW_KEY_W)
+                player_direction.z = 0;
+            if (event.button == GLFW_KEY_S)
+                player_direction.z = 0;
+            if (event.button == GLFW_KEY_A)
+                player_direction.x = 0;
+            if (event.button == GLFW_KEY_D)
+                player_direction.x = 0;
+            if (event.button == GLFW_KEY_SPACE)
+                player_direction.y = 0;
+            if (event.button == GLFW_KEY_LEFT_SHIFT)
+                player_direction.y = 0;
+        }
+    });
 }
 
 void Data::update(const TotoGL::Seconds& delta) {
     container.update(delta);
+    player.move(player_direction);
+    player.update(delta);
     auto& spied_boid = container.boids()[spy_index];
     monitor_camera.position() = spied_boid.position() - glm::normalize(spied_boid.velocity()) * 2.f;
     monitor_camera.lookAt(spied_boid.position());
-    boid_renderer.update(container);
+    orbit.position() = player.position();
+    orbit.apply(camera);
     if (changing_amount) {
         container.resize(amount);
         changing_amount = false;
@@ -42,12 +80,12 @@ void Data::update(const TotoGL::Seconds& delta) {
 
 void Data::draw(const TotoGL::Seconds& delta) {
     monitor_texture->draw([&]() {
-        boid_renderer.render(container, monitor_camera);
+        boid_renderer.render(container, player, monitor_camera);
         timers.push_back({ "monitor rendering", timer.getDeltaTime() });
     });
 
     window.draw([&]() {
-        boid_renderer.render(container);
+        boid_renderer.render(container, player, camera);
         timers.push_back({ "scene rendering", timer.getDeltaTime() });
 
         renderImGui([&] {
