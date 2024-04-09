@@ -7,8 +7,8 @@
 #include <optional>
 #include <vector>
 
-// constexpr auto WIDTH = 1024;
-// constexpr auto HEIGHT = 768;
+constexpr auto WIDTH = 1024;
+constexpr auto HEIGHT = 768;
 constexpr auto FOV = glm::radians(70.);
 constexpr auto NEAR = .1;
 constexpr auto FAR = 100.;
@@ -16,9 +16,6 @@ constexpr auto FAR = 100.;
 struct BoidRenderer {
     BoidRenderer(TotoGL::Window&, TotoGL::Renderer&);
     ~BoidRenderer();
-
-    // void update(const TotoGL::Seconds& delta, BoidContainer&);
-    // void update(const TotoGL::Seconds& delta, BoidContainer&, const size_t& spy_index);
 
     void update(const BoidContainer&);
     void render(const BoidContainer&, std::optional<TotoGL::Camera> = std::nullopt);

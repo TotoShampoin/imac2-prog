@@ -9,7 +9,11 @@ constexpr size_t DIRECTIONAL_LIGHT = 1;
 BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     : renderer(renderer) {
 
-    const auto& [width, height] = window.size();
+    auto [width, height] = window.size();
+    if (width == 0 || height == 0) {
+        width = WIDTH;
+        height = HEIGHT;
+    }
 
     skydome_texture = TotoGL::TextureFactory::create(
         TotoGL::Texture(std::ifstream("assets/textures/skydome.jpg")));
@@ -48,7 +52,7 @@ BoidRenderer::~BoidRenderer() {
 }
 
 void BoidRenderer::update(const BoidContainer& container) {
-    bound_mesh->scaling() = { container.cubeRadius() + .15, container.cubeRadius() + .15, container.cubeRadius() + .15 };
+    bound_mesh->scaling() = glm::vec3(container.cubeRadius() + .15);
     orbit.apply(camera);
 }
 
