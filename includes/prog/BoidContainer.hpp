@@ -47,7 +47,7 @@ private:
     float _centering_factor { .01 };
     float _returning_velocity { 10. };
 
-    float _cube_radius { 3 };
+    float _cube_radius { 5 };
     float _attract_radius { .5 };
     float _expell_radius { .5 };
     float _returning_radius { .3 };

@@ -4,6 +4,22 @@
 #include <glm/glm.hpp>
 #include <random>
 
+void randomizeBoid(Boid& boid, const float& radius) {
+    static std::uniform_real_distribution<float> _distribution { -1, 1 };
+    static std::random_device _random {};
+
+    boid.position() = {
+        _distribution(_random) * radius,
+        _distribution(_random) * radius,
+        _distribution(_random) * radius
+    };
+    boid.velocity() = {
+        _distribution(_random),
+        _distribution(_random),
+        _distribution(_random)
+    };
+}
+
 BoidContainer::BoidContainer(const size_t& amount)
     : _boids(amount) {
     resetBoids();
@@ -32,60 +48,24 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
         boid.updatePosition(delta);
 
         if (glm::any(glm::isnan(boid.position()))) {
-            auto distribution = std::uniform_real_distribution<float>(-1, 1);
-            auto random = std::random_device();
-            boid.position() = {
-                distribution(random),
-                distribution(random),
-                distribution(random)
-            };
-            boid.velocity() = {
-                distribution(random),
-                distribution(random),
-                distribution(random)
-            };
+            randomizeBoid(boid, _cube_radius);
         }
     }
 }
 
 void BoidContainer::resize(const size_t& amount) {
-    auto distribution = std::uniform_real_distribution<float>(-1, 1);
-    auto random = std::random_device();
-
     const auto old_size = _boids.size();
     _boids.resize(amount);
     for (auto i = old_size; i < amount; i++) {
-        auto& boid = _boids[i];
-        boid.position() = {
-            distribution(random),
-            distribution(random),
-            distribution(random)
-        };
-        boid.velocity() = {
-            distribution(random),
-            distribution(random),
-            distribution(random)
-        };
+        randomizeBoid(_boids[i], _cube_radius);
     }
 }
 void BoidContainer::resetBoids(const std::optional<size_t>& amount) {
-    auto distribution = std::uniform_real_distribution<float>(-1, 1);
-    auto random = std::random_device();
-
     if (amount.has_value())
         resize(amount.value());
 
     for (auto& boid : _boids) {
-        boid.position() = {
-            distribution(random),
-            distribution(random),
-            distribution(random)
-        };
-        boid.velocity() = {
-            distribution(random),
-            distribution(random),
-            distribution(random)
-        };
+        randomizeBoid(boid, _cube_radius);
     }
 }
 
