@@ -18,10 +18,10 @@ public:
         _position += _velocity * delta;
     }
 
-    void move(const glm::vec3& direction) {
+    void move(const glm::vec3& direction, const TotoGL::Seconds& delta) {
         if (glm::length(direction) > 0)
             _direction = glm::normalize(direction);
-        _velocity = direction;
+        _velocity = glm::mix(_velocity, direction * 10.f, delta);
     }
 
 private:

@@ -36,8 +36,8 @@ struct Data {
     TotoGL::Clock timer;
 
     TotoGL::BufferTextureInstanceId monitor_texture;
-    TotoGL::Camera camera { TotoGL::Camera::Perspective(1, (float)WIDTH / HEIGHT, .1, 100) };
-    TotoGL::Camera monitor_camera { TotoGL::Camera::Perspective(1, (float)256 / 192, .1, 100) };
+    TotoGL::Camera camera { TotoGL::Camera::Perspective(glm::radians(60.f), (float)WIDTH / HEIGHT, .1, 100) };
+    TotoGL::Camera monitor_camera { TotoGL::Camera::Perspective(glm::radians(90.f), (float)256 / 192, .15, 100) };
     TotoGL::OrbitControl orbit { -glm::pi<float>() / 6, glm::pi<float>() / 4, 10 };
 
     std::vector<std::pair<std::string, float>> timers;
