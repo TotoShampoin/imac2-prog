@@ -66,13 +66,4 @@ Type binomial(Type p, int n) {
     throw std::logic_error("Binomial distribution failed");
 }
 
-template <typename Type>
-Type normal(Type u, Type o) {
-    Type x = uniform<Type>();
-    Type shift = (x - u) / o;
-    Type exponent = static_cast<Type>(-0.5) * shift * shift;
-    Type factor = static_cast<Type>(1) / (o * std::sqrt<Type>(2 * M_PI));
-    return factor * std::exp<Type>(exponent);
-}
-
 } // namespace Random
