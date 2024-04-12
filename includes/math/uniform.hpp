@@ -13,7 +13,7 @@ public:
 private:
     std::random_device random;
     std::mt19937 generator { random() };
-    std::uniform_real_distribution<Type> distribution;
+    std::uniform_real_distribution<Type> distribution { 0, 1 };
 };
 
 } // namespace Random
