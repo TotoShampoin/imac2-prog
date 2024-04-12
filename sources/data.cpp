@@ -30,7 +30,7 @@ Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
     , boid_renderer(window, renderer) {
     initImGui(window);
     monitor_texture = TotoGL::BufferTextureFactory::create(TotoGL::BufferTexture(256, 192));
-    orbit.bindEvents(window, isImGuiFocused);
+    orbit.bindEvents(window, isImGuiFocused, true);
     window.on(TotoGL::VectorEventName::WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
         glViewport(0, 0, event.x, event.y);
         camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
@@ -60,7 +60,9 @@ void Data::update(const TotoGL::Seconds& delta) {
         spy_index = (spy_index + container.boids().size() - 1) % container.boids().size();
         spying_previous = false;
     }
-    player.move(player_direction, delta);
+    glm::vec3 direction = orbit.front(true) * -player_direction.z + orbit.right(true) * player_direction.x + orbit.up(true) * player_direction.y;
+
+    player.move(direction, delta);
 
     // update
     container.update(delta);
