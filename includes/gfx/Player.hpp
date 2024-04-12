@@ -9,23 +9,19 @@ public:
     glm::vec3& position() { return _position; }
     glm::vec3& direction() { return _direction; }
     glm::vec3& velocity() { return _velocity; }
+    float& speed() { return _speed; }
 
     glm::vec3 position() const { return _position; }
     glm::vec3 direction() const { return _direction; }
     glm::vec3 velocity() const { return _velocity; }
+    float speed() const { return _speed; }
 
-    void update(const TotoGL::Seconds& delta) {
-        _position += _velocity * delta;
-    }
-
-    void move(const glm::vec3& direction, const TotoGL::Seconds& delta) {
-        if (glm::length(direction) > 0)
-            _direction = glm::normalize(direction);
-        _velocity = glm::mix(_velocity, direction * 10.f, delta);
-    }
+    void update(const TotoGL::Seconds& delta);
+    void move(const glm::vec3& direction, const TotoGL::Seconds& delta);
 
 private:
     glm::vec3 _position { 0 };
     glm::vec3 _direction { 0, 0, -1 };
     glm::vec3 _velocity { 0 };
+    float _speed { 10.f };
 };
