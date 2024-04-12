@@ -6,7 +6,7 @@ namespace Random {
 template <typename Type>
 class Uniform {
 public:
-    Type operator()() {
+    Type operator()() const {
         return distribution(generator);
     }
 

@@ -9,7 +9,7 @@ public:
     Poisson(Type parameter)
         : rng(parameter) { }
 
-    Type operator()() {
+    Type operator()() const {
         Type T = 0;
         uint N = 0;
         while (T < 1) {

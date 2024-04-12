@@ -19,7 +19,7 @@ public:
         }
     }
 
-    Type operator()() {
+    Type operator()() const {
         Type x = rng();
         Type sum = 0;
         for (int i = 0; i < probability_list.size(); i++) {
