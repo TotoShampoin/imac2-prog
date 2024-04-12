@@ -29,5 +29,6 @@ void renderImGui(std::function<void(void)>&& f) {
 }
 
 bool isImGuiFocused() {
-    return ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow);
+    // return ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow);
+    return ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
 }
