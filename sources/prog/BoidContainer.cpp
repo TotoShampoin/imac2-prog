@@ -1,22 +1,21 @@
 #include "prog/BoidContainer.hpp"
+#include "math/uniform.hpp"
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
-#include <random>
 
 void randomizeBoid(Boid& boid, const float& radius) {
-    static std::uniform_real_distribution<float> _distribution { -1, 1 };
-    static std::random_device _random {};
+    static auto _rangom_number_generator = Random::Uniform<float>(-1, 1);
 
     boid.position() = {
-        _distribution(_random) * radius,
-        _distribution(_random) * radius,
-        _distribution(_random) * radius
+        _rangom_number_generator() * radius,
+        _rangom_number_generator() * radius,
+        _rangom_number_generator() * radius
     };
     boid.velocity() = {
-        _distribution(_random),
-        _distribution(_random),
-        _distribution(_random)
+        _rangom_number_generator(),
+        _rangom_number_generator(),
+        _rangom_number_generator()
     };
 }
 
