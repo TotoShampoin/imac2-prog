@@ -15,8 +15,9 @@ constexpr uint64_t factorial(uint8_t n) {
     }
     return result;
 }
+
+// ! Fails for 63 choose 31 and above
 constexpr uint64_t binom(uint8_t n, uint8_t k) {
-    // return factorial(n) / (factorial(k) * factorial(n - k));
     if (k > n) {
         throw std::invalid_argument("k must be less than or equal to n");
     }

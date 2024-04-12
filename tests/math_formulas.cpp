@@ -2,27 +2,44 @@
 #include <math/random.hpp>
 
 TEST(Math, Factorial) {
-    EXPECT_EQ(Math::factorial(4), 24UL);
-    EXPECT_EQ(Math::factorial(8), 40320UL);
-    EXPECT_EQ(Math::factorial(12), 479001600UL);
-    EXPECT_EQ(Math::factorial(16), 20922789888000UL);
-    EXPECT_EQ(Math::factorial(20), 2432902008176640000UL);
+    // Generated with math.factorial in Python
+    auto units = std::map<uint8_t, uint64_t> {
+        { 4, 24 },
+        { 8, 40320 },
+        { 12, 479001600 },
+        { 16, 20922789888000 },
+        { 20, 2432902008176640000 }
+    };
+    for (auto& t : units) {
+        EXPECT_EQ(Math::factorial(t.first), t.second);
+    }
     EXPECT_THROW(Math::factorial(21), std::overflow_error);
 }
 
 TEST(Math, Binom) {
-    EXPECT_EQ(Math::binom(4, 2), 6UL);
-    EXPECT_EQ(Math::binom(8, 3), 56UL);
-    EXPECT_EQ(Math::binom(12, 5), 792UL);
-    EXPECT_EQ(Math::binom(16, 8), 12870UL);
-    EXPECT_EQ(Math::binom(20, 10), 184756UL);
+    // Generated with math.comb in Python
+    auto units = std::map<uint8_t, uint64_t> {
+        { 4, 6 },
+        { 8, 70 },
+        { 12, 924 },
+        { 16, 12870 },
+        { 20, 184756 }
+    };
+    for (auto& t : units) {
+        EXPECT_EQ(Math::binom(t.first, t.first / 2), t.second);
+    }
 }
 
-// Expect this to fail when using factorials
-// If it doesn't, that means you're not using factorials
-// which means good job :)
+// This is to explicitly avoid factorials for this
 TEST(Math, Binom_large) {
-    EXPECT_EQ(Math::binom(40, 20), 137846528820UL);
-    EXPECT_EQ(Math::binom(50, 25), 126410606437752UL);
-    EXPECT_EQ(Math::binom(60, 30), 118264581564861424UL);
+    // Generated with math.comb in Python
+    auto units = std::map<uint8_t, uint64_t> {
+        { 40, 137846528820 },
+        { 50, 126410606437752 },
+        { 60, 118264581564861424 },
+        { 62, 465428353255261088 }
+    };
+    for (auto& t : units) {
+        EXPECT_EQ(Math::binom(t.first, t.first / 2), t.second);
+    }
 }
