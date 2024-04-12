@@ -10,7 +10,7 @@ public:
         : _parameter(parameter)
         , _rng(parameter) { }
 
-    Type operator()() const {
+    Type operator()() {
         Type T = 0;
         uint N = 0;
         while (T < 1) {

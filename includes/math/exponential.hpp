@@ -10,7 +10,7 @@ public:
     Exponential(Type parameter)
         : _parameter(parameter) { }
 
-    Type operator()() const {
+    Type operator()() {
         return -std::log(static_cast<Type>(1) - _rng()) / _parameter;
     }
 
