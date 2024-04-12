@@ -7,23 +7,23 @@
 namespace Random {
 
 template <typename Type>
-// template <typename Type, Type probability, int trials>
 class Binomial {
 public:
-    Binomial(Type probability, int trials) {
-        // Binomial() {
-        probability_list.reserve(trials + 1);
+    Binomial(Type probability, int trials)
+        : _probability(probability)
+        , _trials(trials) {
+        _probability_list.reserve(trials + 1);
         for (int i = 0; i <= trials; i++) {
-            probability_list.push_back(
+            _probability_list.push_back(
                 Math::binomialProbability<Type>(probability, trials, i));
         }
     }
 
     Type operator()() const {
-        Type x = rng();
+        Type x = _rng();
         Type sum = 0;
-        for (int i = 0; i < probability_list.size(); i++) {
-            sum += probability_list[i];
+        for (int i = 0; i < _probability_list.size(); i++) {
+            sum += _probability_list[i];
             if (x < sum) {
                 return i;
             }
@@ -31,9 +31,14 @@ public:
         throw std::runtime_error("Binomial distribution failed");
     }
 
+    Type probability() const { return _probability; }
+    int trials() const { return _trials; }
+
 private:
-    Uniform<Type> rng;
-    std::vector<Type> probability_list;
+    Type _probability;
+    int _trials;
+    Uniform<Type> _rng;
+    std::vector<Type> _probability_list;
 };
 
 } // namespace Random

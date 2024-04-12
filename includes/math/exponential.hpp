@@ -8,15 +8,17 @@ template <typename Type>
 class Exponential {
 public:
     Exponential(Type parameter)
-        : parameter(parameter) { }
+        : _parameter(parameter) { }
 
     Type operator()() const {
-        return -std::log(static_cast<Type>(1) - rng()) / parameter;
+        return -std::log(static_cast<Type>(1) - _rng()) / _parameter;
     }
 
+    Type parameter() const { return _parameter; }
+
 private:
-    Type parameter;
-    Uniform<Type> rng;
+    Type _parameter;
+    Uniform<Type> _rng;
 };
 
 } // namespace Random
