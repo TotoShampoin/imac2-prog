@@ -106,3 +106,12 @@ TEST(Random, Poisson) {
     auto variance = L;
     test_rng(rng, N, expected, variance, ERR);
 }
+
+TEST(Random, Normal) {
+    const int N = 1'000'000;
+    const float ERR = .01f;
+    auto rng = Random::Normal<float>();
+    auto expected = 0;
+    auto variance = 1;
+    test_rng(rng, N, expected, variance, ERR);
+}
