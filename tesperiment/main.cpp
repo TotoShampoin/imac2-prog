@@ -1,8 +1,13 @@
 #include "math/binomial.hpp"
+#include "prog/imgui-impl.hpp"
+
+#include <imgui.h>
+
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
+#include <TotoGL/Window.hpp>
 #include <algorithm>
-#include <iomanip>
-#include <ios>
-#include <iostream>
 #include <math/random.hpp>
 #include <vector>
 
@@ -10,8 +15,28 @@ constexpr int N = 1'000'000;
 constexpr int RESOLUTION = 20;
 constexpr int HISTOGRAM_HEIGHT = 160;
 
+template <typename Type>
+struct Histogram {
+    std::vector<int> values;
+    Type min;
+    Type max;
+    int height() const {
+        return *std::max_element(values.begin(), values.end());
+    }
+    int sum() const {
+        return std::accumulate(values.begin(), values.end(), 0);
+    }
+    std::vector<float> normalized() const {
+        std::vector<float> normalized_values(values.size());
+        for (int i = 0; i < values.size(); i++) {
+            normalized_values[i] = static_cast<float>(values[i]) / sum();
+        }
+        return normalized_values;
+    }
+};
+
 template <class RNG>
-void testDistributionReal(RNG& rng, int n = N, int res = RESOLUTION) {
+Histogram<float> testDistributionReal(RNG& rng, int n = N, int res = RESOLUTION) {
     std::vector<float> values(n);
     for (int i = 0; i < n; i++) {
         values[i] = rng();
@@ -24,19 +49,11 @@ void testDistributionReal(RNG& rng, int n = N, int res = RESOLUTION) {
         int index = (values[i] - min) / step;
         histogram[index]++;
     }
-    // leading spaces
-    std::cout << std::setprecision(3) << std::fixed;
-    for (int i = 0; i < res; i++) {
-        std::cout << i * step + min << "\t" << histogram[i] << " \t";
-        for (int j = 0; j < histogram[i] * HISTOGRAM_HEIGHT / n; j++) {
-            std::cout << ">";
-        }
-        std::cout << std::endl;
-    }
+    return { histogram, min, max };
 }
 
 template <class RNG>
-void testDistributionInt(RNG& rng, int n = N) {
+Histogram<int> testDistributionInt(RNG& rng, int n = N) {
     std::vector<int> values(n);
     for (int i = 0; i < n; i++) {
         values[i] = rng();
@@ -48,34 +65,95 @@ void testDistributionInt(RNG& rng, int n = N) {
     for (int i = 0; i < n; i++) {
         histogram[values[i] - min]++;
     }
-    // leading spaces
-    std::cout << std::setprecision(3) << std::fixed;
-    for (int i = 0; i < res; i++) {
-        std::cout << i + min << "\t" << histogram[i] << " \t";
-        for (int j = 0; j < histogram[i] * HISTOGRAM_HEIGHT / n; j++) {
-            std::cout << ">";
-        }
-        std::cout << std::endl;
-    }
+    return { histogram, min, max };
 }
 
 int main(int argc, const char* argv[]) {
     Random::Uniform<float> uniform_dist(0, 1);
     Random::Exponential<float> exponential_dist(1);
-    Random::Poisson<float> poisson_dist(3);
-    Random::Binomial<float> binomial_dist(.1, RESOLUTION);
+    Random::Poisson<int> poisson_dist(3);
+    Random::Binomial<int> binomial_dist(.9, RESOLUTION);
     Random::Normal<float> normal_dist;
 
-    std::cout << "Uniform distribution [0,1]" << std::endl;
-    testDistributionReal(uniform_dist);
-    std::cout << "Exponential distribution (1)" << std::endl;
-    testDistributionReal(exponential_dist);
-    std::cout << "Poisson distribution (3)" << std::endl;
-    testDistributionInt(poisson_dist, N);
-    std::cout << "Binomial distribution (.1, 20)" << std::endl;
-    testDistributionInt(binomial_dist);
-    std::cout << "Normal distribution" << std::endl;
-    testDistributionReal(normal_dist);
+    TotoGL::Window window(800, 600, "Random distributions");
+
+    std::string distribution = "None";
+    std::vector<float> histogram(RESOLUTION);
+    float min = 0;
+    float max = 1;
+
+    window.on(TotoGL::InputEventName::KEY, [&](TotoGL::InputEvent event) {
+        if (event.action == GLFW_PRESS) {
+            switch (event.button) {
+            case GLFW_KEY_1: {
+                distribution = "Uniform";
+                auto hist = testDistributionReal(uniform_dist);
+                histogram = hist.normalized();
+                min = hist.min;
+                max = hist.max;
+            } break;
+            case GLFW_KEY_2: {
+                distribution = "Exponential";
+                auto hist = testDistributionReal(exponential_dist);
+                histogram = hist.normalized();
+                min = hist.min;
+                max = hist.max;
+            } break;
+            case GLFW_KEY_3: {
+                distribution = "Poisson";
+                auto hist = testDistributionInt(poisson_dist);
+                histogram = hist.normalized();
+                min = hist.min;
+                max = hist.max;
+            } break;
+            case GLFW_KEY_4: {
+                distribution = "Binomial";
+                auto hist = testDistributionInt(binomial_dist);
+                histogram = hist.normalized();
+                min = hist.min;
+                max = hist.max;
+            } break;
+            case GLFW_KEY_5: {
+                distribution = "Normal";
+                auto hist = testDistributionReal(normal_dist);
+                histogram = hist.normalized();
+                min = hist.min;
+                max = hist.max;
+            } break;
+            default:
+                break;
+            }
+        }
+    });
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+
+    ImGui_ImplGlfw_InitForOpenGL(window.glfwWindow(), true);
+    ImGui_ImplOpenGL3_Init("#version 460");
+
+    while (!window.shouldClose()) {
+        window.draw([&] {
+            glClear(GL_COLOR_BUFFER_BIT);
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            ImGui::SetNextWindowSize(ImVec2(800, 600));
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::Begin("Random distributions");
+            ImGui::PlotHistogram("##", histogram.data(), histogram.size(), 0, nullptr, 0, 1, ImVec2(750, 500));
+            ImGui::Text("Distribution: %s", distribution.c_str());
+            ImGui::Text("Min: %f", min);
+            ImGui::Text("Max: %f", max);
+            ImGui::End();
+
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        });
+    }
 
     return 0;
 }
