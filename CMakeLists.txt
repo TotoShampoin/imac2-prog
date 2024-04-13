@@ -24,6 +24,7 @@ set(INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/includes)
 set(VENDORS_DIRECTORY ${CMAKE_SOURCE_DIR}/vendors)
 set(SUBMODULES_DIRECTORY ${CMAKE_SOURCE_DIR}/submodules)
 set(TEST_DIRECTORY ${CMAKE_SOURCE_DIR}/tests)
+set(TESPERIMENT_DIRECTORY ${CMAKE_SOURCE_DIR}/tesperiment)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
@@ -50,4 +51,6 @@ add_executable(${PROJECT_NAME}_test ${TEST_FILES})
 target_link_libraries(${PROJECT_NAME}_test GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME}_test)
+
+add_executable(${PROJECT_NAME}_tesperiment ${TESPERIMENT_DIRECTORY}/main.cpp)
 
