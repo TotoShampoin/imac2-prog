@@ -1,8 +1,8 @@
 #pragma once
 #include "uniform.hpp"
 #include "utils.hpp"
-#include <stdexcept>
 #include <vector>
+// #include <stdexcept>
 
 namespace Random {
 
@@ -24,11 +24,12 @@ public:
         Type sum = 0;
         for (int i = 0; i < _probability_list.size(); i++) {
             sum += _probability_list[i];
-            if (x < sum) {
+            if (x <= sum) {
                 return i;
             }
         }
-        throw std::runtime_error("Binomial distribution failed");
+        return _trials; // should never happen, but it does because of floating point errors
+        // throw std::runtime_error("Binomial distribution failed");
     }
 
     Type probability() const { return _probability; }
