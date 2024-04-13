@@ -1,5 +1,4 @@
 #include "math/binomial.hpp"
-#include "prog/imgui-impl.hpp"
 
 #include <imgui.h>
 
