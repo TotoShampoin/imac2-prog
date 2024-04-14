@@ -25,20 +25,16 @@ BoidContainer::BoidContainer(const size_t& amount)
 
 void BoidContainer::update(const TotoGL::Seconds& delta) {
     for (auto& boid : _boids) {
+        updateCubeBoids(boid.position());
+
         auto new_velocity = boid.velocity();
         new_velocity += boid.separation(_boids, boid.avoidForce());
         new_velocity += boid.alignment(_boids, boid.matchForce());
         new_velocity += boid.cohesion(_boids, boid.centerForce());
 
-        updateCubeBoids(boid.position());
         new_velocity += boid.separation(_cube_boids, _cube_force);
 
-        if (glm::length(new_velocity) > _max_velocity)
-            new_velocity = glm::normalize(new_velocity) * _max_velocity;
-        if (glm::length(new_velocity) < _min_velocity)
-            new_velocity = glm::normalize(new_velocity) * _min_velocity;
-
-        boid.velocity() = new_velocity;
+        boid.velocity() = glm::normalize(new_velocity) * glm::clamp(glm::length(new_velocity), _min_velocity, _max_velocity);
         boid.updatePosition(delta);
 
         if (glm::any(glm::isnan(boid.position()))) {
