@@ -30,16 +30,8 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
         new_velocity += boid.alignment(_boids, boid.matchForce());
         new_velocity += boid.cohesion(_boids, boid.centerForce());
 
-        {
-            static auto fake_boids = std::vector<Boid>(6);
-            auto projections = projectionsOnCube(boid.position());
-            for (const auto& projection : projections) {
-                std::ptrdiff_t index = &projection - projections.data();
-                fake_boids[index].position() = projection;
-                fake_boids[index].velocity() = glm::vec3(0);
-            }
-            new_velocity += boid.separation(fake_boids, _cube_force);
-        }
+        updateCubeBoids(boid.position());
+        new_velocity += boid.separation(_cube_boids, _cube_force);
 
         if (glm::length(new_velocity) > _max_velocity)
             new_velocity = glm::normalize(new_velocity) * _max_velocity;
@@ -71,21 +63,21 @@ void BoidContainer::resetBoids(const std::optional<size_t>& amount) {
     }
 }
 
-std::array<glm::vec3, 6> BoidContainer::projectionsOnCube(const glm::vec3& point) const {
+void BoidContainer::updateCubeBoids(const glm::vec3& center) {
     static constexpr auto PUSH_DISTANCE = .1f;
-    auto results = std::array<glm::vec3, 6>({ glm::vec3(point.x, point.y, _cube_radius),
-        glm::vec3(point.x, point.y, -_cube_radius),
-        glm::vec3(point.x, _cube_radius, point.z),
-        glm::vec3(point.x, -_cube_radius, point.z),
-        glm::vec3(_cube_radius, point.y, point.z),
-        glm::vec3(-_cube_radius, point.y, point.z) });
-    for (auto& result : results) {
+    _cube_boids[0].position() = { center.x, center.y, _cube_radius };
+    _cube_boids[1].position() = { center.x, center.y, -_cube_radius };
+    _cube_boids[2].position() = { center.x, _cube_radius, center.z };
+    _cube_boids[3].position() = { center.x, -_cube_radius, center.z };
+    _cube_boids[4].position() = { _cube_radius, center.y, center.z };
+    _cube_boids[5].position() = { -_cube_radius, center.y, center.z };
+    for (auto& boid : _cube_boids) {
+        boid.velocity() = glm::vec3(0);
         for (auto i = 0; i < 3; i++) {
-            if (result[i] > _cube_radius)
-                result[i] = point[i] + PUSH_DISTANCE;
-            if (result[i] < -_cube_radius)
-                result[i] = point[i] - PUSH_DISTANCE;
+            if (center[i] > _cube_radius)
+                boid.position()[i] = center[i] + PUSH_DISTANCE;
+            if (center[i] < -_cube_radius)
+                boid.position()[i] = center[i] - PUSH_DISTANCE;
         }
     }
-    return results;
 }

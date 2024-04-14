@@ -98,9 +98,12 @@ void Data::draw(const TotoGL::Seconds& delta) {
             ImGui::SetNextWindowPos(ImVec2(0, window_height), ImGuiCond_Always, ImVec2(0, 1));
             ImGui::SetNextWindowSize(ImVec2(415, 0), ImGuiCond_Always);
             ImGui::Begin("Controls");
-            ImGui::Text("Environment");
+            ImGui::Text("General");
             ImGui::SliderFloat("Box radius", &container.cubeRadius(), 0, 10);
-            ImGui::Text("Boids");
+            ImGui::SliderFloat("Cube force", &container.cubeForce().force, 0, 20);
+            changing_amount |= ImGui::SliderInt("Amount", &amount, 0, 500);
+            resetting |= ImGui::Button("Reset");
+            ImGui::Text("Next boids");
             ImGui::SliderFloat("Min velocity", &container.minVelocity(), 0, 10);
             ImGui::SliderFloat("Max velocity", &container.maxVelocity(), 0, 10);
             ImGui::SliderFloat("Avoid force", &container.boidForceParameters().avoid.force, 0, 1);
@@ -108,10 +111,7 @@ void Data::draw(const TotoGL::Seconds& delta) {
             ImGui::SliderFloat("Center force", &container.boidForceParameters().center.force, 0, 1);
             // ImGui::SliderFloat("Attract radius", &container.attractRadius(), 0, 1);
             // ImGui::SliderFloat("Expell radius", &container.expellRadius(), 0, 1);
-            // ImGui::SliderFloat("Returning velocity", &container.returningVelocity(), 1, 20);
             // ImGui::SliderFloat("Returning radius", &container.returningRadius(), 0, 1);
-            changing_amount |= ImGui::SliderInt("Amount", &amount, 0, 500);
-            resetting |= ImGui::Button("Reset");
             ImGui::End();
 
             ImGui::SetNextWindowPos(ImVec2(window_width, window_height), ImGuiCond_Always, ImVec2(1, 1));

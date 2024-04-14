@@ -2,7 +2,6 @@
 
 #include "math/uniform.hpp"
 #include "prog/Boid.hpp"
-#include <array>
 #include <vector>
 
 class BoidContainer {
@@ -28,10 +27,11 @@ public:
     BoidForceParameters& boidForceParameters() { return _boid_force_parameters; };
     BoidForce& cubeForce() { return _cube_force; };
 
-    [[nodiscard]] std::array<glm::vec3, 6> projectionsOnCube(const glm::vec3&) const;
+    void updateCubeBoids(const glm::vec3& center);
 
 private:
     std::vector<Boid> _boids;
+    std::vector<Boid> _cube_boids { 6 };
 
     BoidForceParameters _boid_force_parameters {
         .avoid = { .force = .2, .zone_width = .5, .zone_offset = 0 },
@@ -41,8 +41,8 @@ private:
     BoidForce _cube_force { .force = 10, .zone_width = .3, .zone_offset = 0 };
 
     float _cube_radius { 5 };
-    float _min_velocity { 1. };
-    float _max_velocity { 2. };
+    float _min_velocity { 1 };
+    float _max_velocity { 2 };
 
     Random::Uniform<float> _rangom_number_generator { -1, 1 };
     void randomizeBoid(Boid& boid, const float& radius);
