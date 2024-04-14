@@ -3,6 +3,7 @@
 #include "TotoGL/RenderObject/Camera.hpp"
 #include "TotoGL/Window.hpp"
 #include "gfx/BoidRenderer.hpp"
+#include "gfx/Gui.hpp"
 #include "gfx/Player.hpp"
 #include "prog/BoidContainer.hpp"
 #include <vector>
@@ -27,12 +28,6 @@ private:
     // bool spy = false;
     size_t spy_index = 0;
 
-    bool changing_amount = false;
-    bool resetting = false;
-    bool toggling_spy = false;
-    bool spying_next = false;
-    bool spying_previous = false;
-
     TotoGL::Window& window;
 
     BoidContainer container { amount };
@@ -40,6 +35,7 @@ private:
     glm::vec3 player_direction { 0 };
 
     BoidRenderer boid_renderer;
+    Gui gui;
 
     TotoGL::Clock clock;
     TotoGL::Clock timer;
