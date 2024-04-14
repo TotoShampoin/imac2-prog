@@ -1,4 +1,4 @@
-#include "data.hpp"
+#include "simulation.hpp"
 
 #include "prog/BoidContainer.hpp"
 #include "prog/imgui-impl.hpp"
@@ -25,7 +25,7 @@ float axisKey(const TotoGL::InputEvent& event) {
     return static_cast<float>(positive_key - negative_key);
 }
 
-Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
+Simulation::Simulation(TotoGL::Window& window, TotoGL::Renderer& renderer)
     : window(window)
     , boid_renderer(window, renderer) {
     initImGui(window);
@@ -41,7 +41,7 @@ Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
     });
 }
 
-void Data::update(const TotoGL::Seconds& delta) {
+void Simulation::update(const TotoGL::Seconds& delta) {
     // inputs
     gui.updateStates(container, amount, spy_index);
     glm::vec3 direction = orbit.front(true) * -player_direction.z + orbit.right(true) * player_direction.x + orbit.up(true) * player_direction.y;
@@ -62,7 +62,7 @@ void Data::update(const TotoGL::Seconds& delta) {
     timers.emplace_back("update", update);
 }
 
-void Data::draw(const TotoGL::Seconds& delta) {
+void Simulation::draw(const TotoGL::Seconds& delta) {
     monitor_texture->draw([&]() {
         boid_renderer.render(container, player, monitor_camera);
         timers.emplace_back("monitor rendering", timer.getDeltaTime());

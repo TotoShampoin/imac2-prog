@@ -8,15 +8,15 @@
 #include "prog/BoidContainer.hpp"
 #include <vector>
 
-class Data {
+class Simulation {
 public:
-    Data(TotoGL::Window&, TotoGL::Renderer&);
-    ~Data() = default;
-    Data() = delete;
-    Data(const Data&) = delete;
-    Data(Data&&) = delete;
-    Data& operator=(const Data&) = delete;
-    Data& operator=(Data&&) = delete;
+    Simulation(TotoGL::Window&, TotoGL::Renderer&);
+    ~Simulation() = default;
+    Simulation() = delete;
+    Simulation(const Simulation&) = delete;
+    Simulation(Simulation&&) = delete;
+    Simulation& operator=(const Simulation&) = delete;
+    Simulation& operator=(Simulation&&) = delete;
 
     void update(const TotoGL::Seconds& delta);
     void draw(const TotoGL::Seconds& delta);
