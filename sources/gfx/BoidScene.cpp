@@ -11,7 +11,7 @@ void BoidScene::update(const BoidContainer& container, TotoGL::Camera& camera) {
     }
     _boid_objects.clear();
     for (size_t i = 0; i < container.boids().size(); ++i) {
-        auto& boid = container.boids()[i];
+        const auto& boid = container.boids()[i];
         if (glm::distance(boid.position(), camera.position()) < 5) {
             _boid_objects.push_back(_boid_objects_high[i]);
         } else {
