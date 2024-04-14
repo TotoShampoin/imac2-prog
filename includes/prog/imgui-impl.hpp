@@ -4,6 +4,6 @@
 #include <functional>
 
 void initImGui(TotoGL::Window& window);
-void renderImGui(std::function<void(void)>&& f);
+void renderImGui(const std::function<void(void)>& f);
 
 bool isImGuiFocused();

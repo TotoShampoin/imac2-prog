@@ -17,7 +17,7 @@ void initImGui(TotoGL::Window& window) {
     auto& style = ImGui::GetStyle();
 }
 
-void renderImGui(std::function<void(void)>&& f) {
+void renderImGui(const std::function<void(void)>& f) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
