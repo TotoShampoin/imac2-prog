@@ -6,34 +6,55 @@
 
 // https://vanhunteradams.com/Pico/Animal_Movement/Boids-algorithm.html
 
+struct BoidCoordinates {
+    glm::vec3 position { 0, 0, 0 };
+    glm::vec3 velocity { 0, 0, 1 };
+};
+
+struct BoidForce {
+    float force { 0 };
+    float zone_width { 0 };
+    float zone_offset { 0 };
+};
+
+struct BoidForceParameters {
+    BoidForce avoid;
+    BoidForce match;
+    BoidForce center;
+};
+
 class Boid {
 public:
     explicit Boid(
-        const float& avoid = .05,
-        const float& match = .05,
-        const float& center = .0005,
-        const glm::vec3& position = glm::vec3(0, 0, 0),
-        const glm::vec3& velocity = glm::vec3(0, 0, 1));
+        const BoidCoordinates& = {},
+        const BoidForceParameters& = {});
 
-    [[nodiscard]] float closeness(const Boid&, const float& radius, const float& offset) const;
+    [[nodiscard]] float closeness(const Boid&, const BoidForce&) const;
 
-    [[nodiscard]] glm::vec3 separation(const std::vector<Boid>&, const float& avoid_factor,
-        const float& attract_radius, const float& expell_radius) const;
-    [[nodiscard]] glm::vec3 alignment(const std::vector<Boid>&, const float& matching_factor,
-        const float& attract_radius, const float& expell_radius) const;
-    [[nodiscard]] glm::vec3 cohesion(const std::vector<Boid>&, const float& centering_factor,
-        const float& attract_radius, const float& expell_radius) const;
+    [[nodiscard]] glm::vec3 separation(const std::vector<Boid>&, const BoidForce&) const;
+    [[nodiscard]] glm::vec3 alignment(const std::vector<Boid>&, const BoidForce&) const;
+    [[nodiscard]] glm::vec3 cohesion(const std::vector<Boid>&, const BoidForce&) const;
 
     // void updateVelocity(const std::vector<Boid>&);
     void updatePosition(const TotoGL::Seconds&);
+    void setParameters(const BoidForceParameters&);
 
-    glm::vec3 position() const { return _position; }
-    glm::vec3 velocity() const { return _velocity; }
+    [[nodiscard]] glm::vec3 position() const { return _position; }
+    [[nodiscard]] glm::vec3 velocity() const { return _velocity; }
+    [[nodiscard]] BoidForce avoidForce() const { return _avoid_force; }
+    [[nodiscard]] BoidForce matchForce() const { return _match_force; }
+    [[nodiscard]] BoidForce centerForce() const { return _center_force; }
 
     glm::vec3& position() { return _position; }
     glm::vec3& velocity() { return _velocity; }
+    BoidForce& avoidForce() { return _avoid_force; }
+    BoidForce& matchForce() { return _match_force; }
+    BoidForce& centerForce() { return _center_force; }
 
 private:
     glm::vec3 _position;
     glm::vec3 _velocity;
+    BoidForce _avoid_force;
+    BoidForce _match_force;
+    BoidForce _center_force;
 };

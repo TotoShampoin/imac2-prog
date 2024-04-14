@@ -1,5 +1,6 @@
 #pragma once
 
+#include "math/uniform.hpp"
 #include "prog/Boid.hpp"
 #include <array>
 #include <vector>
@@ -13,45 +14,36 @@ public:
     void resize(const size_t& amount);
     void resetBoids(const std::optional<size_t>& amount = std::nullopt);
 
-    const std::vector<Boid>& boids() const { return _boids; }
+    [[nodiscard]] const std::vector<Boid>& boids() const { return _boids; }
 
-    float avoidFactor() const { return _avoid_factor; };
-    float matchingFactor() const { return _matching_factor; };
-    float centeringFactor() const { return _centering_factor; };
-    float cubeRadius() const { return _cube_radius; };
-    float attractRadius() const { return _attract_radius; };
-    float expellRadius() const { return _expell_radius; };
-    float returningVelocity() const { return _returning_velocity; };
-    float returningRadius() const { return _returning_radius; };
-    float minVelocity() const { return _min_velocity; };
-    float maxVelocity() const { return _max_velocity; };
+    [[nodiscard]] float cubeRadius() const { return _cube_radius; };
+    [[nodiscard]] float minVelocity() const { return _min_velocity; };
+    [[nodiscard]] float maxVelocity() const { return _max_velocity; };
+    [[nodiscard]] const BoidForceParameters& boidForceParameters() const { return _boid_force_parameters; };
+    [[nodiscard]] const BoidForce& cubeForce() const { return _cube_force; };
 
-    float& avoidFactor() { return _avoid_factor; };
-    float& matchingFactor() { return _matching_factor; };
-    float& centeringFactor() { return _centering_factor; };
     float& cubeRadius() { return _cube_radius; };
-    float& attractRadius() { return _attract_radius; };
-    float& expellRadius() { return _expell_radius; };
-    float& returningVelocity() { return _returning_velocity; };
-    float& returningRadius() { return _returning_radius; };
     float& minVelocity() { return _min_velocity; };
     float& maxVelocity() { return _max_velocity; };
+    BoidForceParameters& boidForceParameters() { return _boid_force_parameters; };
+    BoidForce& cubeForce() { return _cube_force; };
 
-    std::array<glm::vec3, 6> projectionsOnCube(const glm::vec3&) const;
+    [[nodiscard]] std::array<glm::vec3, 6> projectionsOnCube(const glm::vec3&) const;
 
 private:
     std::vector<Boid> _boids;
 
-    float _avoid_factor { .3 };
-    float _matching_factor { .3 };
-    float _centering_factor { .01 };
-    float _returning_velocity { 10. };
+    BoidForceParameters _boid_force_parameters {
+        .avoid = { .force = .2, .zone_width = .5, .zone_offset = 0 },
+        .match = { .force = .3, .zone_width = .5, .zone_offset = .5 },
+        .center = { .force = .01, .zone_width = .5, .zone_offset = .5 }
+    };
+    BoidForce _cube_force { .force = 10, .zone_width = .3, .zone_offset = 0 };
 
     float _cube_radius { 5 };
-    float _attract_radius { .5 };
-    float _expell_radius { .5 };
-    float _returning_radius { .3 };
-
     float _min_velocity { 1. };
     float _max_velocity { 2. };
+
+    Random::Uniform<float> _rangom_number_generator { -1, 1 };
+    void randomizeBoid(Boid& boid, const float& radius);
 };
