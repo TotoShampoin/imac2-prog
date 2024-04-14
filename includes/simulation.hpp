@@ -24,18 +24,19 @@ public:
     TotoGL::Seconds getDeltaTime() { return clock.getDeltaTime(); }
 
 private:
-    int amount = 100;
+    // int amount = 100;
     // bool spy = false;
-    size_t spy_index = 0;
+    // size_t spy_index = 0;
 
     TotoGL::Window& window;
 
-    BoidContainer container { amount };
+    BoidRenderer boid_renderer;
+    UiRenderer ui_renderer;
+    UiVariables ui_variables;
+
+    BoidContainer container { ui_variables.amount };
     Player player;
     glm::vec3 player_direction { 0 };
-
-    BoidRenderer boid_renderer;
-    Gui gui;
 
     TotoGL::Clock clock;
     TotoGL::Clock timer;

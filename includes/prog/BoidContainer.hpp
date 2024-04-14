@@ -13,6 +13,9 @@ public:
     void resize(const size_t& amount);
     void resetBoids(const std::optional<size_t>& amount = std::nullopt);
 
+    void addBoids(const size_t& = 1);
+    void destroyBoids(const size_t& = 1);
+
     [[nodiscard]] const std::vector<Boid>& boids() const { return _boids; }
 
     [[nodiscard]] float cubeRadius() const { return _cube_radius; };

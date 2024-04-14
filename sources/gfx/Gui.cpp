@@ -3,9 +3,9 @@
 
 #include <imgui.h>
 
-void Gui::draw(
+void UiRenderer::draw(
     TotoGL::Window& window, BoidContainer& container,
-    int& amount, const size_t& spy_index,
+    UiVariables& ui_variables,
     const TotoGL::Seconds& delta,
     const std::vector<std::pair<std::string, float>>& timers,
     const TotoGL::BufferTextureInstanceId& monitor_texture) {
@@ -23,7 +23,7 @@ void Gui::draw(
         ImGui::Text("General");
         ImGui::SliderFloat("Box radius", &container.cubeRadius(), 0, 10);
         ImGui::SliderFloat("Cube force", &container.cubeForce().force, 0, 20);
-        _flags.changing_amount |= ImGui::SliderInt("Amount", &amount, 0, 500);
+        _flags.changing_amount |= ImGui::SliderInt("Amount", &ui_variables.amount, 0, 500);
         _flags.resetting |= ImGui::Button("Reset");
         ImGui::Text("Next boids");
         ImGui::SliderFloat("Min velocity", &container.minVelocity(), 0, 10);
@@ -34,6 +34,11 @@ void Gui::draw(
         // ImGui::SliderFloat("Attract radius", &container.attractRadius(), 0, 1);
         // ImGui::SliderFloat("Expell radius", &container.expellRadius(), 0, 1);
         // ImGui::SliderFloat("Returning radius", &container.returningRadius(), 0, 1);
+        ImGui::SliderInt("##", &ui_variables.add_amount, 0, 50);
+        ImGui::SameLine();
+        _flags.add_boid |= ImGui::Button("Add boid");
+        ImGui::SameLine();
+        _flags.remove_boid |= ImGui::Button("Remove boid");
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(window_width, window_height), ImGuiCond_Always, ImVec2(1, 1));
@@ -41,10 +46,10 @@ void Gui::draw(
         ImGui::Begin("Spy");
         _flags.spying_previous |= ImGui::Button("-");
         ImGui::SameLine();
-        ImGui::Text("%zu", spy_index);
+        ImGui::Text("%zu", ui_variables.spy_index);
         ImGui::SameLine();
         _flags.spying_next |= ImGui::Button("+");
-        const auto& boid = container.boids()[spy_index];
+        const auto& boid = container.boids()[ui_variables.spy_index];
         ImGui::Text("Position = %f, %f, %f", boid.position().x, boid.position().y, boid.position().z);
         ImGui::Text("Velocity = %f, %f, %f", boid.velocity().x, boid.velocity().y, boid.velocity().z);
         ImGui::Image(monitor_texture_id, ImVec2(monitor_width, monitor_height), ImVec2(0, 1), ImVec2(1, 0));
@@ -61,11 +66,11 @@ void Gui::draw(
     });
 }
 
-void Gui::updateStates(
+void UiRenderer::updateStates(
     BoidContainer& container,
-    int& amount, size_t& spy_index) {
+    UiVariables& ui_variables) {
     if (_flags.changing_amount) {
-        container.resize(amount);
+        container.resize(ui_variables.amount);
         _flags.changing_amount = false;
     }
     if (_flags.resetting) {
@@ -73,11 +78,25 @@ void Gui::updateStates(
         _flags.resetting = false;
     }
     if (_flags.spying_next) {
-        spy_index = (spy_index + 1) % container.boids().size();
+        ui_variables.spy_index = (ui_variables.spy_index + 1) % container.boids().size();
         _flags.spying_next = false;
     }
     if (_flags.spying_previous) {
-        spy_index = (spy_index + container.boids().size() - 1) % container.boids().size();
+        ui_variables.spy_index = (ui_variables.spy_index + container.boids().size() - 1) % container.boids().size();
         _flags.spying_previous = false;
+    }
+    if (_flags.add_boid) {
+        container.addBoids(ui_variables.add_amount);
+        ui_variables.amount = static_cast<int>(container.boids().size());
+        _flags.add_boid = false;
+    }
+    if (_flags.remove_boid) {
+        // unsigned integers can be a pain in the ass sometimes
+        if (static_cast<int>(container.boids().size()) - ui_variables.add_amount < 0) {
+            ui_variables.add_amount = 0;
+        }
+        container.destroyBoids(ui_variables.add_amount);
+        ui_variables.amount = static_cast<int>(container.boids().size());
+        _flags.remove_boid = false;
     }
 }

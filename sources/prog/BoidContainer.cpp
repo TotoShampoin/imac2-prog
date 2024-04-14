@@ -63,6 +63,20 @@ void BoidContainer::resetBoids(const std::optional<size_t>& amount) {
     }
 }
 
+void BoidContainer::addBoids(const size_t& amount) {
+    for (int i = 0; i < amount; i++) {
+        _boids.emplace_back();
+        randomizeBoid(_boids.back(), _cube_radius);
+    }
+}
+void BoidContainer::destroyBoids(const size_t& amount) {
+    for (int i = 0; i < amount; i++) {
+        if (_boids.empty())
+            break;
+        _boids.pop_back();
+    }
+}
+
 void BoidContainer::updateCubeBoids(const glm::vec3& center) {
     static constexpr auto PUSH_DISTANCE = .1f;
     _cube_boids[0].position() = { center.x, center.y, _cube_radius };

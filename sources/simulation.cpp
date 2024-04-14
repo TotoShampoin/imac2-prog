@@ -43,14 +43,14 @@ Simulation::Simulation(TotoGL::Window& window, TotoGL::Renderer& renderer)
 
 void Simulation::update(const TotoGL::Seconds& delta) {
     // inputs
-    gui.updateStates(container, amount, spy_index);
+    ui_renderer.updateStates(container, ui_variables);
     glm::vec3 direction = orbit.front(true) * -player_direction.z + orbit.right(true) * player_direction.x + orbit.up(true) * player_direction.y;
 
     player.move(direction, delta);
 
     // update
     container.update(delta);
-    const auto& spied_boid = container.boids()[spy_index];
+    const auto& spied_boid = container.boids()[ui_variables.spy_index];
     monitor_camera.position() = spied_boid.position();
     monitor_camera.lookAt(spied_boid.position() + spied_boid.velocity());
     player.update(delta);
@@ -72,6 +72,6 @@ void Simulation::draw(const TotoGL::Seconds& delta) {
         boid_renderer.render(container, player, camera);
         timers.emplace_back("scene rendering", timer.getDeltaTime());
 
-        gui.draw(window, container, amount, spy_index, delta, timers, monitor_texture);
+        ui_renderer.draw(window, container, ui_variables, delta, timers, monitor_texture);
     });
 }
