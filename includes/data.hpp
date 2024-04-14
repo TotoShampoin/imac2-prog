@@ -44,7 +44,7 @@ private:
     TotoGL::Clock clock;
     TotoGL::Clock timer;
 
-    TotoGL::BufferTextureInstanceId monitor_texture;
+    TotoGL::BufferTextureInstanceId monitor_texture { TotoGL::BufferTextureFactory::create(TotoGL::BufferTexture(256, 192)) };
     TotoGL::Camera camera { TotoGL::Camera::Perspective(glm::radians(60.f), static_cast<float>(WIDTH) / HEIGHT, .1, 100) };
     TotoGL::Camera monitor_camera { TotoGL::Camera::Perspective(glm::radians(90.f), static_cast<float>(256) / 192, .15, 100) };
     TotoGL::OrbitControl orbit { 0, -glm::pi<float>() / 12, 5 };

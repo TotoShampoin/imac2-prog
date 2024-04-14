@@ -22,18 +22,17 @@ float axisKey(const TotoGL::InputEvent& event) {
         if (event.button == NEGATIVE_KEY)
             negative_key = false;
     }
-    return positive_key - negative_key;
+    return static_cast<float>(positive_key - negative_key);
 }
 
 Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
     : window(window)
     , boid_renderer(window, renderer) {
     initImGui(window);
-    monitor_texture = TotoGL::BufferTextureFactory::create(TotoGL::BufferTexture(256, 192));
     orbit.bindEvents(window, isImGuiFocused, true);
     window.on(TotoGL::VectorEventName::WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
-        glViewport(0, 0, event.x, event.y);
-        camera.setPersective(FOV, event.x / event.y, NEAR, FAR);
+        glViewport(0, 0, static_cast<int>(event.x), static_cast<int>(event.y));
+        camera.setPersective(FOV, static_cast<float>(event.x / event.y), NEAR, FAR);
     });
     window.on(TotoGL::InputEventName::KEY, [&](const TotoGL::InputEvent& event) {
         player_direction.x = axisKey<GLFW_KEY_A, GLFW_KEY_D>(event);
@@ -66,7 +65,7 @@ void Data::update(const TotoGL::Seconds& delta) {
 
     // update
     container.update(delta);
-    auto& spied_boid = container.boids()[spy_index];
+    const auto& spied_boid = container.boids()[spy_index];
     monitor_camera.position() = spied_boid.position();
     monitor_camera.lookAt(spied_boid.position() + spied_boid.velocity());
     player.update(delta);
@@ -75,22 +74,28 @@ void Data::update(const TotoGL::Seconds& delta) {
 
     auto update = timer.getDeltaTime();
     timers.clear();
-    timers.push_back({ "update", update });
+    timers.emplace_back("update", update);
 }
 
 void Data::draw(const TotoGL::Seconds& delta) {
     monitor_texture->draw([&]() {
         boid_renderer.render(container, player, monitor_camera);
-        timers.push_back({ "monitor rendering", timer.getDeltaTime() });
+        timers.emplace_back("monitor rendering", timer.getDeltaTime());
     });
 
     window.draw([&]() {
         boid_renderer.render(container, player, camera);
-        timers.push_back({ "scene rendering", timer.getDeltaTime() });
+        timers.emplace_back("scene rendering", timer.getDeltaTime());
 
         renderImGui([&] {
-            float w, h;
-            ImGui::SetNextWindowPos(ImVec2(0, window.size()[1]), ImGuiCond_Always, ImVec2(0, 1));
+            auto window_size = window.size();
+            auto window_width = static_cast<float>(window_size[0]);
+            auto window_height = static_cast<float>(window_size[1]);
+            auto monitor_width = static_cast<float>(monitor_texture->texture().width());
+            auto monitor_height = static_cast<float>(monitor_texture->texture().height());
+            auto* monitor_texture_id = reinterpret_cast<ImTextureID>(monitor_texture->texture().id()); // NOLINT
+
+            ImGui::SetNextWindowPos(ImVec2(0, window_height), ImGuiCond_Always, ImVec2(0, 1));
             ImGui::SetNextWindowSize(ImVec2(415, 0), ImGuiCond_Always);
             ImGui::Begin("Controls");
             ImGui::SliderFloat("Avoid", &container.avoidFactor(), 0, 1);
@@ -105,11 +110,9 @@ void Data::draw(const TotoGL::Seconds& delta) {
             ImGui::SliderFloat("Max velocity", &container.maxVelocity(), 0, 10);
             changing_amount |= ImGui::SliderInt("Amount", &amount, 0, 500);
             resetting |= ImGui::Button("Reset");
-            w = ImGui::GetWindowWidth();
-            h = ImGui::GetWindowHeight();
             ImGui::End();
 
-            ImGui::SetNextWindowPos(ImVec2(window.size()[0], window.size()[1]), ImGuiCond_Always, ImVec2(1, 1));
+            ImGui::SetNextWindowPos(ImVec2(window_width, window_height), ImGuiCond_Always, ImVec2(1, 1));
             ImGui::SetNextWindowSize(ImVec2(304, 0), ImGuiCond_Always);
             ImGui::Begin("Spy");
             spying_previous |= ImGui::Button("-");
@@ -120,9 +123,7 @@ void Data::draw(const TotoGL::Seconds& delta) {
             const auto& boid = container.boids()[spy_index];
             ImGui::Text("Position = %f, %f, %f", boid.position().x, boid.position().y, boid.position().z);
             ImGui::Text("Velocity = %f, %f, %f", boid.velocity().x, boid.velocity().y, boid.velocity().z);
-            ImGui::Image((void*)(intptr_t)monitor_texture->texture().id(),
-                ImVec2(monitor_texture->texture().width(), monitor_texture->texture().height()),
-                ImVec2(0, 1), ImVec2(1, 0));
+            ImGui::Image(monitor_texture_id, ImVec2(monitor_width, monitor_height), ImVec2(0, 1), ImVec2(1, 0));
             ImGui::End();
 
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
