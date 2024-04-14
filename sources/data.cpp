@@ -29,7 +29,7 @@ Data::Data(TotoGL::Window& window, TotoGL::Renderer& renderer)
     : window(window)
     , boid_renderer(window, renderer) {
     initImGui(window);
-    orbit.bindEvents(window, isImGuiFocused, true);
+    orbit.bindEvents(window, isImGuiFocused, false);
     window.on(TotoGL::VectorEventName::WINDOW_SIZE, [&](const TotoGL::VectorEvent& event) {
         glViewport(0, 0, static_cast<int>(event.x), static_cast<int>(event.y));
         camera.setPersective(FOV, static_cast<float>(event.x / event.y), NEAR, FAR);
