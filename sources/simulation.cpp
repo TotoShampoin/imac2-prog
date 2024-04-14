@@ -43,7 +43,7 @@ Simulation::Simulation(TotoGL::Window& window, TotoGL::Renderer& renderer)
 
 void Simulation::update(const TotoGL::Seconds& delta) {
     // inputs
-    ui_renderer.updateStates(container, ui_variables);
+    ui_renderer.updateStates(container, ui_variables, [&](Boid& boid) { spawner.spawn(boid); });
     glm::vec3 direction = orbit.front(true) * -player_direction.z + orbit.right(true) * player_direction.x + orbit.up(true) * player_direction.y;
 
     player.move(direction, delta);
@@ -72,6 +72,6 @@ void Simulation::draw(const TotoGL::Seconds& delta) {
         boid_renderer.render(container, player, camera);
         timers.emplace_back("scene rendering", timer.getDeltaTime());
 
-        ui_renderer.draw(window, container, ui_variables, delta, timers, monitor_texture);
+        ui_renderer.draw(window, container, ui_variables, spawner, delta, timers, monitor_texture);
     });
 }

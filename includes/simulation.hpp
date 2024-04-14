@@ -6,6 +6,7 @@
 #include "gfx/Gui.hpp"
 #include "gfx/Player.hpp"
 #include "prog/BoidContainer.hpp"
+#include "prog/BoidSpawner.hpp"
 #include <vector>
 
 class Simulation {
@@ -34,7 +35,8 @@ private:
     UiRenderer ui_renderer;
     UiVariables ui_variables;
 
-    BoidContainer container { ui_variables.amount };
+    BoidSpawner spawner;
+    BoidContainer container { ui_variables.amount, [&](Boid& boid) { spawner.spawn(boid); } };
     Player player;
     glm::vec3 player_direction { 0 };
 

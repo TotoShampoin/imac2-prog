@@ -5,7 +5,7 @@
 
 void UiRenderer::draw(
     TotoGL::Window& window, BoidContainer& container,
-    UiVariables& ui_variables,
+    UiVariables& ui_variables, BoidSpawner& spawner,
     const TotoGL::Seconds& delta,
     const std::vector<std::pair<std::string, float>>& timers,
     const TotoGL::BufferTextureInstanceId& monitor_texture) {
@@ -28,9 +28,9 @@ void UiRenderer::draw(
         ImGui::Text("Next boids");
         ImGui::SliderFloat("Min velocity", &container.minVelocity(), 0, 10);
         ImGui::SliderFloat("Max velocity", &container.maxVelocity(), 0, 10);
-        ImGui::SliderFloat("Avoid force", &container.boidForceParameters().avoid.force, 0, 1);
-        ImGui::SliderFloat("Match force", &container.boidForceParameters().match.force, 0, 1);
-        ImGui::SliderFloat("Center force", &container.boidForceParameters().center.force, 0, 1);
+        ImGui::SliderFloat("Avoid force", &spawner.boidForceParameters().avoid.force, 0, 1);
+        ImGui::SliderFloat("Match force", &spawner.boidForceParameters().match.force, 0, 1);
+        ImGui::SliderFloat("Center force", &spawner.boidForceParameters().center.force, 0, 1);
         // ImGui::SliderFloat("Attract radius", &container.attractRadius(), 0, 1);
         // ImGui::SliderFloat("Expell radius", &container.expellRadius(), 0, 1);
         // ImGui::SliderFloat("Returning radius", &container.returningRadius(), 0, 1);
@@ -68,13 +68,14 @@ void UiRenderer::draw(
 
 void UiRenderer::updateStates(
     BoidContainer& container,
-    UiVariables& ui_variables) {
+    UiVariables& ui_variables,
+    const std::function<void(Boid&)>& spawner) {
     if (_flags.changing_amount) {
-        container.resize(ui_variables.amount);
+        container.resize(ui_variables.amount, spawner);
         _flags.changing_amount = false;
     }
     if (_flags.resetting) {
-        container.resetBoids();
+        container.resetBoids(container.boids().size(), spawner);
         _flags.resetting = false;
     }
     if (_flags.spying_next) {
@@ -86,7 +87,7 @@ void UiRenderer::updateStates(
         _flags.spying_previous = false;
     }
     if (_flags.add_boid) {
-        container.addBoids(ui_variables.add_amount);
+        container.addBoids(ui_variables.add_amount, spawner);
         ui_variables.amount = static_cast<int>(container.boids().size());
         _flags.add_boid = false;
     }

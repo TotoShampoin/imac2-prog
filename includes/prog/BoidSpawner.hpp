@@ -13,6 +13,13 @@ public:
         boid.setParameters(_boid_force_parameters);
     }
 
+    BoidForceParameters& boidForceParameters() { return _boid_force_parameters; }
+
+    [[nodiscard]] glm::vec3 position() const { return _position; }
+    [[nodiscard]] glm::vec3 direction() const { return _direction; }
+    [[nodiscard]] float radius() const { return _radius; }
+    [[nodiscard]] float speed() const { return _speed; }
+
 private:
     glm::vec3 _randomBox() {
         return { _random_number_generator(), _random_number_generator(), _random_number_generator() };

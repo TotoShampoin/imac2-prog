@@ -1,26 +1,11 @@
 #include "prog/BoidContainer.hpp"
-#include "math/uniform.hpp"
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 
-void BoidContainer::randomizeBoid(Boid& boid) {
-    boid.position() = {
-        _rangom_number_generator() * _cube_radius,
-        _rangom_number_generator() * _cube_radius,
-        _rangom_number_generator() * _cube_radius
-    };
-    boid.velocity() = {
-        _rangom_number_generator(),
-        _rangom_number_generator(),
-        _rangom_number_generator()
-    };
-    boid.setParameters(_boid_force_parameters);
-}
-
-BoidContainer::BoidContainer(const size_t& amount)
+BoidContainer::BoidContainer(const size_t& amount, const std::function<void(Boid&)>& initializer)
     : _boids(amount) {
-    resetBoids();
+    resetBoids(amount, initializer);
 }
 
 void BoidContainer::update(const TotoGL::Seconds& delta) {
@@ -38,31 +23,33 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
         boid.updatePosition(delta);
 
         if (glm::any(glm::isnan(boid.position()))) {
-            randomizeBoid(boid);
+            boid.position() = { 0, 0, 0 };
+            boid.velocity() = { 0, 0, 1 };
+            // randomizeBoid(boid); // TODO(Boid): Add boid death
         }
     }
 }
 
-void BoidContainer::resize(const size_t& amount) {
+void BoidContainer::resize(const size_t& amount, const std::function<void(Boid&)>& initializer) {
     const auto old_size = _boids.size();
     _boids.resize(amount);
     for (auto i = old_size; i < amount; i++) {
-        randomizeBoid(_boids[i]);
+        initializer(_boids[i]);
     }
 }
-void BoidContainer::resetBoids(const std::optional<size_t>& amount) {
+void BoidContainer::resetBoids(const std::optional<size_t>& amount, const std::function<void(Boid&)>& initializer) {
     if (amount.has_value())
         resize(amount.value());
 
     for (auto& boid : _boids) {
-        randomizeBoid(boid);
+        initializer(boid);
     }
 }
 
-void BoidContainer::addBoids(const size_t& amount) {
+void BoidContainer::addBoids(const size_t& amount, const std::function<void(Boid&)>& initializer) {
     for (int i = 0; i < amount; i++) {
         _boids.emplace_back();
-        randomizeBoid(_boids.back());
+        initializer(_boids.back());
     }
 }
 void BoidContainer::destroyBoids(const size_t& amount) {
