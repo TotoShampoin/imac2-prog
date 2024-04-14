@@ -4,11 +4,11 @@
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 
-void BoidContainer::randomizeBoid(Boid& boid, const float& radius) {
+void BoidContainer::randomizeBoid(Boid& boid) {
     boid.position() = {
-        _rangom_number_generator() * radius,
-        _rangom_number_generator() * radius,
-        _rangom_number_generator() * radius
+        _rangom_number_generator() * _cube_radius,
+        _rangom_number_generator() * _cube_radius,
+        _rangom_number_generator() * _cube_radius
     };
     boid.velocity() = {
         _rangom_number_generator(),
@@ -42,7 +42,7 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
         boid.updatePosition(delta);
 
         if (glm::any(glm::isnan(boid.position()))) {
-            randomizeBoid(boid, _cube_radius);
+            randomizeBoid(boid);
         }
     }
 }
@@ -51,7 +51,7 @@ void BoidContainer::resize(const size_t& amount) {
     const auto old_size = _boids.size();
     _boids.resize(amount);
     for (auto i = old_size; i < amount; i++) {
-        randomizeBoid(_boids[i], _cube_radius);
+        randomizeBoid(_boids[i]);
     }
 }
 void BoidContainer::resetBoids(const std::optional<size_t>& amount) {
@@ -59,14 +59,14 @@ void BoidContainer::resetBoids(const std::optional<size_t>& amount) {
         resize(amount.value());
 
     for (auto& boid : _boids) {
-        randomizeBoid(boid, _cube_radius);
+        randomizeBoid(boid);
     }
 }
 
 void BoidContainer::addBoids(const size_t& amount) {
     for (int i = 0; i < amount; i++) {
         _boids.emplace_back();
-        randomizeBoid(_boids.back(), _cube_radius);
+        randomizeBoid(_boids.back());
     }
 }
 void BoidContainer::destroyBoids(const size_t& amount) {

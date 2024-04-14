@@ -48,5 +48,5 @@ private:
     float _max_velocity { 2 };
 
     Random::Uniform<float> _rangom_number_generator { -1, 1 };
-    void randomizeBoid(Boid& boid, const float& radius);
+    void randomizeBoid(Boid& boid);
 };
