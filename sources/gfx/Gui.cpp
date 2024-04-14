@@ -17,13 +17,9 @@ void Gui::draw(
         auto monitor_height = static_cast<float>(monitor_texture->texture().height());
         auto* monitor_texture_id = reinterpret_cast<ImTextureID>(monitor_texture->texture().id()); // NOLINT
 
-        bool is_focused = isImGuiFocused();
-
         ImGui::SetNextWindowPos(ImVec2(0, window_height), ImGuiCond_Always, ImVec2(0, 1));
         ImGui::SetNextWindowSize(ImVec2(415, 0), ImGuiCond_Always);
         ImGui::Begin("Controls");
-        ImGui::Text("Debug");
-        ImGui::Checkbox("Focused", &is_focused);
         ImGui::Text("General");
         ImGui::SliderFloat("Box radius", &container.cubeRadius(), 0, 10);
         ImGui::SliderFloat("Cube force", &container.cubeForce().force, 0, 20);
