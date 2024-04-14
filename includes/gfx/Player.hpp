@@ -11,10 +11,10 @@ public:
     glm::vec3& velocity() { return _velocity; }
     float& speed() { return _speed; }
 
-    glm::vec3 position() const { return _position; }
-    glm::vec3 direction() const { return _direction; }
-    glm::vec3 velocity() const { return _velocity; }
-    float speed() const { return _speed; }
+    [[nodiscard]] glm::vec3 position() const { return _position; }
+    [[nodiscard]] glm::vec3 direction() const { return _direction; }
+    [[nodiscard]] glm::vec3 velocity() const { return _velocity; }
+    [[nodiscard]] float speed() const { return _speed; }
 
     void update(const TotoGL::Seconds& delta);
     void move(const glm::vec3& direction, const TotoGL::Seconds& delta);

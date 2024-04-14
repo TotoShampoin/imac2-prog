@@ -6,7 +6,7 @@ namespace Random {
 template <typename Type, typename RandomType = float>
 class Poisson {
 public:
-    Poisson(RandomType parameter)
+    explicit Poisson(RandomType parameter)
         : _parameter(parameter)
         , _rng(parameter) { }
 

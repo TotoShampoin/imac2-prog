@@ -6,7 +6,7 @@
 
 class BoidContainer {
 public:
-    BoidContainer(const size_t& amount);
+    explicit BoidContainer(const size_t& amount);
 
     void update(const TotoGL::Seconds& delta);
 

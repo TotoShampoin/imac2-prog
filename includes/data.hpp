@@ -7,13 +7,22 @@
 #include "prog/BoidContainer.hpp"
 #include <vector>
 
-struct Data {
+class Data {
+public:
     Data(TotoGL::Window&, TotoGL::Renderer&);
     ~Data() = default;
+    Data() = delete;
+    Data(const Data&) = delete;
+    Data(Data&&) = delete;
+    Data& operator=(const Data&) = delete;
+    Data& operator=(Data&&) = delete;
 
     void update(const TotoGL::Seconds& delta);
     void draw(const TotoGL::Seconds& delta);
 
+    TotoGL::Seconds getDeltaTime() { return clock.getDeltaTime(); }
+
+private:
     int amount = 100;
     // bool spy = false;
     size_t spy_index = 0;
@@ -36,8 +45,8 @@ struct Data {
     TotoGL::Clock timer;
 
     TotoGL::BufferTextureInstanceId monitor_texture;
-    TotoGL::Camera camera { TotoGL::Camera::Perspective(glm::radians(60.f), (float)WIDTH / HEIGHT, .1, 100) };
-    TotoGL::Camera monitor_camera { TotoGL::Camera::Perspective(glm::radians(90.f), (float)256 / 192, .15, 100) };
+    TotoGL::Camera camera { TotoGL::Camera::Perspective(glm::radians(60.f), static_cast<float>(WIDTH) / HEIGHT, .1, 100) };
+    TotoGL::Camera monitor_camera { TotoGL::Camera::Perspective(glm::radians(90.f), static_cast<float>(256) / 192, .15, 100) };
     TotoGL::OrbitControl orbit { 0, -glm::pi<float>() / 12, 5 };
 
     std::vector<std::pair<std::string, float>> timers;

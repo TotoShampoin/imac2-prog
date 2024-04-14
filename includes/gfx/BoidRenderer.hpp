@@ -16,6 +16,10 @@ constexpr auto FAR = 100.;
 struct BoidRenderer {
     BoidRenderer(TotoGL::Window&, TotoGL::Renderer&);
     ~BoidRenderer();
+    BoidRenderer(const BoidRenderer&) = delete;
+    BoidRenderer(BoidRenderer&&) = delete;
+    BoidRenderer& operator=(const BoidRenderer&) = delete;
+    BoidRenderer& operator=(BoidRenderer&&) = delete;
 
     void render(const BoidContainer&, const Player&, TotoGL::Camera&);
 

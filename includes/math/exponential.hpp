@@ -7,7 +7,7 @@ namespace Random {
 template <typename Type>
 class Exponential {
 public:
-    Exponential(Type parameter)
+    explicit Exponential(Type parameter)
         : _parameter(parameter) { }
 
     Type operator()() {

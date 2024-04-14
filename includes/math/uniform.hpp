@@ -6,7 +6,7 @@ namespace Random {
 template <typename Type>
 class Uniform {
 public:
-    Uniform(Type min = 0, Type max = 1)
+    explicit Uniform(Type min = 0, Type max = 1)
         : _min(min)
         , _max(max)
         , _distribution(min, max) { }

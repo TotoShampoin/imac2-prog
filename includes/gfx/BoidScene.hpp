@@ -11,6 +11,10 @@ class BoidScene {
 public:
     BoidScene() = default;
     ~BoidScene();
+    BoidScene(const BoidScene&) = delete;
+    BoidScene(BoidScene&&) = delete;
+    BoidScene& operator=(const BoidScene&) = delete;
+    BoidScene& operator=(BoidScene&&) = delete;
 
     void update(const BoidContainer& container, TotoGL::Camera& camera);
 
