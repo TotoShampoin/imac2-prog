@@ -1,4 +1,5 @@
 #include "math/enumerated.hpp"
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <math/random.hpp>
 
@@ -120,7 +121,7 @@ TEST(Random, Enumerate) {
         OPTION_C,
         OPTION_D,
     };
-    auto distribution = std::map<float, TestType>({
+    auto distribution = std::vector<std::pair<float, TestType>>({
         { .1, OPTION_A },
         { .3, OPTION_B },
         { .2, OPTION_C },
@@ -129,11 +130,15 @@ TEST(Random, Enumerate) {
     auto rng = Random::Enumerated<TestType>(distribution);
     auto results = std::map<TestType, int>();
     for (int i = 0; i < N; i++) {
-        results[rng()]++;
+        auto val = rng();
+        results[val]++;
     }
     for (auto& [value, count] : results) {
-        auto expected = distribution.find(value)->first;
-        auto actual = static_cast<float>(value) / N;
+        // auto expected = distribution.find(value)->first;
+        auto expected = std::find_if(distribution.begin(), distribution.end(), [value](auto& p) {
+            return p.second == value;
+        })->first;
+        auto actual = static_cast<float>(count) / N;
         EXPECT_NEAR(expected, actual, ERR);
     }
 }

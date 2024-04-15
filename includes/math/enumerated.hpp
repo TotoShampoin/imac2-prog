@@ -2,14 +2,15 @@
 
 #include "math/base_rng.hpp"
 #include "uniform.hpp"
-#include <map>
+#include <utility>
+#include <vector>
 
 namespace Random {
 
 template <typename Type, typename RandomType = float>
 class Enumerated : BaseRng<Type> {
 public:
-    explicit Enumerated(std::map<RandomType, Type> values)
+    explicit Enumerated(std::vector<std::pair<RandomType, Type>> values)
         : _values(std::move(values)) {
         for (auto& [prob, name] : _values) {
             _total += prob;
@@ -25,12 +26,14 @@ public:
                 return name;
             }
         }
-        return std::prev(_values.end())->second;
+        return _values.back().second;
     }
+
+    [[nodiscard]] size_t size() const { return _values.size(); }
 
 private:
     Uniform<RandomType> _rng { 0, 1 };
-    std::map<RandomType, Type> _values;
+    std::vector<std::pair<RandomType, Type>> _values;
     RandomType _total { 0 };
 };
 
