@@ -1,4 +1,5 @@
 #include "math/binomial.hpp"
+#include "math/enumerated.hpp"
 
 #include <imgui.h>
 
@@ -19,10 +20,10 @@ struct Histogram {
     std::vector<int> values;
     Type min;
     Type max;
-    int height() const {
+    [[nodiscard]] int height() const {
         return *std::max_element(values.begin(), values.end());
     }
-    int sum() const {
+    [[nodiscard]] int sum() const {
         return std::accumulate(values.begin(), values.end(), 0);
     }
     std::vector<float> normalized() const {
@@ -35,44 +36,64 @@ struct Histogram {
 };
 
 template <class RNG>
-Histogram<float> testDistributionReal(RNG& rng, int n = N, int res = RESOLUTION) {
-    std::vector<float> values(n);
-    for (int i = 0; i < n; i++) {
+Histogram<float> testDistributionReal(RNG& rng) {
+    std::vector<float> values(N);
+    for (int i = 0; i < N; i++) {
         values[i] = rng();
     }
     float min = *std::min_element(values.begin(), values.end());
     float max = *std::max_element(values.begin(), values.end());
-    float step = (max - min) / res;
-    std::vector<int> histogram(res);
-    for (int i = 0; i < n; i++) {
-        int index = (values[i] - min) / step;
+    float step = (max - min) / RESOLUTION;
+    std::vector<int> histogram(RESOLUTION);
+    for (int i = 0; i < N; i++) {
+        int index = static_cast<int>((values[i] - min) / step);
         histogram[index]++;
     }
     return { histogram, min, max };
 }
 
 template <class RNG>
-Histogram<int> testDistributionInt(RNG& rng, int n = N) {
-    std::vector<int> values(n);
-    for (int i = 0; i < n; i++) {
+Histogram<int> testDistributionInt(RNG& rng) {
+    std::vector<int> values(N);
+    for (int i = 0; i < N; i++) {
         values[i] = rng();
     }
     int min = *std::min_element(values.begin(), values.end());
     int max = *std::max_element(values.begin(), values.end());
     int res = max - min + 1;
     std::vector<int> histogram(res);
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < N; i++) {
         histogram[values[i] - min]++;
     }
     return { histogram, min, max };
 }
 
-int main(int argc, const char* argv[]) {
+enum Test {
+    OPTION_A,
+    OPTION_B,
+    OPTION_C,
+    OPTION_D,
+};
+template <class RNG>
+Histogram<Test> testDistributionEnum(RNG& rng) {
+    std::vector<Test> values(N);
+    for (int i = 0; i < N; i++) {
+        values[i] = rng();
+    }
+    std::vector<int> histogram(4);
+    for (int i = 0; i < N; i++) {
+        histogram[static_cast<int>(values[i])]++;
+    }
+    return { histogram, OPTION_A, OPTION_D };
+}
+
+int main(int /* argc */, const char* /* argv */[]) {
     Random::Uniform<float> uniform_dist(0, 1);
     Random::Exponential<float> exponential_dist(1);
     Random::Poisson<int> poisson_dist(3);
     Random::Binomial<int> binomial_dist(.9, RESOLUTION);
     Random::Normal<float> normal_dist;
+    Random::Enumerated<Test> enum_dist({ { .5, OPTION_A }, { .3, OPTION_B }, { .1, OPTION_C }, { .2, OPTION_D } });
 
     TotoGL::Window window(800, 600, "Random distributions");
 
@@ -115,6 +136,13 @@ int main(int argc, const char* argv[]) {
             case GLFW_KEY_5: {
                 distribution = "Normal";
                 auto hist = testDistributionReal(normal_dist);
+                histogram = hist.normalized();
+                min = hist.min;
+                max = hist.max;
+            } break;
+            case GLFW_KEY_6: {
+                distribution = "Enum";
+                auto hist = testDistributionEnum(enum_dist);
                 histogram = hist.normalized();
                 min = hist.min;
                 max = hist.max;
