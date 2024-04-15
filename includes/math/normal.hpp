@@ -16,6 +16,13 @@ public:
         return sqrt(-2 * log(u1)) * cos(2 * M_PI * u2);
     }
 
+    std::pair<Type, Type> generatePair() {
+        Type u1 = _rng_1();
+        Type u2 = _rng_2();
+        Type r = sqrt(-2 * log(u1));
+        return { r * cos(2 * M_PI * u2), r * sin(2 * M_PI * u2) };
+    }
+
 private:
     Uniform<Type> _rng_1 { 0, 1 };
     Uniform<Type> _rng_2 { 0, 1 };
