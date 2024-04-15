@@ -48,6 +48,7 @@ public:
     [[nodiscard]] BoidForce centerForce() const { return _center_force; }
     [[nodiscard]] TotoGL::ColorRGB color() const { return _color; }
     [[nodiscard]] glm::vec2 influence() const { return _influence; }
+    [[nodiscard]] bool isAlive() const { return _is_alive; }
 
     glm::vec3& position() { return _position; }
     glm::vec3& velocity() { return _velocity; }
@@ -56,6 +57,7 @@ public:
     BoidForce& centerForce() { return _center_force; }
     TotoGL::ColorRGB& color() { return _color; }
     glm::vec2& influence() { return _influence; }
+    bool& isAlive() { return _is_alive; }
 
 private:
     glm::vec3 _position;
@@ -65,4 +67,5 @@ private:
     BoidForce _center_force;
     TotoGL::ColorRGB _color;
     glm::vec2 _influence;
+    bool _is_alive;
 };

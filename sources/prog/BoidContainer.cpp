@@ -2,6 +2,7 @@
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
+#include <vector>
 
 BoidContainer::BoidContainer(const size_t& amount, const std::function<void(Boid&)>& initializer)
     : _boids(amount) {
@@ -23,11 +24,12 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
         boid.updatePosition(delta);
 
         if (glm::any(glm::isnan(boid.position()))) {
-            boid.position() = { 0, 0, 0 };
-            boid.velocity() = { 0, 0, 1 };
-            // randomizeBoid(boid); // TODO(Boid): Add boid death
+            boid.isAlive() = false;
         }
     }
+    _boids.erase(
+        std::remove_if(_boids.begin(), _boids.end(), [&](Boid& b) { return !b.isAlive(); }),
+        _boids.end());
 }
 
 void BoidContainer::resize(const size_t& amount, const std::function<void(Boid&)>& initializer) {

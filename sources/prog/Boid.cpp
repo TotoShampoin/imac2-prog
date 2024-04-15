@@ -15,7 +15,8 @@ Boid::Boid(
     , _match_force(forces.match)
     , _center_force(forces.center)
     , _color(color)
-    , _influence(0) { }
+    , _influence(0)
+    , _is_alive(true) { }
 
 float Boid::closeness(const Boid& other, const BoidForce& force) const {
     const auto& radius = force.zone_width;
