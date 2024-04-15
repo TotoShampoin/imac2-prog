@@ -1,17 +1,18 @@
 #pragma once
+#include "math/base_rng.hpp"
 #include <random>
 
 namespace Random {
 
 template <typename Type>
-class Uniform {
+class Uniform : BaseRng<Type> {
 public:
     explicit Uniform(Type min = 0, Type max = 1)
         : _min(min)
         , _max(max)
         , _distribution(min, max) { }
 
-    Type operator()() {
+    Type operator()() override {
         return _distribution(_generator);
     }
 

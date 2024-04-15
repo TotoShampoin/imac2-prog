@@ -1,16 +1,17 @@
 #pragma once
 #include "exponential.hpp"
+#include "math/base_rng.hpp"
 
 namespace Random {
 
 template <typename Type, typename RandomType = float>
-class Poisson {
+class Poisson : BaseRng<Type> {
 public:
     explicit Poisson(RandomType parameter)
         : _parameter(parameter)
         , _rng(parameter) { }
 
-    Type operator()() {
+    Type operator()() override {
         RandomType T = 0;
         Type N = 0;
         while (T < 1) {

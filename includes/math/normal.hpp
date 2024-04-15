@@ -1,5 +1,6 @@
 #pragma once
 
+#include "math/base_rng.hpp"
 #include "uniform.hpp"
 
 namespace Random {
@@ -7,7 +8,7 @@ namespace Random {
 // Box-Muller transform
 // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
 template <typename Type>
-class Normal {
+class Normal : BaseRng<Type> {
 public:
     Type operator()() {
         Type u1 = _rng_1();

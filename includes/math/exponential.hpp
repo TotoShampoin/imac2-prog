@@ -1,11 +1,12 @@
 #pragma once
+#include "math/base_rng.hpp"
 #include "uniform.hpp"
 #include <cmath>
 
 namespace Random {
 
 template <typename Type>
-class Exponential {
+class Exponential : BaseRng<Type> {
 public:
     explicit Exponential(Type parameter)
         : _parameter(parameter) { }

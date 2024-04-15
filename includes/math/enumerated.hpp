@@ -1,12 +1,13 @@
 #pragma once
 
+#include "math/base_rng.hpp"
 #include "uniform.hpp"
 #include <map>
 
 namespace Random {
 
 template <typename Type, typename RandomType = float>
-class Enumerated {
+class Enumerated : BaseRng<Type> {
 public:
     explicit Enumerated(std::map<RandomType, Type> values)
         : _values(std::move(values)) {

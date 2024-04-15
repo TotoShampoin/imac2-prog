@@ -1,4 +1,5 @@
 #pragma once
+#include "math/base_rng.hpp"
 #include "uniform.hpp"
 #include "utils.hpp"
 #include <vector>
@@ -7,7 +8,7 @@
 namespace Random {
 
 template <typename Type, typename RandomType = float>
-class Binomial {
+class Binomial : BaseRng<Type> {
 public:
     Binomial(RandomType probability, Type trials)
         : _probability(probability)
