@@ -1,3 +1,4 @@
+#include "math/enumerated.hpp"
 #include <gtest/gtest.h>
 #include <math/random.hpp>
 
@@ -31,7 +32,7 @@ TEST(Math, Binom) {
 }
 
 // If this fails, that means you're probably using factorials. Please don't.
-TEST(Math, Binom_large) {
+TEST(Math, BinomLarge) {
     // Generated with math.comb in Python
     auto units = std::map<uint8_t, uint64_t> {
         { 40, 137846528820 },
@@ -44,7 +45,7 @@ TEST(Math, Binom_large) {
     }
 }
 
-TEST(Math, Binomial_probability) {
+TEST(Math, BinomialProbability) {
     // Generated with math.comb and ** in Python
     auto units = std::map<std::tuple<float, uint8_t, uint8_t>, float> {
         { { .5f, 4, 2 }, .375f },
@@ -55,13 +56,16 @@ TEST(Math, Binomial_probability) {
     };
     const float ERR = 1e-9;
     for (auto& t : units) {
-        auto& [p, n, k] = t.first;
+        const auto& [p, n, k] = t.first;
         EXPECT_NEAR(Math::binomialProbability(p, n, k), t.second, ERR);
     }
 }
 
+constexpr int N = 1'000'000;
+constexpr float ERR = .01f;
+
 template <class RNG>
-void test_rng(RNG& rng, int N, float expected, float variance, float err) {
+void test_rng(RNG& rng, float expected, float variance) {
     double sum = 0;
     double sum2 = 0;
     for (int i = 0; i < N; i++) {
@@ -72,46 +76,64 @@ void test_rng(RNG& rng, int N, float expected, float variance, float err) {
     sum /= N;
     sum2 /= N;
     double var = sum2 - sum * sum;
-    EXPECT_NEAR(sum, expected, err);
-    EXPECT_NEAR(var, variance, err);
+    EXPECT_NEAR(sum, expected, ERR);
+    EXPECT_NEAR(var, variance, ERR);
 }
 
 TEST(Random, Uniform) {
-    const int N = 1'000'000;
     const float A = 0;
     const float B = 1;
-    const float ERR = .01f;
     auto rng = Random::Uniform<float>(A, B);
     auto expected = (A + B) / 2;
     auto variance = (B - A) * (B - A) / 12;
-    test_rng(rng, N, expected, variance, ERR);
+    test_rng(rng, expected, variance);
 }
 
 TEST(Random, Exponential) {
-    const int N = 1'000'000;
     const float P = 1;
-    const float ERR = .01f;
     auto rng = Random::Exponential<float>(P);
     auto expected = 1 / P;
     auto variance = 1 / (P * P);
-    test_rng(rng, N, expected, variance, ERR);
+    test_rng(rng, expected, variance);
 }
 
 TEST(Random, Poisson) {
-    const int N = 1'000'000;
     const float L = 1;
-    const float ERR = .01f;
     auto rng = Random::Poisson<float>(L);
     auto expected = L;
     auto variance = L;
-    test_rng(rng, N, expected, variance, ERR);
+    test_rng(rng, expected, variance);
 }
 
 TEST(Random, Normal) {
-    const int N = 1'000'000;
-    const float ERR = .01f;
     auto rng = Random::Normal<float>();
-    auto expected = 0;
-    auto variance = 1;
-    test_rng(rng, N, expected, variance, ERR);
+    auto expected = 0.f;
+    auto variance = 1.f;
+    test_rng(rng, expected, variance);
+}
+
+// TODO(Random) Test Enumerated
+TEST(Random, Enumerate) {
+    enum TestType {
+        OPTION_A,
+        OPTION_B,
+        OPTION_C,
+        OPTION_D,
+    };
+    auto distribution = std::map<float, TestType>({
+        { .1, OPTION_A },
+        { .3, OPTION_B },
+        { .2, OPTION_C },
+        { .4, OPTION_D },
+    });
+    auto rng = Random::Enumerated<TestType>(distribution);
+    auto results = std::map<TestType, int>();
+    for (int i = 0; i < N; i++) {
+        results[rng()]++;
+    }
+    for (auto& [value, count] : results) {
+        auto expected = distribution.find(value)->first;
+        auto actual = static_cast<float>(value) / N;
+        EXPECT_NEAR(expected, actual, ERR);
+    }
 }
