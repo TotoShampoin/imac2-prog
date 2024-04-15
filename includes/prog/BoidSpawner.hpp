@@ -7,6 +7,15 @@
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 
+constexpr TotoGL::ColorRGB BLACK { 0, 0, 0 };
+constexpr TotoGL::ColorRGB RED { 1, 0, 0 };
+constexpr TotoGL::ColorRGB GREEN { 0, 1, 0 };
+constexpr TotoGL::ColorRGB YELLOW { 1, 1, 0 };
+constexpr TotoGL::ColorRGB BLUE { 0, 0, 1 };
+constexpr TotoGL::ColorRGB MAGENTA { 1, 0, 1 };
+constexpr TotoGL::ColorRGB CYAN { 0, 1, 1 };
+constexpr TotoGL::ColorRGB WHITE { 1, 1, 1 };
+
 class BoidSpawner {
 public:
     void spawn(Boid& boid) {
@@ -39,7 +48,11 @@ private:
     };
     Random::Uniform<float> _coordinate_generator { -1, 1 };
     Random::Enumerated<TotoGL::ColorRGB> _color_generator { {
-        { .9f, { 1, 1, 0 } },
-        { .1f, { 0, 1, 0 } },
+        { .5f, YELLOW },
+        { .1f, GREEN },
+        { .1f, RED },
+        { .1f, BLUE },
+        { .1f, MAGENTA },
+        { .1f, CYAN },
     } };
 };
