@@ -24,7 +24,7 @@ public:
         boid.velocity() = _randomBox() * _speed;
         boid.setParameters(_boid_force_parameters);
         boid.color() = _color_generator();
-        boid.influence() = _randomSquare();
+        boid.influence() = _randomGaussianCircle();
     }
 
     BoidForceParameters& boidForceParameters() { return _boid_force_parameters; }
@@ -41,11 +41,15 @@ private:
     glm::vec3 _randomBox() {
         return { _uniform_generator(), _uniform_generator(), _uniform_generator() };
     }
+    glm::vec3 _randomGaussianBox() {
+        return { _gaussian_generator(), _gaussian_generator(), _gaussian_generator() };
+    }
     glm::vec3 _randomSphere() {
-        return glm::normalize(glm::vec3 {
-            _gaussian_generator(),
-            _gaussian_generator(),
-            _gaussian_generator() });
+        return glm::normalize(_randomGaussianBox());
+    }
+    glm::vec2 _randomGaussianCircle() {
+        auto [a, b] = _gaussian_generator.generatePair();
+        return { a, b };
     }
 
     glm::vec3 _position { 0 };
@@ -57,14 +61,15 @@ private:
         .match = { .force = .3, .zone_width = .5, .zone_offset = .5 },
         .center = { .force = .01, .zone_width = .5, .zone_offset = .5 }
     };
+
     Random::Uniform<float> _uniform_generator { -1, 1 };
+    Random::Normal<float> _gaussian_generator { 0, 1 };
     Random::Enumerated<TotoGL::ColorRGB> _color_generator { {
-        { .5f, YELLOW },
-        { .1f, GREEN },
-        { .1f, RED },
-        { .1f, BLUE },
-        { .1f, MAGENTA },
-        { .1f, CYAN },
+        { .75f, YELLOW },
+        { .05f, GREEN },
+        { .05f, RED },
+        { .05f, BLUE },
+        { .05f, MAGENTA },
+        { .05f, CYAN },
     } };
-    Random::Normal<float> _gaussian_generator;
 };
