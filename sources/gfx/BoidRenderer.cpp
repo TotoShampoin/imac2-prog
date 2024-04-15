@@ -6,6 +6,9 @@ constexpr size_t AMBIENT_LIGHT = 0;
 constexpr size_t DIRECTIONAL_LIGHT = 1;
 constexpr size_t PLAYER_LIGHT = 2;
 
+constexpr size_t BOID_MESH_LOW_MATERIAL = 0;
+constexpr size_t BOID_MESH_HIGH_EYE_MATERIAL = 2;
+
 BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     : renderer(renderer)
     , skydome_texture(TotoGL::TextureFactory::create(
@@ -51,9 +54,6 @@ BoidRenderer::~BoidRenderer() {
 // TODO(Rendering) Figure out why it's faster with the normal renderer than with the custom one
 // even though the custom one is supposed to skip a lot of boids overhead...
 void BoidRenderer::render(const BoidContainer& container, const Player& player, TotoGL::Camera& used_camera) {
-    constexpr size_t BOID_MESH_LOW_MATERIAL = 0;
-    constexpr size_t BOID_MESH_HIGH_EYE_MATERIAL = 2;
-
     bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15));
     player_mesh->position() = player.position();
     lights[PLAYER_LIGHT]->position() = player.position();
