@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TotoGL/Primitives/Clock.hpp"
+#include "TotoGL/Primitives/Color.hpp"
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -27,7 +28,8 @@ class Boid {
 public:
     explicit Boid(
         const BoidCoordinates& = {},
-        const BoidForceParameters& = {});
+        const BoidForceParameters& = {},
+        const TotoGL::ColorRGB& = { 1, 1, 0 });
 
     [[nodiscard]] float closeness(const Boid&, const BoidForce&) const;
 
@@ -44,12 +46,14 @@ public:
     [[nodiscard]] BoidForce avoidForce() const { return _avoid_force; }
     [[nodiscard]] BoidForce matchForce() const { return _match_force; }
     [[nodiscard]] BoidForce centerForce() const { return _center_force; }
+    [[nodiscard]] TotoGL::ColorRGB color() const { return _color; }
 
     glm::vec3& position() { return _position; }
     glm::vec3& velocity() { return _velocity; }
     BoidForce& avoidForce() { return _avoid_force; }
     BoidForce& matchForce() { return _match_force; }
     BoidForce& centerForce() { return _center_force; }
+    TotoGL::ColorRGB& color() { return _color; }
 
 private:
     glm::vec3 _position;
@@ -57,4 +61,5 @@ private:
     BoidForce _avoid_force;
     BoidForce _match_force;
     BoidForce _center_force;
+    TotoGL::ColorRGB _color;
 };

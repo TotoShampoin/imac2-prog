@@ -7,12 +7,14 @@
 Boid::Boid(
     // const glm::vec3& pos, const glm::vec3& vel,
     const BoidCoordinates& coords,
-    const BoidForceParameters& forces)
+    const BoidForceParameters& forces,
+    const TotoGL::ColorRGB& color)
     : _position(coords.position)
     , _velocity(coords.velocity)
     , _avoid_force(forces.avoid)
     , _match_force(forces.match)
-    , _center_force(forces.center) { }
+    , _center_force(forces.center)
+    , _color(color) { }
 
 float Boid::closeness(const Boid& other, const BoidForce& force) const {
     const auto& radius = force.zone_width;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "TotoGL/Primitives/Color.hpp"
+#include "math/enumerated.hpp"
 #include "math/uniform.hpp"
 #include "prog/Boid.hpp"
 #include <glm/geometric.hpp>
@@ -11,6 +13,7 @@ public:
         boid.position() = _position + _randomBox() * _radius;
         boid.velocity() = _randomBox() * _speed;
         boid.setParameters(_boid_force_parameters);
+        boid.color() = _color_generator();
     }
 
     BoidForceParameters& boidForceParameters() { return _boid_force_parameters; }
@@ -22,7 +25,7 @@ public:
 
 private:
     glm::vec3 _randomBox() {
-        return { _random_number_generator(), _random_number_generator(), _random_number_generator() };
+        return { _coordinate_generator(), _coordinate_generator(), _coordinate_generator() };
     }
 
     glm::vec3 _position { 0 };
@@ -34,5 +37,9 @@ private:
         .match = { .force = .3, .zone_width = .5, .zone_offset = .5 },
         .center = { .force = .01, .zone_width = .5, .zone_offset = .5 }
     };
-    Random::Uniform<float> _random_number_generator { -1, 1 };
+    Random::Uniform<float> _coordinate_generator { -1, 1 };
+    Random::Enumerated<TotoGL::ColorRGB> _color_generator { {
+        { .9f, { 1, 1, 0 } },
+        { .1f, { 0, 1, 0 } },
+    } };
 };

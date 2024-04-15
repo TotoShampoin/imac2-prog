@@ -51,7 +51,9 @@ BoidRenderer::~BoidRenderer() {
 // TODO(Rendering) Figure out why it's faster with the normal renderer than with the custom one
 // even though the custom one is supposed to skip a lot of boids overhead...
 void BoidRenderer::render(const BoidContainer& container, const Player& player, TotoGL::Camera& used_camera) {
-    // auto& used_camera = camera_opt.has_value() ? camera_opt.value() : this->camera;
+    constexpr size_t BOID_MESH_LOW_MATERIAL = 0;
+    constexpr size_t BOID_MESH_HIGH_EYE_MATERIAL = 2;
+
     bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15));
     player_mesh->position() = player.position();
     lights[PLAYER_LIGHT]->position() = player.position();
@@ -68,10 +70,12 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
     renderer.render(*player_mesh, used_camera, lights);
     for (const auto& boid : container.boids()) {
         if (glm::distance(boid.position(), used_camera.position()) < 5) {
+            boid_mesh_high->materials()[BOID_MESH_HIGH_EYE_MATERIAL].emissive = { boid.color(), 1 };
             boid_mesh_high->position() = boid.position();
             boid_mesh_high->lookAt(boid.position() + boid.velocity());
             renderer.render(*boid_mesh_high, used_camera, lights);
         } else {
+            boid_mesh_low->materials()[BOID_MESH_LOW_MATERIAL].emissive = { boid.color(), 1 };
             boid_mesh_low->position() = boid.position();
             boid_mesh_low->lookAt(boid.position() + boid.velocity());
             renderer.render(*boid_mesh_low, used_camera, lights);
