@@ -22,6 +22,7 @@ struct BoidForceParameters {
     BoidForce avoid;
     BoidForce match;
     BoidForce center;
+    BoidForce bias;
 };
 
 class Boid {
@@ -36,6 +37,7 @@ public:
     [[nodiscard]] glm::vec3 separation(const std::vector<Boid>&, const BoidForce&) const;
     [[nodiscard]] glm::vec3 alignment(const std::vector<Boid>&, const BoidForce&) const;
     [[nodiscard]] glm::vec3 cohesion(const std::vector<Boid>&, const BoidForce&) const;
+    [[nodiscard]] glm::vec3 bias(const glm::vec3&) const;
 
     // void updateVelocity(const std::vector<Boid>&);
     void updatePosition(const TotoGL::Seconds&);
@@ -46,6 +48,7 @@ public:
     [[nodiscard]] BoidForce avoidForce() const { return _avoid_force; }
     [[nodiscard]] BoidForce matchForce() const { return _match_force; }
     [[nodiscard]] BoidForce centerForce() const { return _center_force; }
+    [[nodiscard]] BoidForce biasForce() const { return _bias_force; }
     [[nodiscard]] TotoGL::ColorRGB color() const { return _color; }
     [[nodiscard]] glm::vec2 influence() const { return _influence; }
     [[nodiscard]] bool isAlive() const { return _is_alive; }
@@ -55,6 +58,7 @@ public:
     BoidForce& avoidForce() { return _avoid_force; }
     BoidForce& matchForce() { return _match_force; }
     BoidForce& centerForce() { return _center_force; }
+    BoidForce& biasForce() { return _bias_force; }
     TotoGL::ColorRGB& color() { return _color; }
     glm::vec2& influence() { return _influence; }
     bool& isAlive() { return _is_alive; }
@@ -65,7 +69,9 @@ private:
     BoidForce _avoid_force;
     BoidForce _match_force;
     BoidForce _center_force;
+    BoidForce _bias_force;
     TotoGL::ColorRGB _color;
+    // float _bias_strength;
     glm::vec2 _influence;
     bool _is_alive;
 };

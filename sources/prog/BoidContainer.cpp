@@ -17,6 +17,7 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
         new_velocity += boid.separation(_boids, boid.avoidForce());
         new_velocity += boid.alignment(_boids, boid.matchForce());
         new_velocity += boid.cohesion(_boids, boid.centerForce());
+        new_velocity += boid.bias({ 0, 0, 0 });
 
         new_velocity += boid.separation(_cube_boids, _cube_force);
 

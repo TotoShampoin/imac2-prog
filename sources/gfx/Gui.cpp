@@ -31,6 +31,7 @@ void UiRenderer::draw(
         ImGui::SliderFloat("Avoid force", &spawner.boidForceParameters().avoid.force, 0, 1);
         ImGui::SliderFloat("Match force", &spawner.boidForceParameters().match.force, 0, 1);
         ImGui::SliderFloat("Center force", &spawner.boidForceParameters().center.force, 0, 1);
+        ImGui::SliderFloat("Bias force", &spawner.boidForceParameters().bias.force, 0, 1);
         ImGui::SliderFloat("Position radius", &spawner.positionRadius(), 0, 1);
         ImGui::SliderFloat("Speed", &spawner.boidSpeed(), 0, 1);
         // ImGui::SliderFloat("Attract radius", &container.attractRadius(), 0, 1);

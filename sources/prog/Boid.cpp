@@ -14,6 +14,7 @@ Boid::Boid(
     , _avoid_force(forces.avoid)
     , _match_force(forces.match)
     , _center_force(forces.center)
+    , _bias_force(forces.bias)
     , _color(color)
     , _influence(0)
     , _is_alive(true) { }
@@ -69,6 +70,12 @@ glm::vec3 Boid::cohesion(const std::vector<Boid>& boids, const BoidForce& center
     return (average_position - position()) * center_factor;
 }
 
+glm::vec3 Boid::bias(const glm::vec3& point) const {
+    auto c = closeness(Boid({ point }), _bias_force);
+    auto direction = glm::normalize(point - _position);
+    return direction * c * _bias_force.force;
+}
+
 void Boid::updatePosition(const TotoGL::Seconds& delta_time) {
     _position += _velocity * delta_time;
 }
@@ -77,4 +84,5 @@ void Boid::setParameters(const BoidForceParameters& forces) {
     _avoid_force = forces.avoid;
     _match_force = forces.match;
     _center_force = forces.center;
+    _bias_force = forces.bias;
 }
