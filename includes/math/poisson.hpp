@@ -1,6 +1,6 @@
 #pragma once
+#include "base_rng.hpp"
 #include "exponential.hpp"
-#include "math/base_rng.hpp"
 
 namespace Random {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math/base_rng.hpp"
+#include "base_rng.hpp"
 #include "uniform.hpp"
 #include <utility>
 #include <vector>
