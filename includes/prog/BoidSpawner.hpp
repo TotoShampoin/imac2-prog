@@ -5,6 +5,7 @@
 #include "math/normal.hpp"
 #include "math/uniform.hpp"
 #include "prog/Boid.hpp"
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 
@@ -20,50 +21,49 @@ constexpr TotoGL::ColorRGB WHITE { 1, 1, 1 };
 class BoidSpawner {
 public:
     void spawn(Boid& boid) {
-        boid.position() = _position + _randomBox() * _radius;
-        boid.velocity() = _randomBox() * _speed;
+        auto random_position = glm::vec3(_position_generator(), _position_generator(), _position_generator());
+        auto random_angles = _getRandom2D(_angle_generator);
+        auto color = _color_generator();
+        auto random_strength = _strength_generator();
+
+        auto rotated = glm::rotate(glm::mat4(1), random_angles.x, _up()) * glm::rotate(glm::mat4(1), random_angles.y, _right());
+
+        boid.position() = _position + random_position * _position_radius;
+        boid.velocity() = (rotated * glm::vec4(_direction, 1)) * _boid_speed;
         boid.setParameters(_boid_force_parameters);
-        boid.color() = _color_generator();
-        boid.influence() = _randomGaussianCircle();
+        boid.color() = color;
     }
 
-    BoidForceParameters& boidForceParameters() { return _boid_force_parameters; }
-
-    [[nodiscard]] glm::vec3 position() const { return _position; }
-    [[nodiscard]] glm::vec3 direction() const { return _direction; }
-    [[nodiscard]] float radius() const { return _radius; }
-    [[nodiscard]] float speed() const { return _speed; }
+    [[nodiscard]] glm::vec3& position() { return _position; }
+    [[nodiscard]] glm::vec3& direction() { return _direction; }
+    [[nodiscard]] float& positionRadius() { return _position_radius; }
+    [[nodiscard]] float& boidSpeed() { return _boid_speed; }
+    [[nodiscard]] BoidForceParameters& boidForceParameters() { return _boid_force_parameters; }
 
 private:
-    glm::vec2 _randomSquare() {
-        return { _uniform_generator(), _uniform_generator() };
-    }
-    glm::vec3 _randomBox() {
-        return { _uniform_generator(), _uniform_generator(), _uniform_generator() };
-    }
-    glm::vec3 _randomGaussianBox() {
-        return { _gaussian_generator(), _gaussian_generator(), _gaussian_generator() };
-    }
-    glm::vec3 _randomSphere() {
-        return glm::normalize(_randomGaussianBox());
-    }
-    glm::vec2 _randomGaussianCircle() {
-        auto [a, b] = _gaussian_generator.generatePair();
+    glm::vec2 _getRandom2D(Random::Normal<float>& rng) {
+        auto [a, b] = rng.generatePair();
         return { a, b };
     }
 
+    glm::vec3 _front() { return _direction; }
+    glm::vec3 _right() { return glm::cross(_direction, { 0, 1, 0 }); }
+    glm::vec3 _up() { return glm::cross(_right(), _front()); }
+
     glm::vec3 _position { 0 };
     glm::vec3 _direction { 0, 0, 1 };
-    float _radius { .05 };
-    float _speed { 1 };
+    float _position_radius { .05 };
+    float _boid_speed { 1 };
     BoidForceParameters _boid_force_parameters {
         .avoid = { .force = .2, .zone_width = .5, .zone_offset = 0 },
         .match = { .force = .3, .zone_width = .5, .zone_offset = .5 },
-        .center = { .force = .01, .zone_width = .5, .zone_offset = .5 }
+        .center = { .force = .01, .zone_width = .5, .zone_offset = .5 },
+        .bias = { .force = .25, .zone_width = 1.5, .zone_offset = 0 },
     };
 
-    Random::Uniform<float> _uniform_generator { -1, 1 };
-    Random::Normal<float> _gaussian_generator { 0, 1 };
+    Random::Uniform<float> _position_generator { -1, 1 };
+    Random::Normal<float> _angle_generator { 0, .25 };
+    Random::Normal<float> _strength_generator { 0, .5 };
     Random::Enumerated<TotoGL::ColorRGB> _color_generator { {
         { .75f, YELLOW },
         { .05f, GREEN },

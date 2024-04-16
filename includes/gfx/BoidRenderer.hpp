@@ -7,8 +7,8 @@
 #include <TotoGL/TotoGL.hpp>
 #include <vector>
 
-constexpr auto WIDTH = 1024;
-constexpr auto HEIGHT = 768;
+constexpr auto WIDTH = 1280;
+constexpr auto HEIGHT = 720;
 constexpr auto FOV = glm::radians(70.);
 constexpr auto NEAR = .1;
 constexpr auto FAR = 100.;
