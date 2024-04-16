@@ -50,9 +50,14 @@ void Simulation::update(const TotoGL::Seconds& delta) {
 
     // update
     container.update(delta);
-    const auto& spied_boid = container.boids()[ui_variables.spy_index];
-    monitor_camera.position() = spied_boid.position();
-    monitor_camera.lookAt(spied_boid.position() + spied_boid.velocity());
+    if (container.boids().empty()) {
+        monitor_camera.position() = glm::vec3(container.cubeRadius() * 2);
+        monitor_camera.lookAt({ 0, 0, 0 });
+    } else {
+        const auto& spied_boid = container.boids()[ui_variables.spy_index];
+        monitor_camera.position() = spied_boid.position();
+        monitor_camera.lookAt(spied_boid.position() + spied_boid.velocity());
+    }
     player.update(delta);
     orbit.position() = player.position();
     orbit.apply(camera);

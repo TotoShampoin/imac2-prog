@@ -15,7 +15,7 @@ struct Flags {
     bool remove_boid = false;
 };
 struct UiVariables {
-    int amount = 100;
+    int amount = 0;
     size_t spy_index = 0;
     int add_amount = 10;
 };

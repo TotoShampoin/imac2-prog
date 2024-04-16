@@ -23,14 +23,16 @@ void UiRenderer::draw(
         ImGui::Text("General");
         ImGui::SliderFloat("Box radius", &container.cubeRadius(), 0, 10);
         ImGui::SliderFloat("Cube force", &container.cubeForce().force, 0, 20);
+        ImGui::SliderFloat("Min velocity", &container.minVelocity(), 0, 10);
+        ImGui::SliderFloat("Max velocity", &container.maxVelocity(), 0, 10);
         _flags.changing_amount |= ImGui::SliderInt("Amount", &ui_variables.amount, 0, 500);
         _flags.resetting |= ImGui::Button("Reset");
         ImGui::Text("Next boids");
-        ImGui::SliderFloat("Min velocity", &container.minVelocity(), 0, 10);
-        ImGui::SliderFloat("Max velocity", &container.maxVelocity(), 0, 10);
         ImGui::SliderFloat("Avoid force", &spawner.boidForceParameters().avoid.force, 0, 1);
         ImGui::SliderFloat("Match force", &spawner.boidForceParameters().match.force, 0, 1);
         ImGui::SliderFloat("Center force", &spawner.boidForceParameters().center.force, 0, 1);
+        ImGui::SliderFloat("Position radius", &spawner.positionRadius(), 0, 1);
+        ImGui::SliderFloat("Speed", &spawner.boidSpeed(), 0, 1);
         // ImGui::SliderFloat("Attract radius", &container.attractRadius(), 0, 1);
         // ImGui::SliderFloat("Expell radius", &container.expellRadius(), 0, 1);
         // ImGui::SliderFloat("Returning radius", &container.returningRadius(), 0, 1);
@@ -44,15 +46,19 @@ void UiRenderer::draw(
         ImGui::SetNextWindowPos(ImVec2(window_width, window_height), ImGuiCond_Always, ImVec2(1, 1));
         ImGui::SetNextWindowSize(ImVec2(304, 0), ImGuiCond_Always);
         ImGui::Begin("Spy");
-        _flags.spying_previous |= ImGui::Button("-");
-        ImGui::SameLine();
-        ImGui::Text("%zu", ui_variables.spy_index);
-        ImGui::SameLine();
-        _flags.spying_next |= ImGui::Button("+");
-        const auto& boid = container.boids()[ui_variables.spy_index];
-        ImGui::Text("Position = %f, %f, %f", boid.position().x, boid.position().y, boid.position().z);
-        ImGui::Text("Velocity = %f, %f, %f", boid.velocity().x, boid.velocity().y, boid.velocity().z);
-        ImGui::Image(monitor_texture_id, ImVec2(monitor_width, monitor_height), ImVec2(0, 1), ImVec2(1, 0));
+        if (container.boids().empty()) {
+            ImGui::Text("No boids to spy on");
+        } else {
+            _flags.spying_previous |= ImGui::Button("-");
+            ImGui::SameLine();
+            ImGui::Text("%zu", ui_variables.spy_index);
+            ImGui::SameLine();
+            _flags.spying_next |= ImGui::Button("+");
+            const auto& boid = container.boids()[ui_variables.spy_index];
+            ImGui::Text("Position = %f, %f, %f", boid.position().x, boid.position().y, boid.position().z);
+            ImGui::Text("Velocity = %f, %f, %f", boid.velocity().x, boid.velocity().y, boid.velocity().z);
+            ImGui::Image(monitor_texture_id, ImVec2(monitor_width, monitor_height), ImVec2(0, 1), ImVec2(1, 0));
+        }
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
