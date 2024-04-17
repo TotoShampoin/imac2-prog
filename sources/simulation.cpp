@@ -51,6 +51,7 @@ void Simulation::update(const TotoGL::Seconds& delta) {
     spawner.direction() = player.direction();
 
     // update
+    container.updatePlayerBoid(player.position());
     container.update(delta);
     if (container.boids().empty()) {
         monitor_camera.position() = glm::vec3(container.cubeRadius() * 2);

@@ -35,20 +35,25 @@ public:
     [[nodiscard]] float minVelocity() const { return _min_velocity; };
     [[nodiscard]] float maxVelocity() const { return _max_velocity; };
     [[nodiscard]] const BoidForce& cubeForce() const { return _cube_force; };
+    [[nodiscard]] const Boid& playerBoid() const { return _player_boid; };
 
     float& cubeRadius() { return _cube_radius; };
     float& minVelocity() { return _min_velocity; };
     float& maxVelocity() { return _max_velocity; };
     BoidForce& cubeForce() { return _cube_force; };
+    Boid& playerBoid() { return _player_boid; };
 
     void updateCubeBoids(const glm::vec3& center);
+    void updatePlayerBoid(const glm::vec3& position);
 
 private:
     std::vector<Boid> _boids;
-    std::vector<Boid> _cube_boids { 6 };
     std::vector<Bait> _baits;
+    std::vector<Boid> _cube_boids { 6 };
+    Boid _player_boid {};
 
     BoidForce _cube_force { .force = 10, .zone_width = .3, .zone_offset = 0 };
+    BoidForce _player_force { .force = 5, .zone_width = 1, .zone_offset = 0 };
 
     float _cube_radius { 5 };
     float _min_velocity { 1 };
