@@ -1,5 +1,7 @@
 #include "gfx/BoidRenderer.hpp"
 #include "TotoGL/RenderObject/Camera.hpp"
+#include "TotoGL/RenderObject/RenderObject.hpp"
+#include "TotoGL/RenderObject/ShaderMaterial.hpp"
 #include "TotoGL/Window.hpp"
 
 constexpr size_t AMBIENT_LIGHT = 0;
@@ -13,6 +15,15 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     : renderer(renderer)
     , skydome_texture(TotoGL::TextureFactory::create(
           TotoGL::Texture(std::ifstream("assets/textures/skydome.jpg"))))
+    , cube_texture(TotoGL::TextureFactory::create(
+          TotoGL::Texture(std::ifstream("assets/textures/noise.jpg"))))
+    , cube_mesh(TotoGL::RenderObjectFactory::create(
+          TotoGL::RenderObject(
+              TotoGL::MeshFactory::create(TotoGL::Mesh::cube()),
+              TotoGL::ShaderMaterialFactory::create(
+                  TotoGL::ShaderMaterial(
+                      std::ifstream("assets/shaders/shader.vert"),
+                      std::ifstream("assets/shaders/cube.frag"))))))
     , bound_mesh(TotoGL::MaterialObjectFactory::create(
           TotoGL::loadWavefront("assets/models/aquarium.obj")))
     , boid_mesh_high(TotoGL::MaterialObjectFactory::create(
@@ -36,6 +47,8 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
         height = HEIGHT;
     }
 
+    cube_mesh->material().uniform("u_texture", cube_texture);
+
     boid_mesh_low->scaling() = glm::vec3(.15);
     boid_mesh_high->scaling() = glm::vec3(.15);
     player_mesh->scaling() = glm::vec3(1.5);
@@ -58,7 +71,10 @@ BoidRenderer::~BoidRenderer() {
 // even though the custom one is supposed to skip a lot of boids overhead...
 void BoidRenderer::render(const BoidContainer& container, const Player& player, TotoGL::Camera& used_camera) {
     auto delta = clock.getDeltaTime();
-    bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15));
+    auto time = clock.getTime();
+
+    bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15f));
+    cube_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() * 2.f + .35f));
     player_mesh->position() = player.position();
     lights[PLAYER_LIGHT]->position() = player.position();
     if (glm::abs(player.direction().y) > .99) {
@@ -66,6 +82,8 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
     } else {
         player_mesh->lookAt(player.position() + player.direction());
     }
+
+    cube_mesh->material().uniform("u_time", time / FORCE_FIELD_SCROLL_PERIOD);
 
     renderer.clear();
     renderer.render(skydome->object(), used_camera);
@@ -90,4 +108,10 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
         bait_mesh->position() = bait.position();
         renderer.render(*bait_mesh, used_camera, lights);
     }
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // transparent objects here
+    renderer.render(*cube_mesh, used_camera, lights);
 };

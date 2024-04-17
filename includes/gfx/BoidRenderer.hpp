@@ -3,6 +3,7 @@
 #include "TotoGL/Primitives/Texture.hpp"
 #include "TotoGL/RenderObject/Light.hpp"
 #include "TotoGL/RenderObject/MaterialObject.hpp"
+#include "TotoGL/RenderObject/RenderObject.hpp"
 #include "gfx/Player.hpp"
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
@@ -13,6 +14,8 @@ constexpr auto HEIGHT = 720;
 constexpr auto FOV = glm::radians(70.);
 constexpr auto NEAR = .1;
 constexpr auto FAR = 100.;
+
+constexpr auto FORCE_FIELD_SCROLL_PERIOD = 5.f;
 
 struct BoidRenderer {
     BoidRenderer(TotoGL::Window&, TotoGL::Renderer&);
@@ -29,6 +32,8 @@ struct BoidRenderer {
     TotoGL::Clock clock;
 
     TotoGL::TextureInstanceId skydome_texture;
+    TotoGL::TextureInstanceId cube_texture;
+    TotoGL::RenderObjectInstanceId cube_mesh;
     TotoGL::MaterialObjectInstanceId bound_mesh;
     TotoGL::MaterialObjectInstanceId boid_mesh_high;
     TotoGL::MaterialObjectInstanceId boid_mesh_low;
