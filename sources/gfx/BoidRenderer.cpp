@@ -21,6 +21,8 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
           TotoGL::loadWavefront("assets/models/rubio/low.obj")))
     , player_mesh(TotoGL::MaterialObjectFactory::create(
           TotoGL::loadWavefront("assets/models/goldie.obj")))
+    , bait_mesh(TotoGL::MaterialObjectFactory::create(
+          TotoGL::loadWavefront("assets/models/gem.obj")))
     , lights({ //
           TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, .3, TotoGL::LightType::AMBIENT)),
           TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, 1, TotoGL::LightType::DIRECTIONAL)),
@@ -37,6 +39,7 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     boid_mesh_low->scaling() = glm::vec3(.15);
     boid_mesh_high->scaling() = glm::vec3(.15);
     player_mesh->scaling() = glm::vec3(1.5);
+    bait_mesh->scaling() = glm::vec3(.15);
 
     lights[DIRECTIONAL_LIGHT]->setDirection({ 1, -1, 1 });
 }
@@ -54,6 +57,7 @@ BoidRenderer::~BoidRenderer() {
 // TODO(Rendering) Figure out why it's faster with the normal renderer than with the custom one
 // even though the custom one is supposed to skip a lot of boids overhead...
 void BoidRenderer::render(const BoidContainer& container, const Player& player, TotoGL::Camera& used_camera) {
+    auto delta = clock.getDeltaTime();
     bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15));
     player_mesh->position() = player.position();
     lights[PLAYER_LIGHT]->position() = player.position();
@@ -80,5 +84,10 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
             boid_mesh_low->lookAt(boid.position() + boid.velocity());
             renderer.render(*boid_mesh_low, used_camera, lights);
         }
+    }
+    bait_mesh->rotation() += glm::vec3(2, 3, 5) * delta;
+    for (const auto& bait : container.baits()) {
+        bait_mesh->position() = bait.position();
+        renderer.render(*bait_mesh, used_camera, lights);
     }
 };

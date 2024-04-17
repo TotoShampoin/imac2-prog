@@ -2,6 +2,7 @@
 
 #include "TotoGL/Primitives/Texture.hpp"
 #include "TotoGL/RenderObject/Light.hpp"
+#include "TotoGL/RenderObject/MaterialObject.hpp"
 #include "gfx/Player.hpp"
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
@@ -25,11 +26,14 @@ struct BoidRenderer {
 
     TotoGL::Renderer& renderer;
 
+    TotoGL::Clock clock;
+
     TotoGL::TextureInstanceId skydome_texture;
     TotoGL::MaterialObjectInstanceId bound_mesh;
     TotoGL::MaterialObjectInstanceId boid_mesh_high;
     TotoGL::MaterialObjectInstanceId boid_mesh_low;
     TotoGL::MaterialObjectInstanceId player_mesh;
+    TotoGL::MaterialObjectInstanceId bait_mesh;
 
     std::vector<TotoGL::LightInstanceId> lights;
     TotoGL::SkydomeInstanceId skydome;

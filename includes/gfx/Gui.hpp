@@ -13,6 +13,8 @@ struct Flags {
     bool spying_previous = false;
     bool add_boid = false;
     bool remove_boid = false;
+    bool add_bait = false;
+    bool destroy_baits = false;
 };
 struct UiVariables {
     int amount = 0;
@@ -32,7 +34,7 @@ public:
     void updateStates(
         BoidContainer&,
         UiVariables&,
-        const std::function<void(Boid&)>& spawner);
+        BoidSpawner&);
 
     [[nodiscard]] Flags flags() const { return _flags; }
 

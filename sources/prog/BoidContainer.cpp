@@ -17,7 +17,9 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
         new_velocity += boid.separation(_boids, boid.avoidForce());
         new_velocity += boid.alignment(_boids, boid.matchForce());
         new_velocity += boid.cohesion(_boids, boid.centerForce());
-        new_velocity += boid.bias({ 0, 0, 0 });
+        // new_velocity += boid.bias({ 0, 0, 0 });
+        for (auto& bait : _baits)
+            new_velocity += boid.bias(bait.position());
 
         new_velocity += boid.separation(_cube_boids, _cube_force);
 
@@ -61,6 +63,13 @@ void BoidContainer::destroyBoids(const size_t& amount) {
             break;
         _boids.pop_back();
     }
+}
+
+void BoidContainer::addBait(const Bait& bait) {
+    _baits.push_back(bait);
+}
+void BoidContainer::destroyBaits() {
+    _baits.clear();
 }
 
 void BoidContainer::updateCubeBoids(const glm::vec3& center) {

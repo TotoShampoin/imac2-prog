@@ -1,5 +1,6 @@
 #pragma once
 
+#include "prog/Bait.hpp"
 #include "prog/Boid.hpp"
 #include <functional>
 #include <vector>
@@ -24,7 +25,11 @@ public:
         const std::function<void(Boid&)>& = [](Boid&) {});
     void destroyBoids(const size_t& = 1);
 
+    void addBait(const Bait&);
+    void destroyBaits();
+
     [[nodiscard]] const std::vector<Boid>& boids() const { return _boids; }
+    [[nodiscard]] const std::vector<Bait>& baits() const { return _baits; }
 
     [[nodiscard]] float cubeRadius() const { return _cube_radius; };
     [[nodiscard]] float minVelocity() const { return _min_velocity; };
@@ -41,6 +46,7 @@ public:
 private:
     std::vector<Boid> _boids;
     std::vector<Boid> _cube_boids { 6 };
+    std::vector<Bait> _baits;
 
     BoidForce _cube_force { .force = 10, .zone_width = .3, .zone_offset = 0 };
 

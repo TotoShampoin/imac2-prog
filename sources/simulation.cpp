@@ -43,7 +43,7 @@ Simulation::Simulation(TotoGL::Window& window, TotoGL::Renderer& renderer)
 
 void Simulation::update(const TotoGL::Seconds& delta) {
     // inputs
-    ui_renderer.updateStates(container, ui_variables, [&](Boid& boid) { spawner.spawn(boid); });
+    ui_renderer.updateStates(container, ui_variables, spawner);
     glm::vec3 direction = orbit.front(true) * -player_direction.z + orbit.right(true) * player_direction.x + orbit.up(true) * player_direction.y;
 
     player.move(direction, delta);

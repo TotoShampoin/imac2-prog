@@ -4,6 +4,7 @@
 #include "math/enumerated.hpp"
 #include "math/normal.hpp"
 #include "math/uniform.hpp"
+#include "prog/Bait.hpp"
 #include "prog/Boid.hpp"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/geometric.hpp>
@@ -20,7 +21,7 @@ constexpr TotoGL::ColorRGB WHITE { 1, 1, 1 };
 
 class BoidSpawner {
 public:
-    void spawn(Boid& boid) {
+    void spawnBoid(Boid& boid) {
         auto random_position = glm::vec3(_position_generator(), _position_generator(), _position_generator());
         auto random_angles = _getRandom2D(_angle_generator);
         auto color = _color_generator();
@@ -32,6 +33,11 @@ public:
         boid.velocity() = (rotated * glm::vec4(_direction, 1)) * _boid_speed;
         boid.setParameters(_boid_force_parameters);
         boid.color() = color;
+    }
+
+    void spawnBait(Bait& bait) {
+        auto random_position = glm::vec3(_position_generator(), _position_generator(), _position_generator());
+        bait.position() = _position + random_position * _position_radius;
     }
 
     [[nodiscard]] glm::vec3& position() { return _position; }

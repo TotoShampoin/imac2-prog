@@ -36,7 +36,7 @@ private:
     UiVariables ui_variables;
 
     BoidSpawner spawner;
-    BoidContainer container { ui_variables.amount, [&](Boid& boid) { spawner.spawn(boid); } };
+    BoidContainer container { ui_variables.amount, [&](Boid& boid) { spawner.spawnBoid(boid); } };
     Player player;
     glm::vec3 player_direction { 0 };
 

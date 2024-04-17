@@ -51,6 +51,11 @@ void UiRenderer::draw(
         _flags.add_boid |= ImGui::Button("Add boid");
         ImGui::SameLine();
         _flags.remove_boid |= ImGui::Button("Remove boid");
+
+        _flags.add_bait |= ImGui::Button("Add bait");
+        ImGui::SameLine();
+        _flags.destroy_baits |= ImGui::Button("Destroy baits");
+
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(window_width, window_height), ImGuiCond_Always, ImVec2(1, 1));
@@ -85,16 +90,19 @@ void UiRenderer::draw(
 void UiRenderer::updateStates(
     BoidContainer& container,
     UiVariables& ui_variables,
-    const std::function<void(Boid&)>& spawner) {
+    BoidSpawner& spawner) {
+    auto boid_spawner = [&spawner](Boid& boid) { spawner.spawnBoid(boid); };
+    auto bait_spawner = [&spawner](Bait& bait) { spawner.spawnBait(bait); };
+
     if (ui_variables.add_amount < 0) {
         ui_variables.add_amount = 0;
     }
     if (_flags.changing_amount) {
-        container.resize(ui_variables.amount, spawner);
+        container.resize(ui_variables.amount, boid_spawner);
         _flags.changing_amount = false;
     }
     if (_flags.resetting) {
-        container.resetBoids(container.boids().size(), spawner);
+        container.resetBoids(container.boids().size(), boid_spawner);
         _flags.resetting = false;
     }
     if (_flags.spying_next) {
@@ -106,7 +114,7 @@ void UiRenderer::updateStates(
         _flags.spying_previous = false;
     }
     if (_flags.add_boid) {
-        container.addBoids(ui_variables.add_amount, spawner);
+        container.addBoids(ui_variables.add_amount, boid_spawner);
         ui_variables.amount = static_cast<int>(container.boids().size());
         _flags.add_boid = false;
     }
@@ -118,5 +126,15 @@ void UiRenderer::updateStates(
         container.destroyBoids(ui_variables.add_amount);
         ui_variables.amount = static_cast<int>(container.boids().size());
         _flags.remove_boid = false;
+    }
+    if (_flags.add_bait) {
+        Bait new_bait {};
+        spawner.spawnBait(new_bait);
+        container.addBait(new_bait);
+        _flags.add_bait = false;
+    }
+    if (_flags.destroy_baits) {
+        container.destroyBaits();
+        _flags.destroy_baits = false;
     }
 }
