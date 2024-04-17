@@ -115,16 +115,10 @@ void UiRenderer::updateStates(
     }
     if (_flags.add_boid) {
         container.addBoids(ui_variables.add_amount, boid_spawner);
-        ui_variables.amount = static_cast<int>(container.boids().size());
         _flags.add_boid = false;
     }
     if (_flags.remove_boid) {
-        // unsigned integers can be a pain in the ass sometimes
-        // if (static_cast<int>(container.boids().size()) - ui_variables.add_amount < 0) {
-        //     ui_variables.add_amount = 0;
-        // }
         container.destroyBoids(ui_variables.add_amount);
-        ui_variables.amount = static_cast<int>(container.boids().size());
         _flags.remove_boid = false;
     }
     if (_flags.add_bait) {
@@ -137,4 +131,6 @@ void UiRenderer::updateStates(
         container.destroyBaits();
         _flags.destroy_baits = false;
     }
+
+    ui_variables.amount = static_cast<int>(container.boids().size());
 }
