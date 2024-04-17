@@ -33,8 +33,6 @@ float Boid::closeness(const Boid& other, const BoidForce& force) const {
 }
 
 glm::vec3 Boid::separation(const std::vector<Boid>& boids, const BoidForce& avoid_force) const {
-    if (boids.empty())
-        return glm::vec3(0);
     const auto& avoid_factor = avoid_force.force;
     glm::vec3 close_distance { 0 };
     for (const auto& other_boid : boids) {
@@ -45,8 +43,6 @@ glm::vec3 Boid::separation(const std::vector<Boid>& boids, const BoidForce& avoi
 }
 
 glm::vec3 Boid::alignment(const std::vector<Boid>& boids, const BoidForce& match_force) const {
-    if (boids.empty())
-        return glm::vec3(0);
     const auto& match_factor = match_force.force;
     glm::vec3 summed_velocity { 0 };
     float weight = 0;
@@ -56,13 +52,13 @@ glm::vec3 Boid::alignment(const std::vector<Boid>& boids, const BoidForce& match
         summed_velocity += v * c;
         weight += c;
     }
+    if (weight == 0)
+        return glm::vec3(0);
     glm::vec3 average_velocity = summed_velocity /= weight;
     return (average_velocity - velocity()) * match_factor;
 }
 
 glm::vec3 Boid::cohesion(const std::vector<Boid>& boids, const BoidForce& center_force) const {
-    if (boids.empty())
-        return glm::vec3(0);
     const auto& center_factor = center_force.force;
     glm::vec3 summed_position { 0 };
     float weight = 0;
@@ -72,6 +68,8 @@ glm::vec3 Boid::cohesion(const std::vector<Boid>& boids, const BoidForce& center
         summed_position += p * c;
         weight += c;
     }
+    if (weight == 0)
+        return glm::vec3(0);
     glm::vec3 average_position = summed_position /= weight;
     return (average_position - position()) * center_factor;
 }
