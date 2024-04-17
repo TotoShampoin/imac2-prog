@@ -55,7 +55,7 @@ private:
     BoidForce _cube_force { .force = 10, .zone_width = .3, .zone_offset = 0 };
     BoidForce _player_force { .force = 5, .zone_width = 1, .zone_offset = 0 };
 
-    float _cube_radius { 5 };
+    float _cube_radius { 10 };
     float _min_velocity { 1 };
     float _max_velocity { 2 };
 };

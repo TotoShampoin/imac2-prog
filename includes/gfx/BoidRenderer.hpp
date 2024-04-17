@@ -89,7 +89,7 @@ struct RendererObjects {
 
     TotoGL::MaterialObjectInstanceId player_mesh {
         TotoGL::MaterialObjectFactory::create(
-            TotoGL::loadWavefront("assets/models/goldie.obj"))
+            TotoGL::loadWavefront("assets/models/boyo/boyo.obj"))
     };
 
     TotoGL::MaterialObjectInstanceId bait_mesh {
@@ -102,6 +102,8 @@ struct RendererObjects {
             TotoGL::loadWavefront("assets/models/planet/planet.obj")),
         TotoGL::MaterialObjectFactory::create(
             TotoGL::loadWavefront("assets/models/planet/planet2.obj")),
+        TotoGL::MaterialObjectFactory::create(
+            TotoGL::loadWavefront("assets/models/planet/rock.obj")),
     };
 };
 

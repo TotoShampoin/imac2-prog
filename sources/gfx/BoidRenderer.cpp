@@ -33,13 +33,13 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
 
     objects.lights[DIRECTIONAL_LIGHT]->setDirection({ 1, -1, 1 });
 
-    Random::Uniform<float> index_random { 0, 1 };
-    Random::Uniform<float> position_random { -15, 15 };
+    Random::Uniform<float> index_random { 0, static_cast<float>(objects.world_meshes.size()) };
+    Random::Uniform<float> position_random { -25, 25 };
     for (int i = 0; i < 10; i++) {
-        auto index = static_cast<size_t>(index_random() * static_cast<float>(objects.world_meshes.size()));
+        auto index = static_cast<size_t>(index_random());
         auto position = glm::vec3 { position_random(), position_random(), position_random() };
         while (
-            glm::distance(position, { 0, 0, 0 }) < 10 || std::any_of(environment.begin(), environment.end(), [&](const auto& pair) {
+            glm::distance(position, { 0, 0, 0 }) < 15 || std::any_of(environment.begin(), environment.end(), [&](const auto& pair) {
                 return glm::distance(pair.second, position) < 2;
             })) {
             position = glm::vec3 { position_random(), position_random(), position_random() };
@@ -60,7 +60,7 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
     objects.bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15f));
     objects.cube_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() * 2.f));
     objects.player_mesh->position() = player.position();
-    objects.lights[PLAYER_LIGHT]->position() = player.position();
+    objects.lights[PLAYER_LIGHT]->position() = player.position() + player.direction() * .5f;
     if (glm::abs(player.direction().y) > .99) {
         objects.player_mesh->lookAt(player.position() + player.direction(), { 1, 0, 0 });
     } else {
