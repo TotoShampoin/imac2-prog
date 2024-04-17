@@ -1,0 +1,22 @@
+# Blender 4.1.0 MTL File: 'planet.blend'
+# www.blender.org
+
+newmtl planet
+Ns 0.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Ka planet-1.png
+map_Kd planet-1.png
+
+newmtl planet.ring
+Ns 0.000000
+Ka 1.000024 0.814847 0.391571
+Kd 1.000024 0.814847 0.391571
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2

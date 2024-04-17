@@ -3,6 +3,8 @@
 #include "TotoGL/RenderObject/RenderObject.hpp"
 #include "TotoGL/RenderObject/ShaderMaterial.hpp"
 #include "TotoGL/Window.hpp"
+#include "math/uniform.hpp"
+#include <algorithm>
 
 constexpr size_t AMBIENT_LIGHT = 0;
 constexpr size_t DIRECTIONAL_LIGHT = 1;
@@ -12,36 +14,7 @@ constexpr size_t BOID_MESH_LOW_MATERIAL = 0;
 constexpr size_t BOID_MESH_HIGH_EYE_MATERIAL = 2;
 
 BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
-    : renderer(renderer)
-    , skydome_texture(TotoGL::TextureFactory::create(
-          TotoGL::Texture(std::ifstream("assets/textures/skydome.jpg"))))
-    , cube_texture(TotoGL::TextureFactory::create(
-          TotoGL::Texture(std::ifstream("assets/textures/noise.jpg"))))
-    , cube_blend_texture(TotoGL::TextureFactory::create(
-          TotoGL::Texture(std::ifstream("assets/textures/noise_blend.png"))))
-    , cube_mesh(TotoGL::RenderObjectFactory::create(
-          TotoGL::RenderObject(
-              TotoGL::MeshFactory::create(TotoGL::Mesh::cube()),
-              TotoGL::ShaderMaterialFactory::create(
-                  TotoGL::ShaderMaterial(
-                      std::ifstream("assets/shaders/shader.vert"),
-                      std::ifstream("assets/shaders/cube.frag"))))))
-    , bound_mesh(TotoGL::MaterialObjectFactory::create(
-          TotoGL::loadWavefront("assets/models/aquarium.obj")))
-    , boid_mesh_high(TotoGL::MaterialObjectFactory::create(
-          TotoGL::loadWavefront("assets/models/rubio/high.obj")))
-    , boid_mesh_low(TotoGL::MaterialObjectFactory::create(
-          TotoGL::loadWavefront("assets/models/rubio/low.obj")))
-    , player_mesh(TotoGL::MaterialObjectFactory::create(
-          TotoGL::loadWavefront("assets/models/goldie.obj")))
-    , bait_mesh(TotoGL::MaterialObjectFactory::create(
-          TotoGL::loadWavefront("assets/models/gem.obj")))
-    , lights({ //
-          TotoGL::LightFactory::create(TotoGL::Light({ 0, .25, 1 }, .25, TotoGL::LightType::AMBIENT)),
-          TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, 1, TotoGL::LightType::DIRECTIONAL)),
-          TotoGL::LightFactory::create(TotoGL::Light({ 1, .6, 0 }, 3, TotoGL::LightType::POINT)) })
-    , skydome(
-          TotoGL::SkydomeFactory::create(TotoGL::Skydome(*skydome_texture))) {
+    : renderer(renderer) {
 
     auto [width, height] = window.size();
     if (width == 0 || height == 0) {
@@ -49,29 +22,33 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
         height = HEIGHT;
     }
 
-    cube_mesh->material().uniform("u_texture", cube_texture);
-    cube_mesh->material().uniform("u_texture_blend", cube_blend_texture);
-    cube_mesh->mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
+    objects.cube_mesh->material().uniform("u_texture", objects.cube_texture);
+    objects.cube_mesh->material().uniform("u_texture_blend", objects.cube_blend_texture);
+    objects.cube_mesh->mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
 
-    boid_mesh_low->scaling() = glm::vec3(.15);
-    boid_mesh_high->scaling() = glm::vec3(.15);
-    player_mesh->scaling() = glm::vec3(1.5);
-    bait_mesh->scaling() = glm::vec3(.15);
+    objects.boid_mesh_low->scaling() = glm::vec3(.15);
+    objects.boid_mesh_high->scaling() = glm::vec3(.15);
+    objects.player_mesh->scaling() = glm::vec3(1.5);
+    objects.bait_mesh->scaling() = glm::vec3(.15);
 
-    lights[DIRECTIONAL_LIGHT]->setDirection({ 1, -1, 1 });
+    objects.lights[DIRECTIONAL_LIGHT]->setDirection({ 1, -1, 1 });
+
+    Random::Uniform<float> index_random { 0, 1 };
+    Random::Uniform<float> position_random { -15, 15 };
+    for (int i = 0; i < 10; i++) {
+        auto index = static_cast<size_t>(index_random() * static_cast<float>(objects.world_meshes.size()));
+        auto position = glm::vec3 { position_random(), position_random(), position_random() };
+        while (
+            glm::distance(position, { 0, 0, 0 }) < 10 || std::any_of(environment.begin(), environment.end(), [&](const auto& pair) {
+                return glm::distance(pair.second, position) < 2;
+            })) {
+            position = glm::vec3 { position_random(), position_random(), position_random() };
+        }
+        environment.emplace_back(index, position);
+    }
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-}
-
-BoidRenderer::~BoidRenderer() {
-    TotoGL::SkydomeFactory::destroy(skydome);
-    TotoGL::LightFactory::destroy(lights[DIRECTIONAL_LIGHT]);
-    TotoGL::LightFactory::destroy(lights[AMBIENT_LIGHT]);
-    TotoGL::MaterialObjectFactory::destroy(boid_mesh_low);
-    TotoGL::MaterialObjectFactory::destroy(boid_mesh_high);
-    TotoGL::MaterialObjectFactory::destroy(bound_mesh);
-    TotoGL::TextureFactory::destroy(skydome_texture);
 }
 
 // TODO(Rendering) Figure out why it's faster with the normal renderer than with the custom one
@@ -80,42 +57,48 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
     auto delta = clock.getDeltaTime();
     auto time = clock.getTime();
 
-    bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15f));
-    cube_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() * 2.f));
-    player_mesh->position() = player.position();
-    lights[PLAYER_LIGHT]->position() = player.position();
+    objects.bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15f));
+    objects.cube_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() * 2.f));
+    objects.player_mesh->position() = player.position();
+    objects.lights[PLAYER_LIGHT]->position() = player.position();
     if (glm::abs(player.direction().y) > .99) {
-        player_mesh->lookAt(player.position() + player.direction(), { 1, 0, 0 });
+        objects.player_mesh->lookAt(player.position() + player.direction(), { 1, 0, 0 });
     } else {
-        player_mesh->lookAt(player.position() + player.direction());
+        objects.player_mesh->lookAt(player.position() + player.direction());
     }
 
-    cube_mesh->material().uniform("u_time", time / FORCE_FIELD_SCROLL_PERIOD);
+    objects.cube_mesh->material().uniform("u_time", time / FORCE_FIELD_SCROLL_PERIOD);
 
     renderer.clear();
-    renderer.render(skydome->object(), used_camera);
+    renderer.render(objects.skydome->object(), used_camera);
     renderer.clear(false, true, false);
-    renderer.render(*bound_mesh, used_camera, lights);
-    renderer.render(*player_mesh, used_camera, lights);
+
+    renderer.render(*objects.player_mesh, used_camera, objects.lights);
     for (const auto& boid : container.boids()) {
         if (glm::distance(boid.position(), used_camera.position()) < 5) {
-            boid_mesh_high->materials()[BOID_MESH_HIGH_EYE_MATERIAL].emissive = { boid.color(), 1 };
-            boid_mesh_high->position() = boid.position();
-            boid_mesh_high->lookAt(boid.position() + boid.velocity());
-            renderer.render(*boid_mesh_high, used_camera, lights);
+            objects.boid_mesh_high->materials()[BOID_MESH_HIGH_EYE_MATERIAL].emissive = boid.color();
+            objects.boid_mesh_high->position() = boid.position();
+            objects.boid_mesh_high->lookAt(boid.position() + boid.velocity());
+            renderer.render(*objects.boid_mesh_high, used_camera, objects.lights);
         } else {
-            boid_mesh_low->materials()[BOID_MESH_LOW_MATERIAL].emissive = { boid.color(), 1 };
-            boid_mesh_low->position() = boid.position();
-            boid_mesh_low->lookAt(boid.position() + boid.velocity());
-            renderer.render(*boid_mesh_low, used_camera, lights);
+            objects.boid_mesh_low->materials()[BOID_MESH_LOW_MATERIAL].emissive = boid.color();
+            objects.boid_mesh_low->position() = boid.position();
+            objects.boid_mesh_low->lookAt(boid.position() + boid.velocity());
+            renderer.render(*objects.boid_mesh_low, used_camera, objects.lights);
         }
     }
-    bait_mesh->rotation() += glm::vec3(2, 3, 5) * delta;
+    objects.bait_mesh->rotation() += glm::vec3(2, 3, 5) * delta;
     for (const auto& bait : container.baits()) {
-        bait_mesh->position() = bait.position();
-        renderer.render(*bait_mesh, used_camera, lights);
+        objects.bait_mesh->position() = bait.position();
+        renderer.render(*objects.bait_mesh, used_camera, objects.lights);
+    }
+
+    for (const auto& [index, position] : environment) {
+        objects.world_meshes[index]->position() = glm::rotate(glm::mat4(1), time / 10, { 0, 1, 0 }) * glm::vec4(position, 1);
+        objects.world_meshes[index]->rotation() = glm::vec3(0, time, 0);
+        renderer.render(*objects.world_meshes[index], used_camera, objects.lights);
     }
 
     // transparent objects here
-    renderer.render(*cube_mesh, used_camera, lights);
+    renderer.render(*objects.cube_mesh, used_camera, objects.lights);
 };
