@@ -25,13 +25,17 @@ public:
         auto random_position = glm::vec3(_position_generator(), _position_generator(), _position_generator());
         auto random_angles = _getRandom2D(_angle_generator);
         auto color = _color_generator();
-        auto random_strength = _strength_generator();
 
         auto rotated = glm::rotate(glm::mat4(1), random_angles.x, _up()) * glm::rotate(glm::mat4(1), random_angles.y, _right());
+        BoidForceParameters parameters = _boid_force_parameters;
+        parameters.avoid.force += _strength_generator();
+        parameters.center.force += _strength_generator();
+        parameters.match.force += _strength_generator();
+        parameters.bias.force += _strength_generator();
 
         boid.position() = _position + random_position * _position_radius;
         boid.velocity() = (rotated * glm::vec4(_direction, 1)) * _boid_speed;
-        boid.setParameters(_boid_force_parameters);
+        boid.setParameters(parameters);
         boid.color() = color;
     }
 
@@ -69,7 +73,7 @@ private:
 
     Random::Uniform<float> _position_generator { -1, 1 };
     Random::Normal<float> _angle_generator { 0, .25 };
-    Random::Normal<float> _strength_generator { 0, .5 };
+    Random::Normal<float> _strength_generator { 0, .05 };
     Random::Enumerated<TotoGL::ColorRGB> _color_generator { {
         { .75f, YELLOW },
         { .05f, GREEN },
