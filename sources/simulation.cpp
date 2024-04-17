@@ -45,8 +45,17 @@ void Simulation::update(const TotoGL::Seconds& delta) {
     // inputs
     ui_renderer.updateStates(container, ui_variables, spawner);
     glm::vec3 direction = orbit.front(true) * -player_direction.z + orbit.right(true) * player_direction.x + orbit.up(true) * player_direction.y;
+    glm::vec3 push_force {};
 
     player.move(direction, delta);
+    for (int i = 0; i < 3; i++) {
+        if (player.position()[i] < -container.cubeRadius() + .5f)
+            push_force[i] = 1;
+        if (player.position()[i] > container.cubeRadius() - .5f)
+            push_force[i] = -1;
+    }
+    player.push(push_force, delta);
+
     spawner.position() = player.position() + player.direction() * .5f;
     spawner.direction() = player.direction();
 
