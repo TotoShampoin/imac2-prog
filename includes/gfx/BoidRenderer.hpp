@@ -15,7 +15,7 @@ constexpr auto FOV = glm::radians(70.);
 constexpr auto NEAR = .1;
 constexpr auto FAR = 100.;
 
-constexpr auto FORCE_FIELD_SCROLL_PERIOD = 5.f;
+constexpr auto FORCE_FIELD_SCROLL_PERIOD = 10.f;
 
 struct BoidRenderer {
     BoidRenderer(TotoGL::Window&, TotoGL::Renderer&);

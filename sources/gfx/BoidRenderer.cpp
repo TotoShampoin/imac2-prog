@@ -37,7 +37,7 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     , bait_mesh(TotoGL::MaterialObjectFactory::create(
           TotoGL::loadWavefront("assets/models/gem.obj")))
     , lights({ //
-          TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, .3, TotoGL::LightType::AMBIENT)),
+          TotoGL::LightFactory::create(TotoGL::Light({ 0, .25, 1 }, .25, TotoGL::LightType::AMBIENT)),
           TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, 1, TotoGL::LightType::DIRECTIONAL)),
           TotoGL::LightFactory::create(TotoGL::Light({ 1, .6, 0 }, 3, TotoGL::LightType::POINT)) })
     , skydome(
@@ -81,7 +81,7 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
     auto time = clock.getTime();
 
     bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15f));
-    cube_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() * 2.f + .35f));
+    cube_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() * 2.f));
     player_mesh->position() = player.position();
     lights[PLAYER_LIGHT]->position() = player.position();
     if (glm::abs(player.direction().y) > .99) {
