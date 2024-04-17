@@ -17,6 +17,8 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
           TotoGL::Texture(std::ifstream("assets/textures/skydome.jpg"))))
     , cube_texture(TotoGL::TextureFactory::create(
           TotoGL::Texture(std::ifstream("assets/textures/noise.jpg"))))
+    , cube_blend_texture(TotoGL::TextureFactory::create(
+          TotoGL::Texture(std::ifstream("assets/textures/noise_blend.png"))))
     , cube_mesh(TotoGL::RenderObjectFactory::create(
           TotoGL::RenderObject(
               TotoGL::MeshFactory::create(TotoGL::Mesh::cube()),
@@ -48,6 +50,8 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     }
 
     cube_mesh->material().uniform("u_texture", cube_texture);
+    cube_mesh->material().uniform("u_texture_blend", cube_blend_texture);
+    cube_mesh->mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
 
     boid_mesh_low->scaling() = glm::vec3(.15);
     boid_mesh_high->scaling() = glm::vec3(.15);
@@ -55,6 +59,9 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     bait_mesh->scaling() = glm::vec3(.15);
 
     lights[DIRECTIONAL_LIGHT]->setDirection({ 1, -1, 1 });
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 BoidRenderer::~BoidRenderer() {
@@ -108,9 +115,6 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
         bait_mesh->position() = bait.position();
         renderer.render(*bait_mesh, used_camera, lights);
     }
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // transparent objects here
     renderer.render(*cube_mesh, used_camera, lights);

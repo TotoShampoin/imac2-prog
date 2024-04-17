@@ -33,6 +33,7 @@ struct BoidRenderer {
 
     TotoGL::TextureInstanceId skydome_texture;
     TotoGL::TextureInstanceId cube_texture;
+    TotoGL::TextureInstanceId cube_blend_texture;
     TotoGL::RenderObjectInstanceId cube_mesh;
     TotoGL::MaterialObjectInstanceId bound_mesh;
     TotoGL::MaterialObjectInstanceId boid_mesh_high;
