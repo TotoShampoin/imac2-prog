@@ -29,6 +29,7 @@ public:
         return std::prev(_values.end())->first;
     }
 
+    [[nodiscard]] std::vector<std::pair<Type, RandomType>>& values() { return _values; }
     [[nodiscard]] size_t size() const { return _values.size(); }
 
     void set(const Type& name, RandomType prob) {
