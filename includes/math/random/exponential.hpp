@@ -24,7 +24,7 @@ public:
 
 private:
     Type _parameter;
-    Uniform<Type> _rng;
+    Uniform<Type> _rng { 0, 1 };
 };
 
 } // namespace Random
