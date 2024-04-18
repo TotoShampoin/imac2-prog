@@ -89,6 +89,6 @@ void Simulation::draw(const TotoGL::Seconds& delta) {
         boid_renderer.render(container, player, camera);
         timers.emplace_back("scene rendering", timer.getDeltaTime());
 
-        ui_renderer.draw(window, container, ui_variables, spawner, delta, monitor_texture);
+        ui_renderer.draw(ui_variables, container, spawner, boid_renderer, window, delta, monitor_texture);
     });
 }

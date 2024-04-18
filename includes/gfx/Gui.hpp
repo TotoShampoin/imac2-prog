@@ -26,8 +26,9 @@ struct UiVariables {
 class UiRenderer {
 public:
     void draw(
-        TotoGL::Window&, BoidContainer&,
-        UiVariables&, BoidSpawner&, const TotoGL::Seconds& delta,
+        UiVariables&,
+        BoidContainer&, BoidSpawner&, BoidRenderer&,
+        TotoGL::Window&, const TotoGL::Seconds& delta,
         const TotoGL::BufferTextureInstanceId& monitor_texture);
 
     void updateStates(UiVariables&, BoidContainer&, BoidSpawner&, BoidRenderer&);
@@ -40,8 +41,9 @@ private:
     void drawSpawnControls(UiVariables&, BoidSpawner&);
     void drawGeneralControls(UiVariables&, BoidContainer&);
     void drawSpyControls(UiVariables&, BoidContainer&, const TotoGL::BufferTextureInstanceId&);
-    void drawStatistics(UiVariables&, BoidContainer&, BoidSpawner&, const TotoGL::Seconds& delta);
+    void drawStatistics(UiVariables&, BoidContainer&, BoidSpawner&, BoidRenderer&, const TotoGL::Seconds& delta);
 
     void drawStatisticsBoidForces(UiVariables&, BoidContainer&, BoidSpawner&);
     void drawStatisticsBoidColors(UiVariables&, BoidContainer&);
+    void drawStatisticsPlanetSpawning(UiVariables&, BoidRenderer&);
 };

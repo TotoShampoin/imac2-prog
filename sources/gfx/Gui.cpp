@@ -1,16 +1,20 @@
 #include "gfx/Gui.hpp"
+#include "gfx/BoidRenderer.hpp"
+#include "math/random/base_rng.hpp"
 #include "math/variables.hpp"
 #include "prog/BoidContainer.hpp"
 #include "prog/imgui-impl.hpp"
 
 #include <algorithm>
+#include <array>
 #include <format>
+#include <functional>
 #include <imgui.h>
 
 void UiRenderer::draw(
-    TotoGL::Window& window, BoidContainer& container,
-    UiVariables& ui_variables, BoidSpawner& spawner,
-    const TotoGL::Seconds& delta,
+    UiVariables& ui_variables,
+    BoidContainer& container, BoidSpawner& spawner, BoidRenderer& boid_renderer,
+    TotoGL::Window& window, const TotoGL::Seconds& delta,
     const TotoGL::BufferTextureInstanceId& monitor_texture) {
 
     auto window_size = window.size();
@@ -29,7 +33,7 @@ void UiRenderer::draw(
         drawSpyControls(ui_variables, container, monitor_texture);
         ImGui::SetNextWindowPos(ImVec2(window_width, window_height), ImGuiCond_Always, ImVec2(1, 1));
         ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Always);
-        drawStatistics(ui_variables, container, spawner, delta);
+        drawStatistics(ui_variables, container, spawner, boid_renderer, delta);
     });
 }
 
@@ -114,7 +118,7 @@ void UiRenderer::drawSpyControls(UiVariables& ui_variables, BoidContainer& conta
 }
 
 // TODO(Stats) Get the data from the spawner, not from the simulation itself
-void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, const TotoGL::Seconds& delta) {
+void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, BoidRenderer& boid_renderer, const TotoGL::Seconds& delta) {
     ImGui::Begin("Statistics");
     ImGui::Text("Framerate: %3.3f", 1.0 / delta);
     ImGui::Text("Boids: %zu", container.boids().size());
@@ -129,9 +133,7 @@ void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& contai
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Planet spawning")) {
-            // ImGui::Text("Not implemented yet");
-            ImGui::InputInt("Amount", &ui_variables.planet_amount);
-            _flags.respawn_planets |= ImGui::Button("Regenerate planets");
+            drawStatisticsPlanetSpawning(ui_variables, boid_renderer);
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -139,8 +141,48 @@ void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& contai
     ImGui::End();
 }
 
+template <typename T>
+struct ProbabilityHistogram {
+    std::vector<float> histogram;
+    float max_count { 0 };
+    float min_value { 0 };
+    float max_value { 0 };
+    size_t HISTOGRAM_SIZE;
+
+    explicit ProbabilityHistogram(
+        const size_t& size,
+        const std::vector<T>& values,
+        const std::function<float(const T&)>& value_getter)
+        : histogram(size, 0)
+        , HISTOGRAM_SIZE(size) {
+        recalculate(values, value_getter);
+    }
+
+    void recalculate(const std::vector<T>& values, const std::function<float(const T&)>& value_getter) {
+        max_count = 0;
+        min_value = 0;
+        max_value = 0;
+        std::fill(histogram.begin(), histogram.end(), 0);
+        if (!values.empty()) {
+            max_count = 0;
+            min_value = std::numeric_limits<float>::max();
+            max_value = std::numeric_limits<float>::min();
+            for (const auto& value : values) {
+                auto v = value_getter(value);
+                min_value = std::min(min_value, v);
+                max_value = std::max(max_value, v);
+            }
+            for (const auto& value : values) {
+                auto v = value_getter(value);
+                auto index = static_cast<size_t>((v - min_value) / (max_value - min_value) * (HISTOGRAM_SIZE - 1));
+                histogram[index] += 1;
+                max_count = std::max(max_count, histogram[index]);
+            }
+        }
+    }
+};
+
 void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container, BoidSpawner& spawner) {
-    constexpr auto HISTOGRAM_SIZE = 25;
     enum WhichForce {
         AVOID,
         MATCH,
@@ -148,8 +190,7 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
         BIAS,
     };
     static WhichForce which_force = AVOID;
-    static std::array<std::string, 4> force_names = { "Avoid", "Match", "Center", "Bias" };
-    static auto get_boid_force = [](const Boid& boid) {
+    auto get_boid_force = [](const Boid& boid) {
         switch (which_force) {
         case AVOID:
             return boid.avoidForce().force;
@@ -162,7 +203,7 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
         }
         return 0.f;
     };
-    static auto get_spawner_force = [&spawner] {
+    auto get_spawner_force = [&spawner] {
         switch (which_force) {
         case AVOID:
             return spawner.boidForceParameters().avoid.force;
@@ -175,34 +216,17 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
         }
         return 0.f;
     };
-    static std::vector<float> histogram(HISTOGRAM_SIZE, 0);
-    static std::vector<float> expected_histogram(HISTOGRAM_SIZE, 0);
-    float max_count = 0;
-    float min_force = 0;
-    float max_force = 0;
+
+    constexpr auto HISTOGRAM_SIZE = 25;
+    auto boid_histogram = ProbabilityHistogram<Boid>(HISTOGRAM_SIZE, container.boids(), get_boid_force);
+    std::vector<float> expected_histogram(HISTOGRAM_SIZE, 0);
     auto& _strength_generator = Variables::instance()._boid_strength_generator;
-    if (!container.boids().empty()) {
-        max_count = 0;
-        min_force = std::numeric_limits<float>::max();
-        max_force = std::numeric_limits<float>::min();
-        for (const auto& boid : container.boids()) {
-            auto force = get_boid_force(boid);
-            min_force = std::min(min_force, force);
-            max_force = std::max(max_force, force);
-        }
-        std::fill(histogram.begin(), histogram.end(), 0);
-        for (const auto& boid : container.boids()) {
-            auto force = get_boid_force(boid);
-            auto index = static_cast<size_t>((force - min_force) / (max_force - min_force) * (HISTOGRAM_SIZE - 1));
-            histogram[index] += 1;
-            max_count = std::max(max_count, histogram[index]);
-        }
-        for (size_t i = 0; i < HISTOGRAM_SIZE; i++) {
-            float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1) * (max_force - min_force) + min_force;
-            expected_histogram[i] = _strength_generator.probability(x - get_spawner_force()) * container.boids().size() * (max_force - min_force) / HISTOGRAM_SIZE;
-        }
+    for (size_t i = 0; i < HISTOGRAM_SIZE; i++) {
+        float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1) * (boid_histogram.max_value - boid_histogram.min_value) + boid_histogram.min_value;
+        expected_histogram[i] = _strength_generator.probability(x - get_spawner_force()) * container.boids().size() * (boid_histogram.max_value - boid_histogram.min_value) / HISTOGRAM_SIZE;
     }
 
+    static std::array<std::string, 4> force_names = { "Avoid", "Match", "Center", "Bias" };
     if (ImGui::BeginCombo("Force type", force_names[which_force].c_str())) {
         if (ImGui::Selectable("Avoid", which_force == AVOID)) {
             which_force = AVOID;
@@ -218,9 +242,9 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
         }
         ImGui::EndCombo();
     }
-    ImGui::PlotHistogram("##forces", histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, max_count, ImVec2(0, 100));
-    ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, max_count, ImVec2(0, 100));
-    ImGui::Text("%f - %f", min_force, max_force);
+    ImGui::PlotHistogram("##forces", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
+    ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
+    ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
     ImGui::Text("Mean: %f", _strength_generator.mean());
     ImGui::Text("Standard deviation: %f", _strength_generator.standardDeviation());
 }
@@ -234,6 +258,48 @@ void UiRenderer::drawStatisticsBoidColors(UiVariables&, BoidContainer& container
         std::string color_code = std::format("#{:02X}{:02X}{:02X}", static_cast<int>(255 * color.r), static_cast<int>(255 * color.g), static_cast<int>(255 * color.b));
         ImGui::SliderInt(color_code.c_str(), reinterpret_cast<int*>(&count), 0, static_cast<int>(container.boids().size()), "%d", ImGuiSliderFlags_NoInput);
     }
+}
+
+void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRenderer& boid_renderer) {
+    enum WhichRevolutions {
+        ORBIT,
+        DAYLIGHT,
+    };
+    static std::array<std::string, 2> revolution_names = { "Orbit", "Daylight" };
+    static WhichRevolutions which_revolution = ORBIT;
+    static auto get_revolution = [](const BoidRenderer::EnvironmentMesh& mesh) {
+        switch (which_revolution) {
+        case ORBIT:
+            return mesh.orbit_cycle;
+        case DAYLIGHT:
+            return mesh.daylight_cycle;
+        }
+        return 0.f;
+    };
+
+    constexpr auto HISTOGRAM_SIZE = 5;
+    auto orbits_histogram = ProbabilityHistogram<BoidRenderer::EnvironmentMesh>(HISTOGRAM_SIZE, boid_renderer.environment_meshes, get_revolution);
+    static std::vector<float> expected_histogram(HISTOGRAM_SIZE, 0);
+    auto& _orbit_random = Variables::instance()._renderer_orbit_random;
+    for (size_t i = 0; i < HISTOGRAM_SIZE; i++) {
+        float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1) * (orbits_histogram.max_value - orbits_histogram.min_value) + orbits_histogram.min_value;
+        expected_histogram[i] = _orbit_random.probability(x) * boid_renderer.environment_meshes.size() * (orbits_histogram.max_value - orbits_histogram.min_value) / HISTOGRAM_SIZE;
+    }
+
+    ImGui::SliderInt("Amount", &ui_variables.planet_amount, 0, 100);
+    _flags.respawn_planets |= ImGui::Button("Regenerate planets");
+    if (ImGui::BeginCombo("Revolution type", revolution_names[which_revolution].c_str())) {
+        if (ImGui::Selectable("Orbit", which_revolution == ORBIT)) {
+            which_revolution = ORBIT;
+        }
+        if (ImGui::Selectable("Daylight", which_revolution == DAYLIGHT)) {
+            which_revolution = DAYLIGHT;
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::PlotHistogram("##orbits", orbits_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, orbits_histogram.max_count, ImVec2(0, 100));
+    ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, orbits_histogram.max_count, ImVec2(0, 100));
+    ImGui::Text("%f - %f", orbits_histogram.min_value, orbits_histogram.max_value);
 }
 
 void UiRenderer::updateStates(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, BoidRenderer& boid_renderer) {
