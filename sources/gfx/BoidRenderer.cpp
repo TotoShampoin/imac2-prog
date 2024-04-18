@@ -65,7 +65,7 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
     } else {
         objects.player_mesh->lookAt(player.position() + player.direction(), player.frontDirection());
     }
-    objects.lights[PLAYER_LIGHT]->position() = objects.player_mesh->position() + objects.player_mesh->transformation().front() * .5f;
+    objects.lights[PLAYER_LIGHT]->position() = objects.player_mesh->position() + objects.player_mesh->transformation().front() * .1f * objects.player_mesh->scaling().z;
 
     objects.cube_mesh->material().uniform("u_time", time / FORCE_FIELD_SCROLL_PERIOD);
 
