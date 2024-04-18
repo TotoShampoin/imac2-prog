@@ -4,6 +4,7 @@ in vec2 v_uv;
 
 out vec4 f_frag_color;
 
+uniform vec3 u_color;
 uniform sampler2D u_texture;
 uniform sampler2D u_texture_blend;
 uniform float u_time;
@@ -16,7 +17,24 @@ void main() {
 
     float noise_value = (noise_1 + noise_2) / 2.f;
 
-    vec3 color = texture(u_texture_blend, vec2(noise_value, 0)).rgb;
+    // vec3 color = texture(u_texture_blend, vec2(noise_value, 0)).rgb;
 
-    f_frag_color = vec4(color, (noise_value > 0.5 - range && noise_value < 0.5 + range) ? .5f : 0.f);
+    float alpha = 1.0;
+    if(noise_value < 0.5 - range || noise_value > 0.5 + range) {
+        alpha = 0.5;
+    }
+    if(
+        (noise_value < 0.5 - range * 2. && noise_value > 0.5 - range * 3.) ||
+        (noise_value > 0.5 + range * 2. && noise_value < 0.5 + range * 3.)
+    ) {
+        alpha = 0.25;
+    }
+    if(
+        (noise_value < 0.5 - range * 4.) ||
+        (noise_value > 0.5 + range * 4.)
+    ) {
+        alpha = 0.0625;
+    }
+
+    f_frag_color = vec4(u_color, alpha);
 }
