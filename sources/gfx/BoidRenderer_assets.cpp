@@ -3,7 +3,7 @@
 RendererObjects::RendererObjects()
     : lights({
         TotoGL::LightFactory::create(
-            TotoGL::Light({ .25, .5, 1 }, .1, TotoGL::LightType::AMBIENT)),
+            TotoGL::Light({ .25, .5, 1 }, .2, TotoGL::LightType::AMBIENT)),
         TotoGL::LightFactory::create(
             TotoGL::Light({ 1, 1, 1 }, 1, TotoGL::LightType::DIRECTIONAL)),
         TotoGL::LightFactory::create(

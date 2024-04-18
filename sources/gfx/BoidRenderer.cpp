@@ -22,6 +22,7 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
         height = HEIGHT;
     }
 
+    objects.cube_mesh->material().uniform("u_color", glm::vec3(1, 0, 1));
     objects.cube_mesh->material().uniform("u_texture", objects.cube_texture);
     objects.cube_mesh->material().uniform("u_texture_blend", objects.cube_blend_texture);
     objects.cube_mesh->mesh().cull_face() = TotoGL::Mesh::CullFace::FRONT;
@@ -81,10 +82,10 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
         renderer.render(*objects.bait_mesh, used_camera, objects.lights);
     }
 
-    for (const auto& [index, position] : environment) {
-        objects.world_meshes[index]->position() = glm::rotate(glm::mat4(1), time / 10, { 0, 1, 0 }) * glm::vec4(position, 1);
-        objects.world_meshes[index]->rotation() = glm::vec3(0, time, 0);
-        renderer.render(*objects.world_meshes[index], used_camera, objects.lights);
+    for (const auto& [mesh, position, orbit_cycle, daylight_cycle] : environment_meshes) {
+        mesh->position() = glm::rotate(glm::mat4(1), time * daylight_cycle / 10, { 0, 1, 0 }) * glm::vec4(position, 1);
+        mesh->rotation() = glm::vec3(0, time * orbit_cycle, 0);
+        renderer.render(*mesh, used_camera, objects.lights);
     }
 
     // transparent objects here
@@ -94,16 +95,19 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
 void BoidRenderer::regeneratePlanets(const size_t& amount) {
     auto& index_random = Variables::instance()._renderer_index_random;
     auto& position_random = Variables::instance()._renderer_position_random;
+    auto& orbit_random = Variables::instance()._renderer_orbit_random;
+    // auto& daylight_random = Variables::instance()._renderer_daylight_random;
 
     for (int i = 0; i < amount; i++) {
         auto index = static_cast<size_t>(index_random() * static_cast<float>(objects.world_meshes.size()));
+        auto mesh = objects.world_meshes[index];
         auto position = glm::vec3 { position_random(), position_random(), position_random() };
         while (
-            glm::distance(position, { 0, 0, 0 }) < 15 || std::any_of(environment.begin(), environment.end(), [&](const auto& pair) {
-                return glm::distance(pair.second, position) < 2;
+            glm::distance(position, { 0, 0, 0 }) < 15 || std::any_of(environment_meshes.begin(), environment_meshes.end(), [&](const auto& env_mesh) {
+                return glm::distance(env_mesh.position, position) < 2;
             })) {
             position = glm::vec3 { position_random(), position_random(), position_random() };
         }
-        environment.emplace_back(index, position);
+        environment_meshes.emplace_back(mesh, position, orbit_random(), orbit_random());
     }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "math/random/poisson.hpp"
 #include "random/enumerated.hpp"
+#include "random/exponential.hpp"
 #include "random/normal.hpp"
 #include "random/uniform.hpp"
 #include <TotoGL/Primitives/Color.hpp>
@@ -39,6 +39,7 @@ public:
 
     Random::Uniform<float> _renderer_index_random { 0, 1 };
     Random::Uniform<float> _renderer_position_random { -25, 25 };
+    Random::Exponential<float> _renderer_orbit_random { 1 };
 
 private:
     Variables() = default;

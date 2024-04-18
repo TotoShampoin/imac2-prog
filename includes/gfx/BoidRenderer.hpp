@@ -8,7 +8,6 @@
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
 #include <glm/fwd.hpp>
-#include <utility>
 #include <vector>
 
 constexpr auto WIDTH = 1280;
@@ -17,7 +16,7 @@ constexpr auto FOV = glm::radians(70.);
 constexpr auto NEAR = .1;
 constexpr auto FAR = 100.;
 
-constexpr auto FORCE_FIELD_SCROLL_PERIOD = 10.f;
+constexpr auto FORCE_FIELD_SCROLL_PERIOD = 60.f;
 
 struct RendererObjects {
     ~RendererObjects();
@@ -62,5 +61,11 @@ struct BoidRenderer {
 
     RendererObjects objects;
 
-    std::vector<std::pair<size_t, glm::vec3>> environment;
+    struct EnvironmentMesh {
+        TotoGL::MaterialObjectInstanceId mesh;
+        glm::vec3 position;
+        float orbit_cycle;
+        float daylight_cycle;
+    };
+    std::vector<EnvironmentMesh> environment_meshes;
 };
