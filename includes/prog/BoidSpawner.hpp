@@ -1,27 +1,20 @@
 #pragma once
 
-#include "TotoGL/Primitives/Color.hpp"
-#include "math/random/enumerated.hpp"
-#include "math/random/normal.hpp"
-#include "math/random/uniform.hpp"
+#include "math/variables.hpp"
 #include "prog/Bait.hpp"
 #include "prog/Boid.hpp"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 
-constexpr TotoGL::ColorRGB BLACK { 0, 0, 0 };
-constexpr TotoGL::ColorRGB RED { 1, 0, 0 };
-constexpr TotoGL::ColorRGB GREEN { 0, 1, 0 };
-constexpr TotoGL::ColorRGB YELLOW { 1, 1, 0 };
-constexpr TotoGL::ColorRGB BLUE { 0, 0, 1 };
-constexpr TotoGL::ColorRGB MAGENTA { 1, 0, 1 };
-constexpr TotoGL::ColorRGB CYAN { 0, 1, 1 };
-constexpr TotoGL::ColorRGB WHITE { 1, 1, 1 };
-
 class BoidSpawner {
 public:
     void spawnBoid(Boid& boid) {
+        auto& _position_generator = Variables::instance()._boid_position_generator;
+        auto& _angle_generator = Variables::instance()._boid_angle_generator;
+        auto& _strength_generator = Variables::instance()._boid_strength_generator;
+        auto& _color_generator = Variables::instance()._boid_color_generator;
+
         auto random_position = glm::vec3(_position_generator(), _position_generator(), _position_generator());
         auto random_angles = _getRandom2D(_angle_generator);
         auto color = _color_generator();
@@ -40,6 +33,7 @@ public:
     }
 
     void spawnBait(Bait& bait) {
+        auto& _position_generator = Variables::instance()._boid_position_generator;
         auto random_position = glm::vec3(_position_generator(), _position_generator(), _position_generator());
         bait.position() = _position + random_position * _position_radius;
     }
@@ -70,16 +64,4 @@ private:
         .center = { .force = .01, .zone_width = .5, .zone_offset = .5 },
         .bias = { .force = .25, .zone_width = 1.5, .zone_offset = 0 },
     };
-
-    Random::Uniform<float> _position_generator { -1, 1 };
-    Random::Normal<float> _angle_generator { 0, .25 };
-    Random::Normal<float> _strength_generator { 0, .05 };
-    Random::Enumerated<TotoGL::ColorRGB> _color_generator { {
-        { .75f, YELLOW },
-        { .05f, GREEN },
-        { .05f, RED },
-        { .05f, BLUE },
-        { .05f, MAGENTA },
-        { .05f, CYAN },
-    } };
 };

@@ -4,6 +4,7 @@
 #include "TotoGL/RenderObject/ShaderMaterial.hpp"
 #include "TotoGL/Window.hpp"
 #include "math/random/uniform.hpp"
+#include "math/variables.hpp"
 #include <algorithm>
 
 constexpr size_t AMBIENT_LIGHT = 0;
@@ -15,7 +16,6 @@ constexpr size_t BOID_MESH_HIGH_EYE_MATERIAL = 2;
 
 BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     : renderer(renderer) {
-
     auto [width, height] = window.size();
     if (width == 0 || height == 0) {
         width = WIDTH;
@@ -33,19 +33,7 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
 
     objects.lights[DIRECTIONAL_LIGHT]->setDirection({ 1, -1, 1 });
 
-    Random::Uniform<float> index_random { 0, static_cast<float>(objects.world_meshes.size()) };
-    Random::Uniform<float> position_random { -25, 25 };
-    for (int i = 0; i < 10; i++) {
-        auto index = static_cast<size_t>(index_random());
-        auto position = glm::vec3 { position_random(), position_random(), position_random() };
-        while (
-            glm::distance(position, { 0, 0, 0 }) < 15 || std::any_of(environment.begin(), environment.end(), [&](const auto& pair) {
-                return glm::distance(pair.second, position) < 2;
-            })) {
-            position = glm::vec3 { position_random(), position_random(), position_random() };
-        }
-        environment.emplace_back(index, position);
-    }
+    regeneratePlanets(10);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -102,3 +90,20 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
     // transparent objects here
     renderer.render(*objects.cube_mesh, used_camera, objects.lights);
 };
+
+void BoidRenderer::regeneratePlanets(const size_t& amount) {
+    auto& index_random = Variables::instance()._renderer_index_random;
+    auto& position_random = Variables::instance()._renderer_position_random;
+
+    for (int i = 0; i < amount; i++) {
+        auto index = static_cast<size_t>(index_random() * static_cast<float>(objects.world_meshes.size()));
+        auto position = glm::vec3 { position_random(), position_random(), position_random() };
+        while (
+            glm::distance(position, { 0, 0, 0 }) < 15 || std::any_of(environment.begin(), environment.end(), [&](const auto& pair) {
+                return glm::distance(pair.second, position) < 2;
+            })) {
+            position = glm::vec3 { position_random(), position_random(), position_random() };
+        }
+        environment.emplace_back(index, position);
+    }
+}

@@ -55,6 +55,7 @@ struct BoidRenderer {
     BoidRenderer& operator=(BoidRenderer&&) = delete;
 
     void render(const BoidContainer&, const Player&, TotoGL::Camera&);
+    void regeneratePlanets(const size_t& amount);
 
     TotoGL::Renderer& renderer;
     TotoGL::Clock clock;
