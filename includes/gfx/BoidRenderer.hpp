@@ -29,7 +29,6 @@ struct RendererObjects {
         TotoGL::TextureFactory::destroy(cube_texture);
         TotoGL::TextureFactory::destroy(cube_blend_texture);
         TotoGL::RenderObjectFactory::destroy(cube_mesh);
-        TotoGL::MaterialObjectFactory::destroy(bound_mesh);
         TotoGL::MaterialObjectFactory::destroy(boid_mesh_high);
         TotoGL::MaterialObjectFactory::destroy(boid_mesh_low);
         TotoGL::MaterialObjectFactory::destroy(player_mesh);
@@ -45,7 +44,7 @@ struct RendererObjects {
     RendererObjects& operator=(RendererObjects&&) = delete;
 
     std::vector<TotoGL::LightInstanceId> lights {
-        TotoGL::LightFactory::create(TotoGL::Light({ 0, .25, 1 }, .25, TotoGL::LightType::AMBIENT)),
+        TotoGL::LightFactory::create(TotoGL::Light({ .25, .5, 1 }, .1, TotoGL::LightType::AMBIENT)),
         TotoGL::LightFactory::create(TotoGL::Light({ 1, 1, 1 }, 1, TotoGL::LightType::DIRECTIONAL)),
         TotoGL::LightFactory::create(TotoGL::Light({ 1, .6, 0 }, 3, TotoGL::LightType::POINT))
     };
@@ -71,11 +70,6 @@ struct RendererObjects {
                     TotoGL::ShaderMaterial(
                         std::ifstream("assets/shaders/shader.vert"),
                         std::ifstream("assets/shaders/cube.frag")))))
-    };
-
-    TotoGL::MaterialObjectInstanceId bound_mesh {
-        TotoGL::MaterialObjectFactory::create(
-            TotoGL::loadWavefront("assets/models/aquarium.obj"))
     };
 
     TotoGL::MaterialObjectInstanceId boid_mesh_high {

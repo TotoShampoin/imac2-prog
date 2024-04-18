@@ -57,15 +57,15 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
     auto delta = clock.getDeltaTime();
     auto time = clock.getTime();
 
-    objects.bound_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() + .15f));
     objects.cube_mesh->scaling() = glm::vec3(static_cast<float>(container.cubeRadius() * 2.f));
+
     objects.player_mesh->position() = player.position();
-    objects.lights[PLAYER_LIGHT]->position() = player.position() + player.direction() * .5f;
-    if (glm::abs(player.direction().y) > .99) {
-        objects.player_mesh->lookAt(player.position() + player.direction(), { 1, 0, 0 });
-    } else {
+    if (glm::abs(player.direction().y) < .99) {
         objects.player_mesh->lookAt(player.position() + player.direction());
+    } else {
+        objects.player_mesh->lookAt(player.position() + player.direction(), player.frontDirection());
     }
+    objects.lights[PLAYER_LIGHT]->position() = objects.player_mesh->position() + objects.player_mesh->transformation().front() * .5f;
 
     objects.cube_mesh->material().uniform("u_time", time / FORCE_FIELD_SCROLL_PERIOD);
 
