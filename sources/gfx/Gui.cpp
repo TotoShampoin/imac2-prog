@@ -187,7 +187,7 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
         return 0.f;
     };
 
-    constexpr auto HISTOGRAM_SIZE = 25;
+    constexpr auto HISTOGRAM_SIZE = 15;
     auto boid_histogram = ProbabilityHistogram<Boid>(HISTOGRAM_SIZE, container.boids(), get_boid_force);
     std::vector<float> expected_histogram(HISTOGRAM_SIZE, 0);
     auto& _strength_generator = Variables::instance()._boid_strength_generator;
@@ -197,7 +197,7 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
     }
 
     static std::array<std::string, 4> force_names = { "Avoid", "Match", "Center", "Bias" };
-    if (ImGui::BeginCombo("Force type", force_names[which_force].c_str())) {
+    if (ImGui::BeginCombo("##forcetype", force_names[which_force].c_str())) {
         if (ImGui::Selectable("Avoid", which_force == AVOID)) {
             which_force = AVOID;
         }
@@ -212,7 +212,7 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
         }
         ImGui::EndCombo();
     }
-    ImGui::PlotHistogram("##forces", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
+    ImGui::PlotLines("##forces", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
     ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
     ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
     ImGui::Text("Mean: %f", _strength_generator.mean());
@@ -247,7 +247,7 @@ void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRen
 
     ImGui::SliderInt("Amount", &ui_variables.planet_amount, 0, 100);
     _flags.respawn_planets |= ImGui::Button("Regenerate planets");
-    if (ImGui::BeginCombo("Revolution type", revolution_names[which_revolution].c_str())) {
+    if (ImGui::BeginCombo("##revolutiontype", revolution_names[which_revolution].c_str())) {
         if (ImGui::Selectable("Orbit", which_revolution == ORBIT)) {
             which_revolution = ORBIT;
         }
@@ -256,7 +256,7 @@ void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRen
         }
         ImGui::EndCombo();
     }
-    ImGui::PlotHistogram("##orbits", orbits_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, orbits_histogram.max_count, ImVec2(0, 100));
+    ImGui::PlotLines("##orbits", orbits_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, orbits_histogram.max_count, ImVec2(0, 100));
     ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, orbits_histogram.max_count, ImVec2(0, 100));
     ImGui::Text("%f - %f", orbits_histogram.min_value, orbits_histogram.max_value);
 }
