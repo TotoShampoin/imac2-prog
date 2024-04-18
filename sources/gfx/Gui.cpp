@@ -40,7 +40,9 @@ void UiRenderer::draw(
 void UiRenderer::drawSpawnControls(UiVariables& ui_variables, BoidSpawner& spawner) {
     ImGui::Begin("Spawn controls");
     ImGui::SliderFloat("Position spread", &spawner.positionRadius(), 0, 1);
-    ImGui::SliderFloat("Direction spread", &spawner.boidSpeed(), 0, 3);
+    ImGui::SliderFloat("Speed min", &spawner.boidSpeedCaps().min, 0, 10);
+    ImGui::SliderFloat("Speed max", &spawner.boidSpeedCaps().max, 0, 10);
+    ImGui::SliderFloat("Speed tendency", &spawner.boidSpeedTendency(), 0, 1);
     if (ImGui::CollapsingHeader("Forces")) {
         ImGui::SliderFloat("Avoid force", &spawner.boidForceParameters().avoid.force, 0, 1);
         ImGui::SliderFloat("Avoid radius", &spawner.boidForceParameters().avoid.zone_width, 0, 2);
@@ -71,8 +73,6 @@ void UiRenderer::drawGeneralControls(UiVariables&, BoidContainer& container) {
     ImGui::Begin("General controls");
     ImGui::SliderFloat("Box radius", &container.cubeRadius(), 0, 10);
     ImGui::SliderFloat("Cube force", &container.cubeForce().force, 0, 20);
-    ImGui::SliderFloat("Min velocity", &container.minVelocity(), 0, 10);
-    ImGui::SliderFloat("Max velocity", &container.maxVelocity(), 0, 10);
     ImGui::End();
 }
 
@@ -133,6 +133,10 @@ void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& contai
         }
         if (ImGui::BeginTabItem("Planet spawning")) {
             drawStatisticsPlanetSpawning(ui_variables, boid_renderer);
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Boid speed")) {
+            drawStatisticsBoidSpeed(ui_variables, container, spawner);
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -219,6 +223,15 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
     ImGui::Text("Standard deviation: %f", _strength_generator.standardDeviation());
 }
 
+void UiRenderer::drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner& spawner) {
+    constexpr auto HISTOGRAM_SIZE = 9;
+    // auto boid_histogram = ProbabilityHistogram<Boid>(HISTOGRAM_SIZE, container.boids(), [](const Boid& boid) { return glm::length(boid.velocity()); });
+    auto boid_histogram = ProbabilityHistogram<glm::vec3>(HISTOGRAM_SIZE, spawner.stats().velocities, [](const glm::vec3& velocity) { return glm::length(velocity); });
+
+    ImGui::PlotHistogram("##speeds", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
+    ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
+}
+
 void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRenderer& boid_renderer) {
     enum WhichRevolutions {
         ORBIT,
@@ -270,6 +283,9 @@ void UiRenderer::updateStates(UiVariables& ui_variables, BoidContainer& containe
     }
     if (_flags.destroy_boids) {
         container.destroyBoids(container.boids().size());
+        spawner.stats().positions.clear();
+        spawner.stats().velocities.clear();
+        spawner.stats().forces.clear();
         _flags.destroy_boids = false;
     }
     if (_flags.changing_spy) {
