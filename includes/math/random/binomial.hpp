@@ -10,8 +10,8 @@ namespace Random {
 template <typename Type, typename RandomType = float>
 class Binomial : BaseRng<Type> {
 public:
-    Binomial(RandomType probability, Type trials)
-        : _probability(probability)
+    Binomial(RandomType parameter, Type trials)
+        : _parameter(parameter)
         , _trials(trials) {
         recalculateDistribution();
     }
@@ -29,11 +29,11 @@ public:
         // throw std::runtime_error("Binomial distribution failed");
     }
 
-    RandomType probability() const { return _probability; }
+    RandomType parameter() const { return _parameter; }
     Type trials() const { return _trials; }
 
     void probability(RandomType probability) {
-        _probability = probability;
+        _parameter = probability;
         recalculateDistribution();
     }
     void trials(Type trials) {
@@ -42,7 +42,7 @@ public:
     }
 
 private:
-    RandomType _probability;
+    RandomType _parameter;
     Type _trials;
     Uniform<RandomType> _rng;
     std::vector<RandomType> _probability_list;
@@ -52,7 +52,7 @@ private:
         _probability_list.reserve(_trials + 1);
         for (int i = 0; i <= _trials; i++) {
             _probability_list.push_back(
-                Math::binomialProbability<RandomType>(_probability, _trials, i));
+                Math::binomialProbability<RandomType>(_parameter, _trials, i));
         }
     }
 };
