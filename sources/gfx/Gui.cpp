@@ -1,6 +1,5 @@
 #include "gfx/Gui.hpp"
 #include "gfx/BoidRenderer.hpp"
-#include "math/random/base_rng.hpp"
 #include "math/variables.hpp"
 #include "prog/BoidContainer.hpp"
 #include "prog/imgui-impl.hpp"
@@ -117,7 +116,6 @@ void UiRenderer::drawSpyControls(UiVariables& ui_variables, BoidContainer& conta
     ImGui::End();
 }
 
-// TODO(Stats) Get the data from the spawner, not from the simulation itself
 void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, BoidRenderer& boid_renderer, const TotoGL::Seconds& delta) {
     ImGui::Begin("Statistics");
     ImGui::Text("Framerate: %3.3f", 1.0 / delta);
@@ -182,6 +180,7 @@ struct ProbabilityHistogram {
     }
 };
 
+// TODO(Stats) Get the data from the spawner, not from the simulation itself
 void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container, BoidSpawner& spawner) {
     enum WhichForce {
         AVOID,
