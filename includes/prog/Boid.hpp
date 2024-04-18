@@ -26,11 +26,17 @@ struct BoidForceParameters {
     BoidForce bias;
 };
 
+struct BoidSpeedCaps {
+    float min { 0 };
+    float max { 0 };
+};
+
 class Boid {
 public:
     explicit Boid(
         const BoidCoordinates& = {},
         const BoidForceParameters& = {},
+        const BoidSpeedCaps& = {},
         const TotoGL::ColorRGB& = { 1, 1, 0 });
 
     [[nodiscard]] float closeness(const Boid&, const BoidForce&) const;
@@ -44,6 +50,7 @@ public:
     // void updateVelocity(const std::vector<Boid>&);
     void updatePosition(const TotoGL::Seconds&);
     void setParameters(const BoidForceParameters&);
+    void setSpeedCaps(const BoidSpeedCaps&);
 
     [[nodiscard]] glm::vec3 position() const { return _position; }
     [[nodiscard]] glm::vec3 velocity() const { return _velocity; }
@@ -51,8 +58,9 @@ public:
     [[nodiscard]] BoidForce matchForce() const { return _match_force; }
     [[nodiscard]] BoidForce centerForce() const { return _center_force; }
     [[nodiscard]] BoidForce biasForce() const { return _bias_force; }
+    [[nodiscard]] float minSpeed() const { return _min_speed; }
+    [[nodiscard]] float maxSpeed() const { return _max_speed; }
     [[nodiscard]] TotoGL::ColorRGB color() const { return _color; }
-    [[nodiscard]] glm::vec2 influence() const { return _influence; }
     [[nodiscard]] bool isAlive() const { return _is_alive; }
 
     glm::vec3& position() { return _position; }
@@ -61,8 +69,9 @@ public:
     BoidForce& matchForce() { return _match_force; }
     BoidForce& centerForce() { return _center_force; }
     BoidForce& biasForce() { return _bias_force; }
+    float& minSpeed() { return _min_speed; }
+    float& maxSpeed() { return _max_speed; }
     TotoGL::ColorRGB& color() { return _color; }
-    glm::vec2& influence() { return _influence; }
     bool& isAlive() { return _is_alive; }
 
 private:
@@ -72,8 +81,8 @@ private:
     BoidForce _match_force;
     BoidForce _center_force;
     BoidForce _bias_force;
+    float _min_speed;
+    float _max_speed;
     TotoGL::ColorRGB _color;
-    // float _bias_strength;
-    glm::vec2 _influence;
     bool _is_alive;
 };

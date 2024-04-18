@@ -19,14 +19,11 @@ void BoidContainer::update(const TotoGL::Seconds& delta) {
         new_velocity += boid.alignment(_boids, boid.matchForce());
         new_velocity += boid.cohesion(_boids, boid.centerForce());
         new_velocity += boid.bias(_baits, boid.biasForce());
-        // new_velocity += boid.bias({ 0, 0, 0 });
-        // for (auto& bait : _baits)
-        //     new_velocity += boid.bias(bait.position());
-
         new_velocity += boid.separation(_cube_boids, _cube_force);
         new_velocity += boid.separation({ _player_boid }, _player_force);
 
-        boid.velocity() = glm::normalize(new_velocity) * glm::clamp(glm::length(new_velocity), _min_velocity, _max_velocity);
+        // boid.velocity() = glm::normalize(new_velocity) * glm::clamp(glm::length(new_velocity), _min_velocity, _max_velocity);
+        boid.velocity() = new_velocity;
         boid.updatePosition(delta);
 
         if (glm::any(glm::isnan(boid.position()))) {

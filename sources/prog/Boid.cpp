@@ -1,4 +1,5 @@
 #include "prog/Boid.hpp"
+#include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -8,6 +9,7 @@ Boid::Boid(
     // const glm::vec3& pos, const glm::vec3& vel,
     const BoidCoordinates& coords,
     const BoidForceParameters& forces,
+    const BoidSpeedCaps& speed,
     const TotoGL::ColorRGB& color)
     : _position(coords.position)
     , _velocity(coords.velocity)
@@ -15,8 +17,9 @@ Boid::Boid(
     , _match_force(forces.match)
     , _center_force(forces.center)
     , _bias_force(forces.bias)
+    , _min_speed(speed.min)
+    , _max_speed(speed.max)
     , _color(color)
-    , _influence(0)
     , _is_alive(true) { }
 
 float Boid::closeness(const Boid& other, const BoidForce& force) const {
@@ -97,6 +100,8 @@ glm::vec3 Boid::bias(const glm::vec3& point) const {
 }
 
 void Boid::updatePosition(const TotoGL::Seconds& delta_time) {
+    if (glm::length(_velocity) > 0)
+        _velocity = glm::normalize(_velocity) * glm::clamp(glm::length(_velocity), _min_speed, _max_speed);
     _position += _velocity * delta_time;
 }
 
@@ -105,4 +110,8 @@ void Boid::setParameters(const BoidForceParameters& forces) {
     _match_force = forces.match;
     _center_force = forces.center;
     _bias_force = forces.bias;
+}
+void Boid::setSpeedCaps(const BoidSpeedCaps& speed) {
+    _min_speed = speed.min;
+    _max_speed = speed.max;
 }
