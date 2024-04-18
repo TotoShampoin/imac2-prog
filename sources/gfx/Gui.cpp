@@ -1,5 +1,6 @@
 #include "gfx/Gui.hpp"
 #include "math/variables.hpp"
+#include "prog/BoidContainer.hpp"
 #include "prog/imgui-impl.hpp"
 
 #include <algorithm>
@@ -120,100 +121,11 @@ void UiRenderer::drawStatistics(BoidContainer& container, BoidSpawner& spawner, 
     // tabs
     if (ImGui::BeginTabBar("Statistics")) {
         if (ImGui::BeginTabItem("Boid forces")) {
-            constexpr auto HISTOGRAM_SIZE = 25;
-            enum WhichForce {
-                AVOID,
-                MATCH,
-                CENTER,
-                BIAS,
-            };
-            static WhichForce which_force = AVOID;
-
-            static std::array<std::string, 4> force_names = { "Avoid", "Match", "Center", "Bias" };
-            static auto get_boid_force = [](const Boid& boid) {
-                switch (which_force) {
-                case AVOID:
-                    return boid.avoidForce().force;
-                case MATCH:
-                    return boid.matchForce().force;
-                case CENTER:
-                    return boid.centerForce().force;
-                case BIAS:
-                    return boid.biasForce().force;
-                }
-                return 0.f;
-            };
-            static auto get_spawner_force = [&spawner] {
-                switch (which_force) {
-                case AVOID:
-                    return spawner.boidForceParameters().avoid.force;
-                case MATCH:
-                    return spawner.boidForceParameters().match.force;
-                case CENTER:
-                    return spawner.boidForceParameters().center.force;
-                case BIAS:
-                    return spawner.boidForceParameters().bias.force;
-                }
-                return 0.f;
-            };
-            static std::vector<float> histogram(HISTOGRAM_SIZE, 0);
-            static std::vector<float> expected_histogram(HISTOGRAM_SIZE, 0);
-            float max_count = 0;
-            float min_force = 0;
-            float max_force = 0;
-            auto& _strength_generator = Variables::instance()._boid_strength_generator;
-            if (!container.boids().empty()) {
-                max_count = 0;
-                min_force = std::numeric_limits<float>::max();
-                max_force = std::numeric_limits<float>::min();
-                for (const auto& boid : container.boids()) {
-                    auto force = get_boid_force(boid);
-                    min_force = std::min(min_force, force);
-                    max_force = std::max(max_force, force);
-                }
-                std::fill(histogram.begin(), histogram.end(), 0);
-                for (const auto& boid : container.boids()) {
-                    auto force = get_boid_force(boid);
-                    auto index = static_cast<size_t>((force - min_force) / (max_force - min_force) * (HISTOGRAM_SIZE - 1));
-                    histogram[index] += 1;
-                    max_count = std::max(max_count, histogram[index]);
-                }
-                for (size_t i = 0; i < HISTOGRAM_SIZE; i++) {
-                    float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1) * (max_force - min_force) + min_force;
-                    expected_histogram[i] = _strength_generator.probability(x - get_spawner_force()) * container.boids().size() * (max_force - min_force) / HISTOGRAM_SIZE;
-                }
-            }
-            if (ImGui::BeginCombo("Force type", force_names[which_force].c_str())) {
-                if (ImGui::Selectable("Avoid", which_force == AVOID)) {
-                    which_force = AVOID;
-                }
-                if (ImGui::Selectable("Match", which_force == MATCH)) {
-                    which_force = MATCH;
-                }
-                if (ImGui::Selectable("Center", which_force == CENTER)) {
-                    which_force = CENTER;
-                }
-                if (ImGui::Selectable("Bias", which_force == BIAS)) {
-                    which_force = BIAS;
-                }
-                ImGui::EndCombo();
-            }
-            ImGui::PlotHistogram("##forces", histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, max_count, ImVec2(0, 100));
-            ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, max_count, ImVec2(0, 100));
-            ImGui::Text("%f - %f", min_force, max_force);
-            ImGui::Text("Mean: %f", _strength_generator.mean());
-            ImGui::Text("Standard deviation: %f", _strength_generator.standardDeviation());
+            drawStatisticsBoidForces(container, spawner);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Boid colors")) {
-            auto colors = Variables::instance()._boid_color_generator.values();
-            for (auto& [color, _] : colors) {
-                size_t count = std::count_if(container.boids().begin(), container.boids().end(), [&](const auto& boid) {
-                    return boid.color() == color;
-                });
-                std::string color_code = std::format("#{:02X}{:02X}{:02X}", static_cast<int>(255 * color.r), static_cast<int>(255 * color.g), static_cast<int>(255 * color.b));
-                ImGui::SliderInt(color_code.c_str(), reinterpret_cast<int*>(&count), 0, static_cast<int>(container.boids().size()), "%d", ImGuiSliderFlags_NoInput);
-            }
+            drawStatisticsBoidColors(container);
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -221,10 +133,104 @@ void UiRenderer::drawStatistics(BoidContainer& container, BoidSpawner& spawner, 
     ImGui::End();
 }
 
-void UiRenderer::updateStates(
-    BoidContainer& container,
-    UiVariables& ui_variables,
-    BoidSpawner& spawner) {
+void UiRenderer::drawStatisticsBoidForces(BoidContainer& container, BoidSpawner& spawner) {
+    constexpr auto HISTOGRAM_SIZE = 25;
+    enum WhichForce {
+        AVOID,
+        MATCH,
+        CENTER,
+        BIAS,
+    };
+    static WhichForce which_force = AVOID;
+    static std::array<std::string, 4> force_names = { "Avoid", "Match", "Center", "Bias" };
+    static auto get_boid_force = [](const Boid& boid) {
+        switch (which_force) {
+        case AVOID:
+            return boid.avoidForce().force;
+        case MATCH:
+            return boid.matchForce().force;
+        case CENTER:
+            return boid.centerForce().force;
+        case BIAS:
+            return boid.biasForce().force;
+        }
+        return 0.f;
+    };
+    static auto get_spawner_force = [&spawner] {
+        switch (which_force) {
+        case AVOID:
+            return spawner.boidForceParameters().avoid.force;
+        case MATCH:
+            return spawner.boidForceParameters().match.force;
+        case CENTER:
+            return spawner.boidForceParameters().center.force;
+        case BIAS:
+            return spawner.boidForceParameters().bias.force;
+        }
+        return 0.f;
+    };
+    static std::vector<float> histogram(HISTOGRAM_SIZE, 0);
+    static std::vector<float> expected_histogram(HISTOGRAM_SIZE, 0);
+    float max_count = 0;
+    float min_force = 0;
+    float max_force = 0;
+    auto& _strength_generator = Variables::instance()._boid_strength_generator;
+    if (!container.boids().empty()) {
+        max_count = 0;
+        min_force = std::numeric_limits<float>::max();
+        max_force = std::numeric_limits<float>::min();
+        for (const auto& boid : container.boids()) {
+            auto force = get_boid_force(boid);
+            min_force = std::min(min_force, force);
+            max_force = std::max(max_force, force);
+        }
+        std::fill(histogram.begin(), histogram.end(), 0);
+        for (const auto& boid : container.boids()) {
+            auto force = get_boid_force(boid);
+            auto index = static_cast<size_t>((force - min_force) / (max_force - min_force) * (HISTOGRAM_SIZE - 1));
+            histogram[index] += 1;
+            max_count = std::max(max_count, histogram[index]);
+        }
+        for (size_t i = 0; i < HISTOGRAM_SIZE; i++) {
+            float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1) * (max_force - min_force) + min_force;
+            expected_histogram[i] = _strength_generator.probability(x - get_spawner_force()) * container.boids().size() * (max_force - min_force) / HISTOGRAM_SIZE;
+        }
+    }
+
+    if (ImGui::BeginCombo("Force type", force_names[which_force].c_str())) {
+        if (ImGui::Selectable("Avoid", which_force == AVOID)) {
+            which_force = AVOID;
+        }
+        if (ImGui::Selectable("Match", which_force == MATCH)) {
+            which_force = MATCH;
+        }
+        if (ImGui::Selectable("Center", which_force == CENTER)) {
+            which_force = CENTER;
+        }
+        if (ImGui::Selectable("Bias", which_force == BIAS)) {
+            which_force = BIAS;
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::PlotHistogram("##forces", histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, max_count, ImVec2(0, 100));
+    ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, max_count, ImVec2(0, 100));
+    ImGui::Text("%f - %f", min_force, max_force);
+    ImGui::Text("Mean: %f", _strength_generator.mean());
+    ImGui::Text("Standard deviation: %f", _strength_generator.standardDeviation());
+}
+
+void UiRenderer::drawStatisticsBoidColors(BoidContainer& container) {
+    auto colors = Variables::instance()._boid_color_generator.values();
+    for (auto& [color, _] : colors) {
+        size_t count = std::count_if(container.boids().begin(), container.boids().end(), [&](const auto& boid) {
+            return boid.color() == color;
+        });
+        std::string color_code = std::format("#{:02X}{:02X}{:02X}", static_cast<int>(255 * color.r), static_cast<int>(255 * color.g), static_cast<int>(255 * color.b));
+        ImGui::SliderInt(color_code.c_str(), reinterpret_cast<int*>(&count), 0, static_cast<int>(container.boids().size()), "%d", ImGuiSliderFlags_NoInput);
+    }
+}
+
+void UiRenderer::updateStates(BoidContainer& container, UiVariables& ui_variables, BoidSpawner& spawner) {
     auto boid_spawner = [&spawner](Boid& boid) { spawner.spawnBoid(boid); };
     auto bait_spawner = [&spawner](Bait& bait) { spawner.spawnBait(bait); };
 

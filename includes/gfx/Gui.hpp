@@ -24,14 +24,10 @@ class UiRenderer {
 public:
     void draw(
         TotoGL::Window&, BoidContainer&,
-        UiVariables&, BoidSpawner&,
-        const TotoGL::Seconds& delta,
+        UiVariables&, BoidSpawner&, const TotoGL::Seconds& delta,
         const TotoGL::BufferTextureInstanceId& monitor_texture);
 
-    void updateStates(
-        BoidContainer&,
-        UiVariables&,
-        BoidSpawner&);
+    void updateStates(BoidContainer&, UiVariables&, BoidSpawner&);
 
     [[nodiscard]] Flags flags() const { return _flags; }
 
@@ -42,4 +38,7 @@ private:
     void drawGeneralControls(BoidContainer&);
     void drawSpyControls(BoidContainer&, UiVariables&, const TotoGL::BufferTextureInstanceId&);
     void drawStatistics(BoidContainer&, BoidSpawner&, const TotoGL::Seconds& delta);
+
+    void drawStatisticsBoidForces(BoidContainer&, BoidSpawner&);
+    void drawStatisticsBoidColors(BoidContainer&);
 };
