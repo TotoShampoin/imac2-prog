@@ -2,6 +2,7 @@
 
 #include "TotoGL/Primitives/Clock.hpp"
 #include "TotoGL/Primitives/Color.hpp"
+#include "prog/Bait.hpp"
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -37,6 +38,7 @@ public:
     [[nodiscard]] glm::vec3 separation(const std::vector<Boid>&, const BoidForce&) const;
     [[nodiscard]] glm::vec3 alignment(const std::vector<Boid>&, const BoidForce&) const;
     [[nodiscard]] glm::vec3 cohesion(const std::vector<Boid>&, const BoidForce&) const;
+    [[nodiscard]] glm::vec3 bias(const std::vector<Bait>&, const BoidForce&) const;
     [[nodiscard]] glm::vec3 bias(const glm::vec3&) const;
 
     // void updateVelocity(const std::vector<Boid>&);

@@ -32,16 +32,19 @@ float Boid::closeness(const Boid& other, const BoidForce& force) const {
     return glm::exp(-(distance_weighted * distance_weighted));
 }
 
+// meant to be a sum
 glm::vec3 Boid::separation(const std::vector<Boid>& boids, const BoidForce& avoid_force) const {
     const auto& avoid_factor = avoid_force.force;
     glm::vec3 close_distance { 0 };
     for (const auto& other_boid : boids) {
-        auto cd = position() - other_boid.position();
-        close_distance += cd * closeness(other_boid, avoid_force);
+        auto d = position() - other_boid.position();
+        auto c = closeness(other_boid, avoid_force);
+        close_distance += d * c;
     }
     return close_distance * avoid_factor;
 }
 
+// meant to be an average
 glm::vec3 Boid::alignment(const std::vector<Boid>& boids, const BoidForce& match_force) const {
     const auto& match_factor = match_force.force;
     glm::vec3 summed_velocity { 0 };
@@ -58,6 +61,7 @@ glm::vec3 Boid::alignment(const std::vector<Boid>& boids, const BoidForce& match
     return (average_velocity - velocity()) * match_factor;
 }
 
+// meant to be an average
 glm::vec3 Boid::cohesion(const std::vector<Boid>& boids, const BoidForce& center_force) const {
     const auto& center_factor = center_force.force;
     glm::vec3 summed_position { 0 };
@@ -72,6 +76,18 @@ glm::vec3 Boid::cohesion(const std::vector<Boid>& boids, const BoidForce& center
         return glm::vec3(0);
     glm::vec3 average_position = summed_position /= weight;
     return (average_position - position()) * center_factor;
+}
+
+// meant to be a sum
+glm::vec3 Boid::bias(const std::vector<Bait>& baits, const BoidForce& bias_force) const {
+    const auto& bias_factor = bias_force.force;
+    glm::vec3 summed_bias { 0 };
+    for (const auto& bait : baits) {
+        auto d = glm::normalize(bait.position() - position());
+        auto c = closeness(Boid({ bait.position() }), bias_force);
+        summed_bias += d * c;
+    }
+    return summed_bias * bias_factor;
 }
 
 glm::vec3 Boid::bias(const glm::vec3& point) const {
