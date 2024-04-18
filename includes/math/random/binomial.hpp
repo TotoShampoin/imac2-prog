@@ -29,10 +29,14 @@ public:
         // throw std::runtime_error("Binomial distribution failed");
     }
 
+    Type normalized() {
+        return operator()() / _trials;
+    }
+
     RandomType parameter() const { return _parameter; }
     Type trials() const { return _trials; }
 
-    void probability(RandomType probability) {
+    void parameter(RandomType probability) {
         _parameter = probability;
         recalculateDistribution();
     }
