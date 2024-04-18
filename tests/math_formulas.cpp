@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <gtest/gtest.h>
+#include <map>
 #include <math/random/random.hpp>
 
 TEST(Math, Factorial) {
@@ -120,11 +121,11 @@ TEST(Random, Enumerate) {
         OPTION_C,
         OPTION_D,
     };
-    auto distribution = std::vector<std::pair<float, TestType>>({
-        { .1, OPTION_A },
-        { .3, OPTION_B },
-        { .2, OPTION_C },
-        { .4, OPTION_D },
+    auto distribution = std::vector<std::pair<TestType, float>>({
+        { OPTION_A, .1 },
+        { OPTION_B, .3 },
+        { OPTION_C, .2 },
+        { OPTION_D, .4 },
     });
     auto rng = Random::Enumerated<TestType>(distribution);
     auto results = std::map<TestType, int>();
@@ -135,8 +136,8 @@ TEST(Random, Enumerate) {
     for (auto& [value, count] : results) {
         // auto expected = distribution.find(value)->first;
         auto expected = std::find_if(distribution.begin(), distribution.end(), [value](auto& p) {
-            return p.second == value;
-        })->first;
+            return p.first == value;
+        })->second;
         auto actual = static_cast<float>(count) / N;
         EXPECT_NEAR(expected, actual, ERR);
     }

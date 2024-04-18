@@ -22,6 +22,10 @@ public:
     }
 
     RandomType parameter() const { return _parameter; }
+    void parameter(RandomType parameter) {
+        _parameter = parameter;
+        _rng.parameter(parameter);
+    }
 
 private:
     RandomType _parameter;

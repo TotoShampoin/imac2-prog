@@ -90,7 +90,7 @@ int main(int /* argc */, const char* /* argv */[]) {
     Random::Poisson<int> poisson_dist(3);
     Random::Binomial<int> binomial_dist(.9, RESOLUTION);
     Random::Normal<float> normal_dist;
-    Random::Enumerated<Test> enum_dist({ { .5, OPTION_A }, { .3, OPTION_B }, { .1, OPTION_C }, { .2, OPTION_D } });
+    Random::Enumerated<Test> enum_dist({ { OPTION_A, .5 }, { OPTION_B, .3 }, { OPTION_C, .1 }, { OPTION_D, .2 } });
 
     TotoGL::Window window(800, 600, "Random distributions");
 
@@ -120,15 +120,15 @@ int main(int /* argc */, const char* /* argv */[]) {
                 distribution = "Poisson";
                 auto hist = testDistributionInt(poisson_dist);
                 histogram = hist.normalized();
-                min = hist.min;
-                max = hist.max;
+                min = static_cast<float>(hist.min);
+                max = static_cast<float>(hist.max);
             } break;
             case GLFW_KEY_4: {
                 distribution = "Binomial";
                 auto hist = testDistributionInt(binomial_dist);
                 histogram = hist.normalized();
-                min = hist.min;
-                max = hist.max;
+                min = static_cast<float>(hist.min);
+                max = static_cast<float>(hist.max);
             } break;
             case GLFW_KEY_5: {
                 distribution = "Normal";
@@ -168,7 +168,7 @@ int main(int /* argc */, const char* /* argv */[]) {
             ImGui::SetNextWindowSize(ImVec2(800, 600));
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Random distributions");
-            ImGui::PlotHistogram("##", histogram.data(), histogram.size(), 0, nullptr, 0, 1, ImVec2(750, 500));
+            ImGui::PlotHistogram("##", histogram.data(), static_cast<int>(histogram.size()), 0, nullptr, 0, 1, ImVec2(750, 500));
             ImGui::Text("Distribution: %s", distribution.c_str());
             ImGui::Text("Min: %f", min);
             ImGui::Text("Max: %f", max);

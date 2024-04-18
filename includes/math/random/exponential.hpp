@@ -16,6 +16,7 @@ public:
     }
 
     Type parameter() const { return _parameter; }
+    void parameter(Type parameter) { _parameter = parameter; }
 
 private:
     Type _parameter;

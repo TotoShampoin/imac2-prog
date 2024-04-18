@@ -27,6 +27,11 @@ public:
         return { r * cos(2 * M_PI * u2) + _mean, r * sin(2 * M_PI * u2) + _mean };
     }
 
+    Type mean() const { return _mean; }
+    Type standardDeviation() const { return _standard_deviation; }
+    void mean(Type mean) { _mean = mean; }
+    void standardDeviation(Type standard_deviation) { _standard_deviation = standard_deviation; }
+
 private:
     Type _mean { 0 };
     Type _standard_deviation { 1 };

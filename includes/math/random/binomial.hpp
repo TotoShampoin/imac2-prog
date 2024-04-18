@@ -13,11 +13,7 @@ public:
     Binomial(RandomType probability, Type trials)
         : _probability(probability)
         , _trials(trials) {
-        _probability_list.reserve(trials + 1);
-        for (int i = 0; i <= trials; i++) {
-            _probability_list.push_back(
-                Math::binomialProbability<RandomType>(probability, trials, i));
-        }
+        recalculateDistribution();
     }
 
     Type operator()() {
@@ -36,11 +32,29 @@ public:
     RandomType probability() const { return _probability; }
     Type trials() const { return _trials; }
 
+    void probability(RandomType probability) {
+        _probability = probability;
+        recalculateDistribution();
+    }
+    void trials(Type trials) {
+        _trials = trials;
+        recalculateDistribution();
+    }
+
 private:
     RandomType _probability;
     Type _trials;
     Uniform<RandomType> _rng;
     std::vector<RandomType> _probability_list;
+
+    void recalculateDistribution() {
+        _probability_list.clear();
+        _probability_list.reserve(_trials + 1);
+        for (int i = 0; i <= _trials; i++) {
+            _probability_list.push_back(
+                Math::binomialProbability<RandomType>(_probability, _trials, i));
+        }
+    }
 };
 
 } // namespace Random
