@@ -29,7 +29,7 @@ public:
         , _k2(1 / ((2 * glm::pi<float>() * _frequence) * (2 * glm::pi<float>() * _frequence)))
         , _k3((_response * _damping) / (2 * glm::pi<float>() * _frequence)) { }
 
-    T update(const TotoGL::Seconds& delta, T& target, const std::optional<T>& target_derivative_opt = std::nullopt) {
+    T update(const TotoGL::Seconds& delta, const T& target, const std::optional<T>& target_derivative_opt = std::nullopt) {
         T target_derivative;
         if (!target_derivative_opt.has_value()) {
             target_derivative = (target - _target_last) / delta;
@@ -47,6 +47,8 @@ public:
         _current = target;
         _current_derivative = {};
     }
+
+    [[nodiscard]] T operator*() const { return _current; }
 
     [[nodiscard]] float k1() const { return _k1; }
     [[nodiscard]] float k2() const { return _k2; }
