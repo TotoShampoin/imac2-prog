@@ -37,6 +37,9 @@ public:
     [[nodiscard]] const BoidForce& cubeForce() const { return _cube_force; };
     [[nodiscard]] const Boid& playerBoid() const { return _player_boid; };
 
+    [[nodiscard]] std::vector<Boid>& boids() { return _boids; }
+    [[nodiscard]] std::vector<Bait>& baits() { return _baits; }
+
     float& cubeRadius() { return _cube_radius; };
     float& minVelocity() { return _min_velocity; };
     float& maxVelocity() { return _max_velocity; };
