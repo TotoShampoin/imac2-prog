@@ -18,6 +18,10 @@ public:
     Type parameter() const { return _parameter; }
     void parameter(Type parameter) { _parameter = parameter; }
 
+    Type probability(Type x) const {
+        return _parameter * std::exp(-_parameter * x);
+    }
+
 private:
     Type _parameter;
     Uniform<Type> _rng;
