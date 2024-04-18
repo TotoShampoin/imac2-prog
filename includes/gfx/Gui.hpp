@@ -3,14 +3,12 @@
 #include "prog/BoidContainer.hpp"
 #include "prog/BoidSpawner.hpp"
 #include <TotoGL/TotoGL.hpp>
-#include <cstddef>
 
 struct Flags {
     bool changing_amount = false;
     bool destroy_boids = false;
     bool toggling_spy = false;
-    bool spying_next = false;
-    bool spying_previous = false;
+    bool changing_spy = false;
     bool add_boid = false;
     bool remove_boid = false;
     bool add_bait = false;
@@ -18,7 +16,7 @@ struct Flags {
 };
 struct UiVariables {
     int amount = 0;
-    size_t spy_index = 0;
+    int spy_index = 0;
     int add_amount = 10;
 };
 
@@ -28,7 +26,6 @@ public:
         TotoGL::Window&, BoidContainer&,
         UiVariables&, BoidSpawner&,
         const TotoGL::Seconds& delta,
-        const std::vector<std::pair<std::string, float>>& timers,
         const TotoGL::BufferTextureInstanceId& monitor_texture);
 
     void updateStates(
@@ -40,4 +37,9 @@ public:
 
 private:
     Flags _flags;
+
+    void drawSpawnControls(BoidSpawner&, UiVariables&);
+    void drawGeneralControls(BoidContainer&);
+    void drawSpyControls(BoidContainer&, UiVariables&, const TotoGL::BufferTextureInstanceId&);
+    void drawStatistics(BoidContainer&, BoidSpawner&, const TotoGL::Seconds& delta);
 };
