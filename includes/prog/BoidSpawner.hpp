@@ -1,9 +1,9 @@
 #pragma once
 
 #include "TotoGL/Primitives/Color.hpp"
-#include "math/enumerated.hpp"
-#include "math/normal.hpp"
-#include "math/uniform.hpp"
+#include "math/random/enumerated.hpp"
+#include "math/random/normal.hpp"
+#include "math/random/uniform.hpp"
 #include "prog/Bait.hpp"
 #include "prog/Boid.hpp"
 #include <glm/ext/matrix_transform.hpp>

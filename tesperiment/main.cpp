@@ -1,6 +1,3 @@
-#include "math/binomial.hpp"
-#include "math/enumerated.hpp"
-
 #include <imgui.h>
 
 #include <backends/imgui_impl_glfw.h>
@@ -8,7 +5,7 @@
 
 #include <TotoGL/Window.hpp>
 #include <algorithm>
-#include <math/random.hpp>
+#include <math/random/random.hpp>
 #include <vector>
 
 constexpr int N = 1'000'000;

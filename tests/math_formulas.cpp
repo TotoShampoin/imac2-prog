@@ -1,7 +1,6 @@
-#include "math/enumerated.hpp"
 #include <algorithm>
 #include <gtest/gtest.h>
-#include <math/random.hpp>
+#include <math/random/random.hpp>
 
 TEST(Math, Factorial) {
     // Generated with math.factorial in Python

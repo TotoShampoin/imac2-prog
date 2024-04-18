@@ -3,7 +3,7 @@
 #include "TotoGL/RenderObject/RenderObject.hpp"
 #include "TotoGL/RenderObject/ShaderMaterial.hpp"
 #include "TotoGL/Window.hpp"
-#include "math/uniform.hpp"
+#include "math/random/uniform.hpp"
 #include <algorithm>
 
 constexpr size_t AMBIENT_LIGHT = 0;
