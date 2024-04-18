@@ -7,7 +7,7 @@
 
 struct Flags {
     bool changing_amount = false;
-    bool resetting = false;
+    bool destroy_boids = false;
     bool toggling_spy = false;
     bool spying_next = false;
     bool spying_previous = false;
