@@ -98,6 +98,7 @@ void BoidRenderer::regeneratePlanets(const size_t& amount) {
     auto& orbit_random = Variables::instance()._renderer_orbit_random;
     // auto& daylight_random = Variables::instance()._renderer_daylight_random;
 
+    environment_meshes.clear();
     for (int i = 0; i < amount; i++) {
         auto index = static_cast<size_t>(index_random() * static_cast<float>(objects.world_meshes.size()));
         auto mesh = objects.world_meshes[index];

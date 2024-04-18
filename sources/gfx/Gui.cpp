@@ -20,20 +20,20 @@ void UiRenderer::draw(
     renderImGui([&] {
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always, ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Always);
-        drawSpawnControls(spawner, ui_variables);
+        drawSpawnControls(ui_variables, spawner);
         ImGui::SetNextWindowPos(ImVec2(0, window_height), ImGuiCond_Always, ImVec2(0, 1));
         ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Always);
-        drawGeneralControls(container);
+        drawGeneralControls(ui_variables, container);
         ImGui::SetNextWindowPos(ImVec2(window_width, 0), ImGuiCond_Always, ImVec2(1, 0));
         ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Always);
-        drawSpyControls(container, ui_variables, monitor_texture);
+        drawSpyControls(ui_variables, container, monitor_texture);
         ImGui::SetNextWindowPos(ImVec2(window_width, window_height), ImGuiCond_Always, ImVec2(1, 1));
         ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiCond_Always);
-        drawStatistics(container, spawner, delta);
+        drawStatistics(ui_variables, container, spawner, delta);
     });
 }
 
-void UiRenderer::drawSpawnControls(BoidSpawner& spawner, UiVariables& ui_variables) {
+void UiRenderer::drawSpawnControls(UiVariables& ui_variables, BoidSpawner& spawner) {
     ImGui::Begin("Spawn controls");
     ImGui::SliderFloat("Position spread", &spawner.positionRadius(), 0, 1);
     ImGui::SliderFloat("Direction spread", &spawner.boidSpeed(), 0, 3);
@@ -63,7 +63,7 @@ void UiRenderer::drawSpawnControls(BoidSpawner& spawner, UiVariables& ui_variabl
     ImGui::End();
 }
 
-void UiRenderer::drawGeneralControls(BoidContainer& container) {
+void UiRenderer::drawGeneralControls(UiVariables&, BoidContainer& container) {
     ImGui::Begin("General controls");
     ImGui::SliderFloat("Box radius", &container.cubeRadius(), 0, 10);
     ImGui::SliderFloat("Cube force", &container.cubeForce().force, 0, 20);
@@ -72,7 +72,7 @@ void UiRenderer::drawGeneralControls(BoidContainer& container) {
     ImGui::End();
 }
 
-void UiRenderer::drawSpyControls(BoidContainer& container, UiVariables& ui_variables, const TotoGL::BufferTextureInstanceId& monitor_texture) {
+void UiRenderer::drawSpyControls(UiVariables& ui_variables, BoidContainer& container, const TotoGL::BufferTextureInstanceId& monitor_texture) {
     auto monitor_width = static_cast<float>(monitor_texture->texture().width());
     auto monitor_height = static_cast<float>(monitor_texture->texture().height());
     auto* monitor_texture_id = reinterpret_cast<ImTextureID>(monitor_texture->texture().id()); // NOLINT
@@ -114,18 +114,24 @@ void UiRenderer::drawSpyControls(BoidContainer& container, UiVariables& ui_varia
 }
 
 // TODO(Stats) Get the data from the spawner, not from the simulation itself
-void UiRenderer::drawStatistics(BoidContainer& container, BoidSpawner& spawner, const TotoGL::Seconds& delta) {
+void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, const TotoGL::Seconds& delta) {
     ImGui::Begin("Statistics");
     ImGui::Text("Framerate: %3.3f", 1.0 / delta);
     ImGui::Text("Boids: %zu", container.boids().size());
     // tabs
     if (ImGui::BeginTabBar("Statistics")) {
         if (ImGui::BeginTabItem("Boid forces")) {
-            drawStatisticsBoidForces(container, spawner);
+            drawStatisticsBoidForces(ui_variables, container, spawner);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Boid colors")) {
-            drawStatisticsBoidColors(container);
+            drawStatisticsBoidColors(ui_variables, container);
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Planet spawning")) {
+            // ImGui::Text("Not implemented yet");
+            ImGui::InputInt("Amount", &ui_variables.planet_amount);
+            _flags.respawn_planets |= ImGui::Button("Regenerate planets");
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -133,7 +139,7 @@ void UiRenderer::drawStatistics(BoidContainer& container, BoidSpawner& spawner, 
     ImGui::End();
 }
 
-void UiRenderer::drawStatisticsBoidForces(BoidContainer& container, BoidSpawner& spawner) {
+void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container, BoidSpawner& spawner) {
     constexpr auto HISTOGRAM_SIZE = 25;
     enum WhichForce {
         AVOID,
@@ -219,7 +225,7 @@ void UiRenderer::drawStatisticsBoidForces(BoidContainer& container, BoidSpawner&
     ImGui::Text("Standard deviation: %f", _strength_generator.standardDeviation());
 }
 
-void UiRenderer::drawStatisticsBoidColors(BoidContainer& container) {
+void UiRenderer::drawStatisticsBoidColors(UiVariables&, BoidContainer& container) {
     auto colors = Variables::instance()._boid_color_generator.values();
     for (auto& [color, _] : colors) {
         size_t count = std::count_if(container.boids().begin(), container.boids().end(), [&](const auto& boid) {
@@ -230,7 +236,7 @@ void UiRenderer::drawStatisticsBoidColors(BoidContainer& container) {
     }
 }
 
-void UiRenderer::updateStates(BoidContainer& container, UiVariables& ui_variables, BoidSpawner& spawner) {
+void UiRenderer::updateStates(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, BoidRenderer& boid_renderer) {
     auto boid_spawner = [&spawner](Boid& boid) { spawner.spawnBoid(boid); };
     auto bait_spawner = [&spawner](Bait& bait) { spawner.spawnBait(bait); };
 
@@ -267,6 +273,10 @@ void UiRenderer::updateStates(BoidContainer& container, UiVariables& ui_variable
     if (_flags.destroy_baits) {
         container.destroyBaits();
         _flags.destroy_baits = false;
+    }
+    if (_flags.respawn_planets) {
+        boid_renderer.regeneratePlanets(ui_variables.planet_amount);
+        _flags.respawn_planets = false;
     }
 
     ui_variables.amount = static_cast<int>(container.boids().size());
