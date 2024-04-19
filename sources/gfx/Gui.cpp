@@ -188,8 +188,7 @@ void UiRenderer::drawStatisticsBoidSpawning(UiVariables& ui_variables, BoidConta
     }
 }
 
-// TODO(Stats) Get the data from the spawner, not from the simulation itself
-void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container, BoidSpawner& spawner) {
+void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer&, BoidSpawner& spawner) {
     enum WhichForce {
         AVOID,
         MATCH,
@@ -197,18 +196,18 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
         BIAS,
     };
     static WhichForce which_force = AVOID;
-    auto get_boid_force = [](const Boid& boid) {
+    auto get_stats_force = [&spawner] {
         switch (which_force) {
         case AVOID:
-            return boid.avoidForce().force;
+            return spawner.stats().forces.avoid;
         case MATCH:
-            return boid.matchForce().force;
+            return spawner.stats().forces.match;
         case CENTER:
-            return boid.centerForce().force;
+            return spawner.stats().forces.center;
         case BIAS:
-            return boid.biasForce().force;
+            return spawner.stats().forces.bias;
         }
-        return 0.f;
+        return std::vector<float>();
     };
     auto get_spawner_force = [&spawner] {
         switch (which_force) {
@@ -225,12 +224,12 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
     };
 
     constexpr auto HISTOGRAM_SIZE = 15;
-    auto boid_histogram = ProbabilityHistogram<Boid>(HISTOGRAM_SIZE, container.boids(), get_boid_force);
+    auto boid_histogram = ProbabilityHistogram<float>(HISTOGRAM_SIZE, get_stats_force(), [&](const float& force) { return force; });
     auto expected_histogram = std::vector<float>(HISTOGRAM_SIZE, 0);
     auto& _strength_generator = Variables::instance()._boid_strength_generator;
     for (size_t i = 0; i < HISTOGRAM_SIZE; i++) {
         float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1) * (boid_histogram.max_value - boid_histogram.min_value) + boid_histogram.min_value;
-        expected_histogram[i] = _strength_generator.probability(x - get_spawner_force()) * container.boids().size() * (boid_histogram.max_value - boid_histogram.min_value) / HISTOGRAM_SIZE;
+        expected_histogram[i] = _strength_generator.probability(x - get_spawner_force()) * get_stats_force().size() * (boid_histogram.max_value - boid_histogram.min_value) / HISTOGRAM_SIZE;
     }
 
     static std::array<std::string, 4> force_names = { "Avoid", "Match", "Center", "Bias" };
