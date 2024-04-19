@@ -45,6 +45,25 @@ public:
         recalculateDistribution();
     }
 
+    Type probability(Type x) const {
+        for (int i = 0; i <= _trials; i++) {
+            if (int(x) == i) {
+                return _probability_list[i];
+            }
+        }
+        return 0;
+    }
+    Type probabilityNormalized(Type x) const {
+        for (int i = 0; i <= _trials; i++) {
+            if (int(x * _trials) == i) {
+                return _probability_list[i] * _trials;
+            }
+        }
+        return 0;
+    }
+
+    [[nodiscard]] const std::vector<RandomType>& probabilityList() const { return _probability_list; }
+
 private:
     RandomType _parameter;
     Type _trials;
