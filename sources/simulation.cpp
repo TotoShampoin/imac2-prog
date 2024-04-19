@@ -60,6 +60,7 @@ void Simulation::update(const TotoGL::Seconds& delta) {
     spawner.direction() = player.direction();
 
     // update
+    spawner.checkParameters();
     container.updatePlayerBoid(player.position());
     container.update(delta);
     if (container.boids().empty()) {

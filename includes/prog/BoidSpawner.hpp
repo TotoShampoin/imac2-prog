@@ -15,13 +15,30 @@ struct SpawnerStats {
 
     std::vector<glm::vec3> positions {};
     std::vector<glm::vec3> velocities {};
-    std::vector<BoidForceParameters> forces {};
+    struct {
+        std::vector<float> avoid {};
+        std::vector<float> match {};
+        std::vector<float> center {};
+        std::vector<float> bias {};
+        void clear() {
+            avoid.clear();
+            match.clear();
+            center.clear();
+            bias.clear();
+        }
+        void push_back(const BoidForceParameters& parameters) {
+            avoid.push_back(parameters.avoid.force);
+            match.push_back(parameters.match.force);
+            center.push_back(parameters.center.force);
+            bias.push_back(parameters.bias.force);
+        }
+    } forces {};
 };
 
 class BoidSpawner {
 public:
+    void checkParameters();
     void spawnBoid(Boid& boid);
-
     void spawnBait(Bait& bait);
 
     [[nodiscard]] glm::vec3& position() { return _position; }
@@ -41,6 +58,7 @@ private:
     glm::vec3 _position { 0 };
     glm::vec3 _direction { 0, 0, 1 };
     float _position_radius { .05 };
+
     BoidForceParameters _boid_force_parameters {
         .avoid = { .force = .2, .zone_width = .5, .zone_offset = 0 },
         .match = { .force = .3, .zone_width = .5, .zone_offset = .5 },
@@ -48,6 +66,7 @@ private:
         .bias = { .force = .25, .zone_width = 1.5, .zone_offset = 0 },
     };
     float _boid_force_spread { .05 };
+
     BoidSpeedCaps _boid_speed_caps { .min = .5, .max = 1.5 };
     float _boid_speed_tendency { .5 };
 
