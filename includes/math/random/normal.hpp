@@ -15,12 +15,16 @@ public:
         , _standard_deviation(standard_deviation) { }
 
     Type operator()() {
+        if (_standard_deviation == 0)
+            return _mean;
         Type u1 = _rng_1();
         Type u2 = _rng_2();
         return _standard_deviation * sqrt(-2 * log(u1)) * cos(2 * M_PI * u2) + _mean;
     }
 
     std::pair<Type, Type> generatePair() {
+        if (_standard_deviation == 0)
+            return { _mean, _mean };
         Type u1 = _rng_1();
         Type u2 = _rng_2();
         Type r = _standard_deviation * sqrt(-2 * log(u1));
