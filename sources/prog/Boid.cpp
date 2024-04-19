@@ -20,7 +20,8 @@ Boid::Boid(
     , _min_speed(speed.min)
     , _max_speed(speed.max)
     , _color(color)
-    , _is_alive(true) { }
+    , _is_alive(true)
+    , _lifetime(0) { }
 
 float Boid::closeness(const Boid& other, const BoidForce& force) const {
     const auto& radius = force.zone_width;
