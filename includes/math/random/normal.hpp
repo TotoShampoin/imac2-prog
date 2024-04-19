@@ -37,6 +37,8 @@ public:
     void standardDeviation(Type standard_deviation) { _standard_deviation = standard_deviation; }
 
     Type probability(Type x) const {
+        if (_standard_deviation == 0)
+            return x == _mean ? 1 : 0;
         auto exponent = (x - _mean) / _standard_deviation;
         return exp(-exponent * exponent / 2) / (_standard_deviation * sqrt(2 * M_PI));
     }
