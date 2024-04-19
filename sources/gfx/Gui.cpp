@@ -67,6 +67,7 @@ void UiRenderer::drawSpawnControls(UiVariables& ui_variables, BoidSpawner& spawn
         ImGui::SliderFloat("Bias force", &spawner.boidForceParameters().bias.force, 0, 1);
         ImGui::SliderFloat("Bias radius", &spawner.boidForceParameters().bias.zone_width, 0, 2);
         ImGui::SliderFloat("Bias offset", &spawner.boidForceParameters().bias.zone_offset, 0, 2);
+        ImGui::SliderFloat("Force spread", &spawner.boidForceSpread(), 0, 1);
     }
     if (ImGui::CollapsingHeader("Colors")) {
         auto& colors = Variables::instance()._boid_color_generator;
@@ -132,40 +133,13 @@ void UiRenderer::drawSpyControls(UiVariables& ui_variables, BoidContainer& conta
 }
 
 void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, BoidRenderer& boid_renderer, const TotoGL::Seconds& delta) {
-    enum WhichBoidStats {
-        SPEED,
-        COLOR,
-    };
-    static WhichBoidStats which_boid_stats = SPEED;
-    static std::array<std::string, 2> boid_stats_names = { "Speed", "Color" };
-
     ImGui::Begin("Statistics");
     ImGui::Text("Framerate: %3.3f", 1.0 / delta);
     ImGui::Text("Boids: %zu", container.boids().size());
     // tabs
     if (ImGui::BeginTabBar("Statistics")) {
-        if (ImGui::BeginTabItem("Boid forces")) {
-            drawStatisticsBoidForces(ui_variables, container, spawner);
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Boids at spawn")) {
-            if (ImGui::BeginCombo("##boidattribute", boid_stats_names[which_boid_stats].c_str())) {
-                if (ImGui::Selectable("Speed", which_boid_stats == SPEED)) {
-                    which_boid_stats = SPEED;
-                }
-                if (ImGui::Selectable("Color", which_boid_stats == COLOR)) {
-                    which_boid_stats = COLOR;
-                }
-                ImGui::EndCombo();
-            }
-            switch (which_boid_stats) {
-            case SPEED:
-                drawStatisticsBoidSpeed(ui_variables, container, spawner);
-                break;
-            case COLOR:
-                drawStatisticsBoidColors(ui_variables, container);
-                break;
-            }
+        if (ImGui::BeginTabItem("Boids spawning")) {
+            drawStatisticsBoidSpawning(ui_variables, container, spawner);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Planet spawning")) {
@@ -175,6 +149,40 @@ void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& contai
         ImGui::EndTabBar();
     }
     ImGui::End();
+}
+
+void UiRenderer::drawStatisticsBoidSpawning(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner) {
+    enum WhichBoidStats {
+        FORCE,
+        SPEED,
+        COLOR,
+    };
+    static WhichBoidStats which_boid_stats = FORCE;
+    static std::array<std::string, 3> boid_stats_names = { "Forces", "Speed", "Color" };
+
+    if (ImGui::BeginCombo("##boidattribute", boid_stats_names[which_boid_stats].c_str())) {
+        if (ImGui::Selectable("Forces", which_boid_stats == FORCE)) {
+            which_boid_stats = FORCE;
+        }
+        if (ImGui::Selectable("Speed", which_boid_stats == SPEED)) {
+            which_boid_stats = SPEED;
+        }
+        if (ImGui::Selectable("Color", which_boid_stats == COLOR)) {
+            which_boid_stats = COLOR;
+        }
+        ImGui::EndCombo();
+    }
+    switch (which_boid_stats) {
+    case FORCE:
+        drawStatisticsBoidForces(ui_variables, container, spawner);
+        break;
+    case SPEED:
+        drawStatisticsBoidSpeed(ui_variables, container, spawner);
+        break;
+    case COLOR:
+        drawStatisticsBoidColors(ui_variables, container);
+        break;
+    }
 }
 
 void UiRenderer::drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner& spawner) {

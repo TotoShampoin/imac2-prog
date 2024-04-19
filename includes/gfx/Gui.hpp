@@ -44,8 +44,9 @@ private:
     void drawSpyControls(UiVariables&, BoidContainer&, const TotoGL::BufferTextureInstanceId&);
     void drawStatistics(UiVariables&, BoidContainer&, BoidSpawner&, BoidRenderer&, const TotoGL::Seconds& delta);
 
+    void drawStatisticsBoidSpawning(UiVariables&, BoidContainer&, BoidSpawner&);
     void drawStatisticsBoidForces(UiVariables&, BoidContainer&, BoidSpawner&);
+    void drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner&);
     void drawStatisticsBoidColors(UiVariables&, BoidContainer&);
     void drawStatisticsPlanetSpawning(UiVariables&, BoidRenderer&);
-    void drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner&);
 };
