@@ -84,10 +84,13 @@ void UiRenderer::drawSpawnControls(UiVariables& ui_variables, BoidSpawner& spawn
     ImGui::End();
 }
 
-void UiRenderer::drawGeneralControls(UiVariables&, BoidContainer& container) {
+void UiRenderer::drawGeneralControls(UiVariables& ui_variables, BoidContainer& container) {
     ImGui::Begin("General controls");
     ImGui::SliderFloat("Box radius", &container.cubeRadius(), 0, 10);
     ImGui::SliderFloat("Cube force", &container.cubeForce().force, 0, 20);
+    ImGui::SliderInt("##planet_amount", &ui_variables.planet_amount, 0, 100);
+    ImGui::SameLine();
+    _flags.respawn_planets |= ImGui::Button("Regenerate planets");
     ImGui::End();
 }
 
@@ -185,24 +188,6 @@ void UiRenderer::drawStatisticsBoidSpawning(UiVariables& ui_variables, BoidConta
     }
 }
 
-void UiRenderer::drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner& spawner) {
-    constexpr auto HISTOGRAM_SIZE = 9;
-    auto boid_histogram = ProbabilityHistogram<glm::vec3>(HISTOGRAM_SIZE, spawner.stats().velocities, [](const glm::vec3& velocity) { return glm::length(velocity); });
-    ImGui::PlotHistogram("##speeds", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
-    ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
-}
-
-void UiRenderer::drawStatisticsBoidColors(UiVariables&, BoidContainer& container) {
-    auto colors = Variables::instance()._boid_color_generator.values();
-    for (auto& [color, _] : colors) {
-        size_t count = std::count_if(container.boids().begin(), container.boids().end(), [&](const auto& boid) {
-            return boid.color() == color;
-        });
-        std::string color_code = std::format("#{:02X}{:02X}{:02X}", static_cast<int>(255 * color.r), static_cast<int>(255 * color.g), static_cast<int>(255 * color.b));
-        ImGui::SliderInt(color_code.c_str(), reinterpret_cast<int*>(&count), 0, static_cast<int>(container.boids().size()), "%d", ImGuiSliderFlags_NoInput);
-    }
-}
-
 // TODO(Stats) Get the data from the spawner, not from the simulation itself
 void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container, BoidSpawner& spawner) {
     enum WhichForce {
@@ -241,7 +226,7 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
 
     constexpr auto HISTOGRAM_SIZE = 15;
     auto boid_histogram = ProbabilityHistogram<Boid>(HISTOGRAM_SIZE, container.boids(), get_boid_force);
-    std::vector<float> expected_histogram(HISTOGRAM_SIZE, 0);
+    auto expected_histogram = std::vector<float>(HISTOGRAM_SIZE, 0);
     auto& _strength_generator = Variables::instance()._boid_strength_generator;
     for (size_t i = 0; i < HISTOGRAM_SIZE; i++) {
         float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1) * (boid_histogram.max_value - boid_histogram.min_value) + boid_histogram.min_value;
@@ -269,6 +254,33 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
     ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
 }
 
+void UiRenderer::drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner& spawner) {
+    constexpr auto HISTOGRAM_SIZE = 9;
+    auto boid_histogram = ProbabilityHistogram<glm::vec3>(HISTOGRAM_SIZE, spawner.stats().velocities, [](const glm::vec3& velocity) { return glm::length(velocity); });
+    auto expected_histogram = std::vector<float>(HISTOGRAM_SIZE, 0);
+    auto& _speed_generator = Variables::instance()._renderer_velocity_random;
+    for (size_t i = 0; i < HISTOGRAM_SIZE; i++) {
+        // here, the min and max are not defined in the generator
+        float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1);
+        expected_histogram[i] = _speed_generator.probabilityNormalized(x) * spawner.stats().velocities.size() * (boid_histogram.max_value - boid_histogram.min_value) / HISTOGRAM_SIZE;
+    }
+
+    ImGui::PlotHistogram("##speeds", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
+    ImGui::PlotHistogram("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
+    ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
+}
+
+void UiRenderer::drawStatisticsBoidColors(UiVariables&, BoidContainer& container) {
+    auto colors = Variables::instance()._boid_color_generator.values();
+    for (auto& [color, _] : colors) {
+        size_t count = std::count_if(container.boids().begin(), container.boids().end(), [&](const auto& boid) {
+            return boid.color() == color;
+        });
+        std::string color_code = std::format("#{:02X}{:02X}{:02X}", static_cast<int>(255 * color.r), static_cast<int>(255 * color.g), static_cast<int>(255 * color.b));
+        ImGui::SliderInt(color_code.c_str(), reinterpret_cast<int*>(&count), 0, static_cast<int>(container.boids().size()), "%d", ImGuiSliderFlags_NoInput);
+    }
+}
+
 void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRenderer& boid_renderer) {
     enum WhichRevolutions {
         ORBIT,
@@ -294,9 +306,6 @@ void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRen
         float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1) * (orbits_histogram.max_value - orbits_histogram.min_value) + orbits_histogram.min_value;
         expected_histogram[i] = _orbit_random.probability(x) * boid_renderer.environment_meshes.size() * (orbits_histogram.max_value - orbits_histogram.min_value) / HISTOGRAM_SIZE;
     }
-
-    ImGui::SliderInt("Amount", &ui_variables.planet_amount, 0, 100);
-    _flags.respawn_planets |= ImGui::Button("Regenerate planets");
     if (ImGui::BeginCombo("##revolutiontype", revolution_names[which_revolution].c_str())) {
         if (ImGui::Selectable("Orbit", which_revolution == ORBIT)) {
             which_revolution = ORBIT;
