@@ -103,6 +103,7 @@ void Boid::updatePosition(const TotoGL::Seconds& delta_time) {
     if (glm::length(_velocity) > 0)
         _velocity = glm::normalize(_velocity) * glm::clamp(glm::length(_velocity), _min_speed, _max_speed);
     _position += _velocity * delta_time;
+    _lifetime += delta_time;
 }
 
 void Boid::setParameters(const BoidForceParameters& forces) {

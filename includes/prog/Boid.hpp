@@ -62,6 +62,7 @@ public:
     [[nodiscard]] float maxSpeed() const { return _max_speed; }
     [[nodiscard]] TotoGL::ColorRGB color() const { return _color; }
     [[nodiscard]] bool isAlive() const { return _is_alive; }
+    [[nodiscard]] TotoGL::Seconds lifetime() const { return _lifetime; }
 
     glm::vec3& position() { return _position; }
     glm::vec3& velocity() { return _velocity; }
@@ -73,6 +74,7 @@ public:
     float& maxSpeed() { return _max_speed; }
     TotoGL::ColorRGB& color() { return _color; }
     bool& isAlive() { return _is_alive; }
+    TotoGL::Seconds& lifetime() { return _lifetime; }
 
 private:
     glm::vec3 _position;
@@ -85,4 +87,5 @@ private:
     float _max_speed;
     TotoGL::ColorRGB _color;
     bool _is_alive;
+    TotoGL::Seconds _lifetime;
 };
