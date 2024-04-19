@@ -39,10 +39,21 @@ void UiRenderer::draw(
 
 void UiRenderer::drawSpawnControls(UiVariables& ui_variables, BoidSpawner& spawner) {
     ImGui::Begin("Spawn controls");
-    ImGui::SliderFloat("Position spread", &spawner.positionRadius(), 0, 1);
-    ImGui::SliderFloat("Speed min", &spawner.boidSpeedCaps().min, 0, 10);
-    ImGui::SliderFloat("Speed max", &spawner.boidSpeedCaps().max, 0, 10);
-    ImGui::SliderFloat("Speed tendency", &spawner.boidSpeedTendency(), 0, 1);
+    ImGui::InputInt("##add_amount", &ui_variables.add_amount, 10, 50);
+    _flags.add_boid |= ImGui::Button("Add boid");
+    ImGui::SameLine();
+    _flags.remove_boid |= ImGui::Button("Remove boid");
+    ImGui::SameLine();
+    _flags.destroy_boids |= ImGui::Button("Destroy all boids");
+    _flags.add_bait |= ImGui::Button("Add a bait");
+    ImGui::SameLine();
+    _flags.destroy_baits |= ImGui::Button("Destroy all baits");
+    if (ImGui::CollapsingHeader("Movement")) {
+        ImGui::SliderFloat("Position spread", &spawner.positionRadius(), 0, 1);
+        ImGui::SliderFloat("Speed min", &spawner.boidSpeedCaps().min, 0, 10);
+        ImGui::SliderFloat("Speed max", &spawner.boidSpeedCaps().max, 0, 10);
+        ImGui::SliderFloat("Speed tendency", &spawner.boidSpeedTendency(), 0, 1);
+    }
     if (ImGui::CollapsingHeader("Forces")) {
         ImGui::SliderFloat("Avoid force", &spawner.boidForceParameters().avoid.force, 0, 1);
         ImGui::SliderFloat("Avoid radius", &spawner.boidForceParameters().avoid.zone_width, 0, 2);
@@ -57,15 +68,18 @@ void UiRenderer::drawSpawnControls(UiVariables& ui_variables, BoidSpawner& spawn
         ImGui::SliderFloat("Bias radius", &spawner.boidForceParameters().bias.zone_width, 0, 2);
         ImGui::SliderFloat("Bias offset", &spawner.boidForceParameters().bias.zone_offset, 0, 2);
     }
-    ImGui::InputInt("##add_amount", &ui_variables.add_amount, 10, 50);
-    _flags.add_boid |= ImGui::Button("Add boid");
-    ImGui::SameLine();
-    _flags.remove_boid |= ImGui::Button("Remove boid");
-    ImGui::SameLine();
-    _flags.destroy_boids |= ImGui::Button("Destroy all boids");
-    _flags.add_bait |= ImGui::Button("Add a bait");
-    ImGui::SameLine();
-    _flags.destroy_baits |= ImGui::Button("Destroy all baits");
+    if (ImGui::CollapsingHeader("Colors")) {
+        auto& colors = Variables::instance()._boid_color_generator;
+        int i = 0;
+        for (auto& [color, weight] : colors.values()) {
+            _flags.color_edit |= ImGui::ColorEdit3(std::format("##color-{}", i).c_str(), &color.r);
+            _flags.color_edit |= ImGui::SliderFloat(std::format("##weight-{}", i).c_str(), &weight, 0, 10);
+            ImGui::SameLine();
+            ImGui::Text("%3.2f%%", weight / colors.total() * 100);
+            // ImGui::NewLine();
+            i++;
+        }
+    }
     ImGui::End();
 }
 
@@ -80,7 +94,7 @@ void UiRenderer::drawSpyControls(UiVariables& ui_variables, BoidContainer& conta
     auto monitor_width = static_cast<float>(monitor_texture->texture().width());
     auto monitor_height = static_cast<float>(monitor_texture->texture().height());
     auto* monitor_texture_id = reinterpret_cast<ImTextureID>(monitor_texture->texture().id()); // NOLINT
-    ImGui::Begin("Spy");
+    ImGui::Begin("Boid monitoring");
     if (container.boids().empty()) {
         ImGui::Text("No boids to spy on");
     } else {
@@ -118,6 +132,13 @@ void UiRenderer::drawSpyControls(UiVariables& ui_variables, BoidContainer& conta
 }
 
 void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, BoidRenderer& boid_renderer, const TotoGL::Seconds& delta) {
+    enum WhichBoidStats {
+        SPEED,
+        COLOR,
+    };
+    static WhichBoidStats which_boid_stats = SPEED;
+    static std::array<std::string, 2> boid_stats_names = { "Speed", "Color" };
+
     ImGui::Begin("Statistics");
     ImGui::Text("Framerate: %3.3f", 1.0 / delta);
     ImGui::Text("Boids: %zu", container.boids().size());
@@ -127,21 +148,40 @@ void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& contai
             drawStatisticsBoidForces(ui_variables, container, spawner);
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Boid colors")) {
-            drawStatisticsBoidColors(ui_variables, container);
+        if (ImGui::BeginTabItem("Boids at spawn")) {
+            if (ImGui::BeginCombo("##boidattribute", boid_stats_names[which_boid_stats].c_str())) {
+                if (ImGui::Selectable("Speed", which_boid_stats == SPEED)) {
+                    which_boid_stats = SPEED;
+                }
+                if (ImGui::Selectable("Color", which_boid_stats == COLOR)) {
+                    which_boid_stats = COLOR;
+                }
+                ImGui::EndCombo();
+            }
+            switch (which_boid_stats) {
+            case SPEED:
+                drawStatisticsBoidSpeed(ui_variables, container, spawner);
+                break;
+            case COLOR:
+                drawStatisticsBoidColors(ui_variables, container);
+                break;
+            }
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Planet spawning")) {
             drawStatisticsPlanetSpawning(ui_variables, boid_renderer);
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Boid speed")) {
-            drawStatisticsBoidSpeed(ui_variables, container, spawner);
-            ImGui::EndTabItem();
-        }
         ImGui::EndTabBar();
     }
     ImGui::End();
+}
+
+void UiRenderer::drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner& spawner) {
+    constexpr auto HISTOGRAM_SIZE = 9;
+    auto boid_histogram = ProbabilityHistogram<glm::vec3>(HISTOGRAM_SIZE, spawner.stats().velocities, [](const glm::vec3& velocity) { return glm::length(velocity); });
+    ImGui::PlotHistogram("##speeds", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
+    ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
 }
 
 void UiRenderer::drawStatisticsBoidColors(UiVariables&, BoidContainer& container) {
@@ -223,15 +263,6 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
     ImGui::Text("Standard deviation: %f", _strength_generator.standardDeviation());
 }
 
-void UiRenderer::drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner& spawner) {
-    constexpr auto HISTOGRAM_SIZE = 9;
-    // auto boid_histogram = ProbabilityHistogram<Boid>(HISTOGRAM_SIZE, container.boids(), [](const Boid& boid) { return glm::length(boid.velocity()); });
-    auto boid_histogram = ProbabilityHistogram<glm::vec3>(HISTOGRAM_SIZE, spawner.stats().velocities, [](const glm::vec3& velocity) { return glm::length(velocity); });
-
-    ImGui::PlotHistogram("##speeds", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
-    ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
-}
-
 void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRenderer& boid_renderer) {
     enum WhichRevolutions {
         ORBIT,
@@ -281,6 +312,12 @@ void UiRenderer::updateStates(UiVariables& ui_variables, BoidContainer& containe
     if (ui_variables.add_amount < 0) {
         ui_variables.add_amount = 0;
     }
+    if (ui_variables.spy_index >= ui_variables.amount) {
+        ui_variables.spy_index = ui_variables.amount - 1;
+    }
+    if (ui_variables.spy_index < 0 && ui_variables.amount > 0) {
+        ui_variables.spy_index = 0;
+    }
     if (_flags.destroy_boids) {
         container.destroyBoids(container.boids().size());
         spawner.stats().positions.clear();
@@ -318,6 +355,10 @@ void UiRenderer::updateStates(UiVariables& ui_variables, BoidContainer& containe
     if (_flags.respawn_planets) {
         boid_renderer.regeneratePlanets(ui_variables.planet_amount);
         _flags.respawn_planets = false;
+    }
+    if (_flags.color_edit) {
+        Variables::instance()._boid_color_generator.recalculateTotal();
+        _flags.color_edit = false;
     }
 
     ui_variables.amount = static_cast<int>(container.boids().size());

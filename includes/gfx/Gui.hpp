@@ -15,6 +15,7 @@ struct Flags {
     bool add_bait = false;
     bool destroy_baits = false;
     bool respawn_planets = false;
+    bool color_edit = false;
 };
 struct UiVariables {
     int amount = 0;
