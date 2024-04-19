@@ -267,8 +267,6 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer& container
     ImGui::PlotLines("##forces", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
     ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
     ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
-    ImGui::Text("Mean: %f", _strength_generator.mean());
-    ImGui::Text("Standard deviation: %f", _strength_generator.standardDeviation());
 }
 
 void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRenderer& boid_renderer) {
