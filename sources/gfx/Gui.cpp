@@ -9,6 +9,7 @@
 #include <array>
 #include <format>
 #include <functional>
+#include <glm/geometric.hpp>
 #include <imgui.h>
 
 void UiRenderer::draw(
@@ -251,6 +252,8 @@ void UiRenderer::drawStatisticsBoidForces(UiVariables&, BoidContainer&, BoidSpaw
     ImGui::PlotLines("##forces", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
     ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
     ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
+    ImGui::Text("Expected = %f", boid_histogram.expected_value);
+    ImGui::Text("Variance = %f", boid_histogram.variance);
 }
 
 void UiRenderer::drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner& spawner) {
@@ -267,6 +270,8 @@ void UiRenderer::drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawn
     ImGui::PlotHistogram("##speeds", boid_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
     ImGui::PlotHistogram("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, boid_histogram.max_count, ImVec2(0, 100));
     ImGui::Text("%f - %f", boid_histogram.min_value, boid_histogram.max_value);
+    ImGui::Text("Expected = %f", boid_histogram.expected_value);
+    ImGui::Text("Variance = %f", boid_histogram.variance);
 }
 
 void UiRenderer::drawStatisticsBoidColors(UiVariables&, BoidContainer& container) {
@@ -297,7 +302,7 @@ void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRen
         return 0.f;
     };
 
-    constexpr auto HISTOGRAM_SIZE = 5;
+    constexpr auto HISTOGRAM_SIZE = 9;
     auto orbits_histogram = ProbabilityHistogram<BoidRenderer::EnvironmentMesh>(HISTOGRAM_SIZE, boid_renderer.environment_meshes, get_revolution);
     static std::vector<float> expected_histogram(HISTOGRAM_SIZE, 0);
     auto& _orbit_random = Variables::instance()._renderer_orbit_random;
@@ -317,6 +322,8 @@ void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRen
     ImGui::PlotLines("##orbits", orbits_histogram.histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, orbits_histogram.max_count, ImVec2(0, 100));
     ImGui::PlotLines("##expected", expected_histogram.data(), HISTOGRAM_SIZE, 0, nullptr, 0, orbits_histogram.max_count, ImVec2(0, 100));
     ImGui::Text("%f - %f", orbits_histogram.min_value, orbits_histogram.max_value);
+    ImGui::Text("Expected = %f", orbits_histogram.expected_value);
+    ImGui::Text("Variance = %f", orbits_histogram.variance);
 }
 
 void UiRenderer::updateStates(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, BoidRenderer& boid_renderer) {
