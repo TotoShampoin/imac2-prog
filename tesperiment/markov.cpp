@@ -77,7 +77,7 @@ int markov() {
 
             std::vector<float> data(3);
             for (size_t i = 0; i < 3; i++) {
-                data[i] = static_cast<float>(histogram[i]) / total;
+                data[i] = static_cast<float>(histogram[i]) / static_cast<float>(total);
             }
             ImGui::PlotHistogram("##", data.data(), static_cast<int>(data.size()), 0, nullptr, 0, 1, ImVec2(750, 450));
 
