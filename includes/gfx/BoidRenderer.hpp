@@ -1,13 +1,14 @@
 #pragma once
 
+#include "TotoGL/Primitives/Color.hpp"
 #include "TotoGL/Primitives/Texture.hpp"
 #include "TotoGL/RenderObject/Light.hpp"
 #include "TotoGL/RenderObject/MaterialObject.hpp"
 #include "TotoGL/RenderObject/RenderObject.hpp"
 #include "gfx/Player.hpp"
+#include "math/markov.hpp"
 #include "prog/BoidContainer.hpp"
 #include <TotoGL/TotoGL.hpp>
-#include <glm/fwd.hpp>
 #include <vector>
 
 constexpr auto WIDTH = 1280;
@@ -68,4 +69,19 @@ struct BoidRenderer {
         float daylight_cycle;
     };
     std::vector<EnvironmentMesh> environment_meshes;
+
+    MarkovChain<TotoGL::ColorRGB, 3> color_chain {
+        [] {
+            Eigen::Matrix<float, 3, 3> probabilities;
+            probabilities << 0.5, 0.1, 0.4,
+                0.4, 0.5, 0.1,
+                0.1, 0.4, 0.5;
+            std::vector<TotoGL::ColorRGB> colors {
+                TotoGL::ColorRGB(1, 0, 1),
+                TotoGL::ColorRGB(0, 1, 1),
+                TotoGL::ColorRGB(1, 1, 0),
+            };
+            return MarkovChain<TotoGL::ColorRGB, 3>(colors, probabilities);
+        }()
+    };
 };

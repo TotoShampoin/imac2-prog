@@ -49,4 +49,5 @@ private:
     void drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawner&);
     void drawStatisticsBoidColors(UiVariables&, BoidContainer&);
     void drawStatisticsPlanetSpawning(UiVariables&, BoidRenderer&);
+    void drawStatisticsBoxColors(UiVariables&, BoidRenderer&);
 };

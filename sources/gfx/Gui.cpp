@@ -150,6 +150,10 @@ void UiRenderer::drawStatistics(UiVariables& ui_variables, BoidContainer& contai
             drawStatisticsPlanetSpawning(ui_variables, boid_renderer);
             ImGui::EndTabItem();
         }
+        if (ImGui::BeginTabItem("Box colors")) {
+            drawStatisticsBoxColors(ui_variables, boid_renderer);
+            ImGui::EndTabItem();
+        }
         ImGui::EndTabBar();
     }
     ImGui::End();
@@ -281,7 +285,9 @@ void UiRenderer::drawStatisticsBoidColors(UiVariables&, BoidContainer& container
             return boid.color() == color;
         });
         std::string color_code = std::format("#{:02X}{:02X}{:02X}", static_cast<int>(255 * color.r), static_cast<int>(255 * color.g), static_cast<int>(255 * color.b));
-        ImGui::SliderInt(color_code.c_str(), reinterpret_cast<int*>(&count), 0, static_cast<int>(container.boids().size()), "%d", ImGuiSliderFlags_NoInput);
+        // ImGui::SliderInt(color_code.c_str(), reinterpret_cast<int*>(&count), 0, static_cast<int>(container.boids().size()), "%d", ImGuiSliderFlags_NoInput);
+        ImGui::ColorEdit3(color_code.c_str(), &color.r);
+        ImGui::ProgressBar(static_cast<float>(count) / container.boids().size(), ImVec2(0, 0));
     }
 }
 
@@ -324,6 +330,20 @@ void UiRenderer::drawStatisticsPlanetSpawning(UiVariables& ui_variables, BoidRen
     ImGui::Text("%f - %f", orbits_histogram.min_value, orbits_histogram.max_value);
     ImGui::Text("Expected = %f", orbits_histogram.expected_value);
     ImGui::Text("Variance = %f", orbits_histogram.variance);
+}
+
+void UiRenderer::drawStatisticsBoxColors(UiVariables&, BoidRenderer& boid_renderer) {
+    const auto& color_chain = boid_renderer.color_chain;
+    auto colors = color_chain.values();
+    auto probabilities = color_chain.nextProbabilities();
+
+    for (size_t i = 0; i < colors.size(); i++) {
+        auto& color = colors[i];
+        auto& probability = probabilities[i];
+        std::string color_code = std::format("#{:02X}{:02X}{:02X} ##{}", static_cast<int>(255 * color.r), static_cast<int>(255 * color.g), static_cast<int>(255 * color.b), i);
+        ImGui::ColorEdit3(color_code.c_str(), &color.r);
+        ImGui::ProgressBar(probability, ImVec2(0, 0));
+    }
 }
 
 void UiRenderer::updateStates(UiVariables& ui_variables, BoidContainer& container, BoidSpawner& spawner, BoidRenderer& boid_renderer) {
