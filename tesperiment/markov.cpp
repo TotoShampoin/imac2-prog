@@ -30,7 +30,7 @@ int markov() {
     });
     // auto current = size_t { 0 };
 
-    auto chain = MarkovChain<TotoGL::ColorRGB, 3>(probabilities, values);
+    auto chain = MarkovChain<TotoGL::ColorRGB, 3>(values, probabilities);
 
     auto total = size_t { 0 };
     std::vector<int> histogram(3);

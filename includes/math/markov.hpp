@@ -5,7 +5,7 @@
 template <typename Type, size_t N>
 class MarkovChain {
 public:
-    MarkovChain(const Eigen::Matrix<float, N, N>& probabilities, const std::vector<Type>& values)
+    MarkovChain(const std::vector<Type>& values, const Eigen::Matrix<float, N, N>& probabilities)
         : _probabilities(probabilities)
         , _values(values) { }
 
