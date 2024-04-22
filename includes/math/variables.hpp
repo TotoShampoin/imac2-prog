@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math/random/binomial.hpp"
+#include "random/binomial.hpp"
 #include "random/enumerated.hpp"
 #include "random/exponential.hpp"
 #include "random/normal.hpp"
