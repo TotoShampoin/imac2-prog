@@ -34,6 +34,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 file(GLOB_RECURSE SOURCE_FILES ${SOURCE_DIRECTORY}/*.cpp)
 file(GLOB_RECURSE INCLUDE_FILES ${INCLUDE_DIRECTORY}/*.hpp)
 file(GLOB_RECURSE TEST_FILES ${TEST_DIRECTORY}/*.cpp)
+file(GLOB_RECURSE TESPERIMENT_FILES ${TESPERIMENT_DIRECTORY}/*.cpp)
 
 include(${VENDORS_DIRECTORY}/imgui.cmake)
 include(${VENDORS_DIRECTORY}/CMakeUtils/files_and_folders.cmake)
@@ -55,6 +56,7 @@ target_link_libraries(${PROJECT_NAME}_test GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME}_test)
 
-add_executable(${PROJECT_NAME}_tesperiment ${TESPERIMENT_DIRECTORY}/main.cpp)
+add_executable(${PROJECT_NAME}_tesperiment ${TESPERIMENT_FILES})
 target_link_libraries(${PROJECT_NAME}_tesperiment PUBLIC OpenGL glfw GLU GLEW glm imgui totogl)
+include_directories(${PROJECT_NAME}_tesperiment PUBLIC ${TESPERIMENT_DIRECTORY})
 
