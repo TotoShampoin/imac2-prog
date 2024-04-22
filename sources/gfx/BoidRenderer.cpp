@@ -104,9 +104,7 @@ void BoidRenderer::regeneratePlanets(const size_t& amount) {
         auto mesh = objects.world_meshes[index];
         auto position = glm::vec3 { position_random(), position_random(), position_random() };
         while (
-            glm::distance(position, { 0, 0, 0 }) < 15 || std::any_of(environment_meshes.begin(), environment_meshes.end(), [&](const auto& env_mesh) {
-                return glm::distance(env_mesh.position, position) < 2;
-            })) {
+            glm::distance(position, { 0, 0, 0 }) < 15) {
             position = glm::vec3 { position_random(), position_random(), position_random() };
         }
         environment_meshes.emplace_back(mesh, position, orbit_random(), orbit_random());
