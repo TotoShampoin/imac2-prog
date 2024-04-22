@@ -8,7 +8,7 @@ glm::vec2 getRandom2D(Random::Normal<float>& rng) {
 
 void BoidSpawner::checkParameters() {
     auto& _strength_generator = Variables::instance()._boid_strength_generator;
-    auto& _speed_generator = Variables::instance()._renderer_velocity_random;
+    auto& _speed_generator = Variables::instance()._boid_velocity_random;
     if (_boid_force_spread != _strength_generator.standardDeviation()) {
         _strength_generator.standardDeviation(_boid_force_spread);
     }
@@ -47,7 +47,7 @@ void BoidSpawner::spawnBoid(Boid& boid) {
     auto& _angle_generator = Variables::instance()._boid_angle_generator;
     auto& _strength_generator = Variables::instance()._boid_strength_generator;
     auto& _color_generator = Variables::instance()._boid_color_generator;
-    auto& _speed_generator = Variables::instance()._renderer_velocity_random;
+    auto& _speed_generator = Variables::instance()._boid_velocity_random;
 
     checkParameters();
 

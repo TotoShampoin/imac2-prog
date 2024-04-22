@@ -257,7 +257,7 @@ void UiRenderer::drawStatisticsBoidSpeed(UiVariables&, BoidContainer&, BoidSpawn
     constexpr auto HISTOGRAM_SIZE = 9;
     auto boid_histogram = ProbabilityHistogram<glm::vec3>(HISTOGRAM_SIZE, spawner.stats().velocities, [](const glm::vec3& velocity) { return glm::length(velocity); });
     auto expected_histogram = std::vector<float>(HISTOGRAM_SIZE, 0);
-    auto& _speed_generator = Variables::instance()._renderer_velocity_random;
+    auto& _speed_generator = Variables::instance()._boid_velocity_random;
     for (size_t i = 0; i < HISTOGRAM_SIZE; i++) {
         // here, the min and max are not defined in the generator
         float x = static_cast<float>(i) / (HISTOGRAM_SIZE - 1);

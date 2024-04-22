@@ -29,7 +29,7 @@ public:
     Random::Uniform<float> _boid_position_generator { -1.f, 1.f };
     Random::Normal<float> _boid_angle_generator { 0.f, .25f };
     Random::Normal<float> _boid_strength_generator { 0.f, .05f };
-    Random::Binomial<float> _renderer_velocity_random { .5f, 20 };
+    Random::Binomial<float> _boid_velocity_random { .5f, 20 };
     Random::Enumerated<TotoGL::ColorRGB> _boid_color_generator { {
         { YELLOW, 5 },
         { GREEN, 1 },
