@@ -38,6 +38,7 @@ struct RendererObjects {
 
     TotoGL::MaterialObjectInstanceId boid_mesh_high;
     TotoGL::MaterialObjectInstanceId boid_mesh_low;
+    TotoGL::RenderObjectInstanceId shadow_mesh;
 
     TotoGL::MaterialObjectInstanceId player_mesh;
 

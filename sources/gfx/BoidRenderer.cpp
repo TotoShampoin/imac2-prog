@@ -32,12 +32,17 @@ BoidRenderer::BoidRenderer(TotoGL::Window& window, TotoGL::Renderer& renderer)
     objects.player_mesh->scaling() = glm::vec3(1.5);
     objects.bait_mesh->scaling() = glm::vec3(.15);
 
+    objects.shadow_mesh->position() = { 0, 0, 0 };
+    objects.shadow_mesh->lookAt({ 0, 1, 0 });
+
     objects.lights[DIRECTIONAL_LIGHT]->setDirection({ 1, -1, 1 });
 
     regeneratePlanets(10);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.1);
 }
 
 void BoidRenderer::render(const BoidContainer& container, const Player& player, TotoGL::Camera& used_camera) {
@@ -99,6 +104,22 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
 
     // transparent objects here
     renderer.render(*objects.cube_mesh, used_camera, objects.lights);
+
+    objects.shadow_mesh->scaling() = glm::vec3(.75);
+    objects.shadow_mesh->position() = glm::vec3(
+        objects.player_mesh->position().x,
+        -container.cubeRadius() + .01f,
+        objects.player_mesh->position().z);
+    renderer.render(*objects.shadow_mesh, used_camera, objects.lights);
+
+    objects.shadow_mesh->scaling() = glm::vec3(.1);
+    for (const auto& boid : container.boids()) {
+        objects.shadow_mesh->position() = glm::vec3(
+            boid.position().x,
+            -container.cubeRadius() + .01f,
+            boid.position().z);
+        renderer.render(*objects.shadow_mesh, used_camera, objects.lights);
+    }
 
     last_time = time;
 };

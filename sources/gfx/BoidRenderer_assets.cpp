@@ -33,6 +33,15 @@ RendererObjects::RendererObjects()
     , boid_mesh_low(TotoGL::MaterialObjectFactory::create(
           TotoGL::loadWavefront("assets/models/rubio/low.obj")))
 
+    , shadow_mesh(TotoGL::RenderObjectFactory::create(
+          TotoGL::RenderObject(
+              TotoGL::MeshFactory::create(
+                  TotoGL::Mesh::quad(.5, .5)),
+              TotoGL::ShaderMaterialFactory::create(
+                  TotoGL::ShaderMaterial(
+                      std::ifstream("assets/shaders/shader.vert"),
+                      std::ifstream("assets/shaders/shadow.frag"))))))
+
     , player_mesh(TotoGL::MaterialObjectFactory::create(
           TotoGL::loadWavefront("assets/models/boyo/boyo.obj")))
 
