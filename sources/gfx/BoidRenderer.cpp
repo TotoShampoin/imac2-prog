@@ -69,7 +69,9 @@ void BoidRenderer::render(const BoidContainer& container, const Player& player, 
         current_color = color_chain.next();
     }
     auto timer_clamped = glm::clamp(timer, 0.f, 1.f);
-    objects.cube_mesh->material().uniform("u_color", glm::mix(previous_color, current_color, timer_clamped));
+    auto lerped_color = glm::mix(previous_color, current_color, timer_clamped);
+    objects.shadow_mesh->material().uniform("u_color", lerped_color);
+    objects.cube_mesh->material().uniform("u_color", lerped_color);
     objects.cube_mesh->material().uniform("u_time", time / FORCE_FIELD_SCROLL_PERIOD);
 
     renderer.clear();
